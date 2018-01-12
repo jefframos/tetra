@@ -12,14 +12,14 @@ export default class TetraScreen extends Screen{
 		super(label);
 
         window.ACTION_ZONES = [
-        	{label:"TOP_LEFT", pos:{x:0,y:0}},
-        	{label:"TOP_CENTER", pos:{x:1,y:0}},
-        	{label:"TOP_RIGHT", pos:{x:2,y:0}},
-        	{label:"CENTER_RIGHT", pos:{x:2,y:1}},
-        	{label:"BOTTOM_RIGHT", pos:{x:2,y:2}},
-        	{label:"BOTTOM_CENTER", pos:{x:1,y:2}},
-        	{label:"BOTTOM_LEFT", pos:{x:0,y:2}},
-        	{label:"CENTER_LEFT", pos:{x:0,y:1}}
+        	{label:"TOP_LEFT", pos:{x:0,y:0}, dir:{x:-1, y:-1}},
+        	{label:"TOP_CENTER", pos:{x:1,y:0}, dir:{x:0, y:-1}},
+        	{label:"TOP_RIGHT", pos:{x:2,y:0}, dir:{x:1, y:-1}},
+        	{label:"CENTER_RIGHT", pos:{x:2,y:1}, dir:{x:1, y:0}},
+        	{label:"BOTTOM_RIGHT", pos:{x:2,y:2}, dir:{x:1, y:1}},
+        	{label:"BOTTOM_CENTER", pos:{x:1,y:2}, dir:{x:0, y:1}},
+        	{label:"BOTTOM_LEFT", pos:{x:0,y:2}, dir:{x:-1, y:1}},
+        	{label:"CENTER_LEFT", pos:{x:0,y:1}, dir:{x:-1, y:0}}
         ]
 
         window.GRID = {
@@ -31,8 +31,10 @@ export default class TetraScreen extends Screen{
 
         window.CARD = {
         	width: GRID.width / GRID.i,
-        	height: GRID.height / GRID.j
+        	height: GRID.width / GRID.i,//GRID.height / GRID.j
         }
+
+        window.GRID.height = window.GRID.j * CARD.height;
 
         this.grid = new Grid(this);
         this.board = new Board();
@@ -49,6 +51,7 @@ export default class TetraScreen extends Screen{
 
         this.addChild(this.gameContainer);
 
+        this.gameContainer.addChild(this.background);
         this.gameContainer.addChild(this.gridContainer);
         this.gameContainer.addChild(this.cardsContainer);
 
@@ -56,9 +59,7 @@ export default class TetraScreen extends Screen{
         // this.cardsContainer.addChild(this.currentCard)
         // utils.centerObject(this.currentCard, this.background)
 
-		for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
-			this.getOpposit(ACTION_ZONES[i].label)
-		}
+	
 
 		this.grid.createGrid();
 		this.gridContainer.addChild(this.grid);
@@ -78,11 +79,17 @@ export default class TetraScreen extends Screen{
 
 		this.addEvents();
 
+		this.newRound();
 
 	}
 
-	destroy(){
-
+	newRound(){
+		this.currentCard =  new Card(this);
+		this.currentCard.createCard();
+		this.currentCard.type = 1;
+		this.currentCard.y = this.gridContainer.height + 20;
+		this.currentCard.updateCard();
+		this.cardsContainer.addChild(this.currentCard);
 	}
 
 	placeCard(i, j){
@@ -96,23 +103,7 @@ export default class TetraScreen extends Screen{
 		this.board.addCard(card);
 		return card;
 	}
-	getOpposit(zone){
-		// let id = ACTION_ZONES[zone] + 4 % 8;
-		// console.log(ACTION_ZONES[zone]);
-		// console.log(id);
-		let id = 0;
-		for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
-			if(ACTION_ZONES[i].label == zone){
-				id = i;
-				break;
-			}
-		}
-
-		// let id = ACTION_ZONES.filter(function( obj ) {
-	 //  		return obj == zone;
-		// });
-		//console.log(zone, ACTION_ZONES[(id + ACTION_ZONES.length/2)%ACTION_ZONES.length].label);
-	}
+	
 
 	
 	update(delta){
@@ -125,7 +116,8 @@ export default class TetraScreen extends Screen{
 		this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
 		this.trailMarker.alpha = 0;
 		if(this.mousePosID >= 0 && this.mousePosID < GRID.i){
-			this.trailMarker.x = this.mousePosID * CARD.width;
+			TweenLite.to(this.trailMarker, 0.3, {x:this.mousePosID * CARD.width});
+			this.currentCard.move({x:this.mousePosID * CARD.width, y:this.currentCard.y}, 0.3);
 			this.trailMarker.alpha = 0.15;
 		}
 	}
@@ -136,6 +128,8 @@ export default class TetraScreen extends Screen{
 	transitionIn(){
 
 		super.transitionIn();
+	}
+	destroy(){
 
 	}
 	
@@ -143,15 +137,17 @@ export default class TetraScreen extends Screen{
 		if(!this.board.isPossibleShot(this.mousePosID)){
 			return;
 		}
-		let card = new Card(this);
-		card.createCard();
-		this.board.shootCard(this.mousePosID, card);
-		card.x = card.pos.i * CARD.width;
-		card.y = card.pos.j * CARD.height;
-		card.type = 1;
-		card.updateCard();
-		this.cardsContainer.addChild(card);
-		console.log(this.mousePosID);
+		this.board.shootCard(this.mousePosID, this.currentCard);
+		let normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
+		this.currentCard.move({
+			x: this.currentCard.pos.i * CARD.width,
+			y: this.currentCard.pos.j * CARD.height
+		}, 0.3 * normalDist);
+		
+		// console.log((this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height);
+		// console.log(this.mousePosID);
+
+		this.newRound();
 	}
 
 	removeEvents(){
