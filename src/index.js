@@ -68,20 +68,7 @@ window.console.warn= function(){}
 window.console.groupCollapsed = function(teste){return teste}//('hided warnings')
 
 PIXI.loader
-	// .add('./assets/map.json')
-	.add('./assets/images/game-0.json')
-	.add('./assets/images/game-1.json')
-	.add('./assets/images/trail1.jpg')
-	// .add('./assets/images/ball.png')
-	// .add('./assets/images/grass1.png')
-	// .add('./assets/images/grass2.png')
-	// .add('./assets/images/ringDisplaceMap.jpg')
-	// .add('./assets/images/torcida.jpg')
-	// .add('./assets/images/onion.png')
-	// .add('./assets/images/goal.png')
-	// .add('./assets/images/ui.json')
 	.add('./assets/fonts/stylesheet.css')
-	// .add('./assets/fonts/specimen_files/specimen_stylesheet.css')
 	.load(configGame);
 
 function configGame(){

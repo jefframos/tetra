@@ -41497,20 +41497,7 @@
 		return teste;
 	}; //('hided warnings')
 	
-	PIXI.loader
-	// .add('./assets/map.json')
-	.add('./assets/images/game-0.json').add('./assets/images/game-1.json').add('./assets/images/trail1.jpg')
-	// .add('./assets/images/ball.png')
-	// .add('./assets/images/grass1.png')
-	// .add('./assets/images/grass2.png')
-	// .add('./assets/images/ringDisplaceMap.jpg')
-	// .add('./assets/images/torcida.jpg')
-	// .add('./assets/images/onion.png')
-	// .add('./assets/images/goal.png')
-	// .add('./assets/images/ui.json')
-	.add('./assets/fonts/stylesheet.css')
-	// .add('./assets/fonts/specimen_files/specimen_stylesheet.css')
-	.load(configGame);
+	PIXI.loader.add('./assets/fonts/stylesheet.css').load(configGame);
 	
 	function configGame() {
 	
@@ -55876,6 +55863,18 @@
 	
 	var _Screen3 = _interopRequireDefault(_Screen2);
 	
+	var _Grid = __webpack_require__(225);
+	
+	var _Grid2 = _interopRequireDefault(_Grid);
+	
+	var _Card = __webpack_require__(226);
+	
+	var _Card2 = _interopRequireDefault(_Card);
+	
+	var _Board = __webpack_require__(227);
+	
+	var _Board2 = _interopRequireDefault(_Board);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -55897,7 +55896,7 @@
 			window.ACTION_ZONES = [{ label: "TOP_LEFT", pos: { x: 0, y: 0 } }, { label: "TOP_CENTER", pos: { x: 1, y: 0 } }, { label: "TOP_RIGHT", pos: { x: 2, y: 0 } }, { label: "CENTER_RIGHT", pos: { x: 2, y: 1 } }, { label: "BOTTOM_RIGHT", pos: { x: 2, y: 2 } }, { label: "BOTTOM_CENTER", pos: { x: 1, y: 2 } }, { label: "BOTTOM_LEFT", pos: { x: 0, y: 2 } }, { label: "CENTER_LEFT", pos: { x: 0, y: 1 } }];
 	
 			window.GRID = {
-				i: 5,
+				i: 6,
 				j: 7,
 				width: _config2.default.width * 0.7,
 				height: _config2.default.height * 0.7
@@ -55907,6 +55906,9 @@
 				width: GRID.width / GRID.i,
 				height: GRID.height / GRID.j
 			};
+	
+			_this.grid = new _Grid2.default(_this);
+			_this.board = new _Board2.default();
 			return _this;
 		}
 	
@@ -55934,7 +55936,10 @@
 					this.getOpposit(ACTION_ZONES[i].label);
 				}
 	
-				this.createGrid();
+				this.grid.createGrid();
+				this.gridContainer.addChild(this.grid);
+				_utils2.default.centerObject(this.gridContainer, this.background);
+	
 				this.cardsContainer.x = this.gridContainer.x;
 				this.cardsContainer.y = this.gridContainer.y;
 	
@@ -55942,94 +55947,27 @@
 				this.gridContainer.addChild(this.trailMarker);
 				this.trailMarker.alpha = 0;
 	
-				this.cardsContainer.addChild(this.placeCard(this.createCard(), 0, 0));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 1, 0));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 2, 0));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 3, 0));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 4, 0));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 2, 1));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 3, 1));
-				// this.cardsContainer.addChild(this.placeCard(this.createCard(), 0, 1));
-				// this.getOpposit("TOP_LEFT")
+				this.cardsContainer.addChild(this.placeCard(0, 0));
+				this.cardsContainer.addChild(this.placeCard(2, 0));
+	
+				this.board.debugBoard();
+	
+				this.addEvents();
 			}
 		}, {
 			key: 'destroy',
 			value: function destroy() {}
 		}, {
-			key: 'createGrid',
-			value: function createGrid() {
-				var gridContainer = new PIXI.Container();
-				var gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0, 0, GRID.width, GRID.height);
-				gridContainer.addChild(gridBackground);
-	
-				for (var i = GRID.i; i >= 0; i--) {
-					var line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, 1, GRID.height);
-					line.x = i * CARD.width;
-					gridContainer.addChild(line);
-				}
-	
-				for (var j = GRID.j; j >= 0; j--) {
-					var _line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, GRID.width, 1);
-					_line.y = j * CARD.height;
-					gridContainer.addChild(_line);
-				}
-	
-				this.gridContainer.addChild(gridContainer);
-	
-				_utils2.default.centerObject(this.gridContainer, this.background);
-			}
-		}, {
-			key: 'createCard',
-			value: function createCard() {
-				var card = new PIXI.Container();
-				var cardBackground = new PIXI.Graphics().beginFill(0x777777).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
-				var cardBackground2 = new PIXI.Graphics().beginFill(0x888888).drawRoundedRect(8, 8, CARD.width - 16, CARD.height - 16, 0);
-				var cardContainer = new PIXI.Container();
-				var cardActions = new PIXI.Container();
-				card.addChild(cardContainer);
-				cardContainer.addChild(cardBackground);
-				cardContainer.addChild(cardBackground2);
-				cardContainer.addChild(cardActions);
-	
-				var orderArray = [0, 1, 2, 3, 4, 5, 6, 7];
-				_utils2.default.shuffle(orderArray);
-				console.log(orderArray);
-	
-				var totalSides = Math.floor(Math.random() * ACTION_ZONES.length * 0.75) + 1;
-	
-				for (var i = totalSides - 1; i >= 0; i--) {
-	
-					var arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
-					arrow.moveTo(-5, 0);
-					arrow.lineTo(5, 0);
-					arrow.lineTo(0, -5);
-	
-					var zone = ACTION_ZONES[orderArray[i]];
-	
-					var tempX = zone.pos.x / 2 * cardBackground.width;
-					var tempY = zone.pos.y / 2 * cardBackground.height;
-					arrow.x = tempX;
-					arrow.y = tempY;
-	
-					var centerPos = { x: cardBackground.width / 2, y: cardBackground.height / 2 };
-					//console.log(ACTION_ZONES[orderArray[i]]);
-					var angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2; // * 180 / Math.PI;
-					//angle = Math.floor(Math.PI / 4 / angle) * Math.PI / 4
-					console.log(Math.round(angle * 180 / Math.PI / 45) * 45);
-					angle = Math.round(angle * 180 / Math.PI / 45) * 45 / 180 * Math.PI;
-					arrow.rotation = angle;
-					cardActions.addChild(arrow);
-	
-					arrow.x -= Math.sin(angle) * 7;
-					arrow.y += Math.cos(angle) * 7;
-				}
-				return card;
-			}
-		}, {
 			key: 'placeCard',
-			value: function placeCard(card, i, j) {
+			value: function placeCard(i, j) {
+				var card = new _Card2.default(this);
+				card.createCard();
 				card.x = i * CARD.width;
 				card.y = j * CARD.height;
+				card.pos.i = i;
+				card.pos.j = j;
+				card.updateCard();
+				this.board.addCard(card);
 				return card;
 			}
 		}, {
@@ -56049,7 +55987,7 @@
 				// let id = ACTION_ZONES.filter(function( obj ) {
 				//  		return obj == zone;
 				// });
-				console.log(zone, ACTION_ZONES[(id + ACTION_ZONES.length / 2) % ACTION_ZONES.length].label);
+				//console.log(zone, ACTION_ZONES[(id + ACTION_ZONES.length/2)%ACTION_ZONES.length].label);
 			}
 		}, {
 			key: 'update',
@@ -56061,10 +55999,10 @@
 		}, {
 			key: 'updateMousePosition',
 			value: function updateMousePosition() {
-				var mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
+				this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
 				this.trailMarker.alpha = 0;
-				if (mousePosID >= 0 && mousePosID <= GRID.i) {
-					this.trailMarker.x = mousePosID * CARD.width;
+				if (this.mousePosID >= 0 && this.mousePosID < GRID.i) {
+					this.trailMarker.x = this.mousePosID * CARD.width;
 					this.trailMarker.alpha = 0.15;
 				}
 			}
@@ -56080,11 +56018,30 @@
 				_get(TetraScreen.prototype.__proto__ || Object.getPrototypeOf(TetraScreen.prototype), 'transitionIn', this).call(this);
 			}
 		}, {
+			key: 'onTapDown',
+			value: function onTapDown() {
+				if (!this.board.isPossibleShot(this.mousePosID)) {
+					return;
+				}
+				var card = new _Card2.default(this);
+				card.createCard();
+				this.board.shootCard(this.mousePosID, card);
+				card.x = card.pos.i * CARD.width;
+				card.y = card.pos.j * CARD.height;
+				card.type = 1;
+				card.updateCard();
+				this.cardsContainer.addChild(card);
+				console.log(this.mousePosID);
+			}
+		}, {
 			key: 'removeEvents',
 			value: function removeEvents() {}
 		}, {
 			key: 'addEvents',
-			value: function addEvents() {}
+			value: function addEvents() {
+				this.gameContainer.interactive = true;
+				this.gameContainer.on('mousedown', this.onTapDown.bind(this)).on('touchstart', this.onTapDown.bind(this));
+			}
 		}]);
 	
 		return TetraScreen;
@@ -56867,6 +56824,326 @@
 	}(PIXI.Container);
 	
 	exports.default = Ball;
+
+/***/ }),
+/* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Grid = function (_PIXI$Container) {
+		_inherits(Grid, _PIXI$Container);
+	
+		function Grid(game) {
+			_classCallCheck(this, Grid);
+	
+			var _this = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
+	
+			_this.game = game;
+			return _this;
+		}
+	
+		_createClass(Grid, [{
+			key: 'start',
+			value: function start() {}
+		}, {
+			key: 'createGrid',
+			value: function createGrid() {
+				var gridContainer = new PIXI.Container();
+				var gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0, 0, GRID.width, GRID.height);
+				gridContainer.addChild(gridBackground);
+	
+				for (var i = GRID.i; i >= 0; i--) {
+					var line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, 1, GRID.height);
+					line.x = i * CARD.width;
+					gridContainer.addChild(line);
+				}
+	
+				for (var j = GRID.j; j >= 0; j--) {
+					var _line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, GRID.width, 1);
+					_line.y = j * CARD.height;
+					gridContainer.addChild(_line);
+				}
+	
+				this.addChild(gridContainer);
+			}
+		}]);
+	
+		return Grid;
+	}(PIXI.Container);
+	
+	exports.default = Grid;
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Card = function (_PIXI$Container) {
+		_inherits(Card, _PIXI$Container);
+	
+		function Card(game) {
+			_classCallCheck(this, Card);
+	
+			var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
+	
+			_this.game = game;
+			_this.zones = [];
+			_this.pos = { i: -1, j: -1 };
+			_this.type = 0;
+			return _this;
+		}
+	
+		_createClass(Card, [{
+			key: 'start',
+			value: function start() {}
+		}, {
+			key: 'createCard',
+			value: function createCard() {
+				var card = new PIXI.Container();
+				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+				this.cardBackground2 = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(8, 8, CARD.width - 16, CARD.height - 16, 0);
+				var cardContainer = new PIXI.Container();
+				this.cardActions = new PIXI.Container();
+				card.addChild(cardContainer);
+				cardContainer.addChild(this.cardBackground);
+				cardContainer.addChild(this.cardBackground2);
+				cardContainer.addChild(this.cardActions);
+	
+				this.addActionZones();
+	
+				this.cardContainer = card;
+				this.addChild(this.cardContainer);
+				return this.cardContainer;
+			}
+		}, {
+			key: 'removeActionZones',
+			value: function removeActionZones() {
+				this.zones = [];
+				while (this.cardActions.children.length > 0) {
+					this.cardActions.removeChildAt(0);
+				}
+			}
+		}, {
+			key: 'updateCard',
+			value: function updateCard() {
+				if (this.type == 0) {
+					this.cardBackground.tint = 0x777777;
+					this.cardBackground2.tint = 0x888888;
+				} else if (this.type == 1) {
+					this.cardBackground.tint = 0x202022;
+					this.cardBackground2.tint = 0x888888;
+				}
+			}
+		}, {
+			key: 'addActionZones',
+			value: function addActionZones() {
+				this.zones = [];
+				this.removeActionZones();
+				var orderArray = [0, 1, 2, 3, 4, 5, 6, 7];
+				_utils2.default.shuffle(orderArray);
+	
+				var totalSides = Math.floor(Math.random() * ACTION_ZONES.length * 0.75) + 1;
+	
+				for (var i = totalSides - 1; i >= 0; i--) {
+	
+					var arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
+					arrow.moveTo(-5, 0);
+					arrow.lineTo(5, 0);
+					arrow.lineTo(0, -5);
+	
+					var zone = ACTION_ZONES[orderArray[i]];
+	
+					this.zones.push(zone);
+	
+					var tempX = zone.pos.x / 2 * this.cardBackground.width;
+					var tempY = zone.pos.y / 2 * this.cardBackground.height;
+					arrow.x = tempX;
+					arrow.y = tempY;
+	
+					var centerPos = { x: this.cardBackground.width / 2, y: this.cardBackground.height / 2 };
+					var angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2;
+	
+					angle = Math.round(angle * 180 / Math.PI / 45) * 45 / 180 * Math.PI;
+					arrow.rotation = angle;
+					this.cardActions.addChild(arrow);
+	
+					arrow.x -= Math.sin(angle) * 7;
+					arrow.y += Math.cos(angle) * 7;
+				}
+			}
+		}, {
+			key: 'destroy',
+			value: function destroy() {}
+		}]);
+	
+		return Card;
+	}(PIXI.Container);
+	
+	exports.default = Card;
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Board = function () {
+		function Board(game) {
+			_classCallCheck(this, Board);
+	
+			this.game = game;
+			this.cards = [];
+			for (var i = window.GRID.i - 1; i >= 0; i--) {
+				var lane = [];
+				for (var j = window.GRID.j - 1; j >= 0; j--) {
+					lane.push(0);
+				}
+				this.cards.push(lane);
+			}
+		}
+	
+		_createClass(Board, [{
+			key: 'addCard',
+			value: function addCard(card) {
+				this.cards[card.pos.i][card.pos.j] = card;
+			}
+		}, {
+			key: 'isPossibleShot',
+			value: function isPossibleShot(laneID) {
+				for (var i = 0; i < this.cards[laneID].length; i++) {
+					if (!this.cards[laneID][i]) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}, {
+			key: 'shootCard',
+			value: function shootCard(laneID, card) {
+				var spaceID = -1;
+				for (var i = 0; i < this.cards[laneID].length; i++) {
+					if (!this.cards[laneID][i]) {
+						spaceID = i;
+						break;
+					}
+				}
+				if (spaceID >= 0) {
+					this.cards[laneID][spaceID] = card;
+					card.pos.i = laneID;
+					card.pos.j = spaceID;
+				}
+				console.log(this.cards[laneID]);
+			}
+		}, {
+			key: 'debugBoard2',
+			value: function debugBoard2() {
+				for (var i = 0; i < this.cards.length; i++) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+		}, {
+			key: 'debugBoard',
+			value: function debugBoard() {
+				for (var i = this.cards.length - 1; i >= 0; i--) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+		}]);
+	
+		return Board;
+	}();
+	
+	exports.default = Board;
 
 /***/ })
 /******/ ]);
