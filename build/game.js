@@ -41434,11 +41434,11 @@
 	
 	var _TetraScreen2 = _interopRequireDefault(_TetraScreen);
 	
-	var _ChooseMatchScreen = __webpack_require__(222);
+	var _ChooseMatchScreen = __webpack_require__(225);
 	
 	var _ChooseMatchScreen2 = _interopRequireDefault(_ChooseMatchScreen);
 	
-	var _Pool = __webpack_require__(223);
+	var _Pool = __webpack_require__(226);
 	
 	var _Pool2 = _interopRequireDefault(_Pool);
 	
@@ -55863,15 +55863,15 @@
 	
 	var _Screen3 = _interopRequireDefault(_Screen2);
 	
-	var _Grid = __webpack_require__(225);
+	var _Grid = __webpack_require__(222);
 	
 	var _Grid2 = _interopRequireDefault(_Grid);
 	
-	var _Card = __webpack_require__(226);
+	var _Card = __webpack_require__(223);
 	
 	var _Card2 = _interopRequireDefault(_Card);
 	
-	var _Board = __webpack_require__(227);
+	var _Board = __webpack_require__(224);
 	
 	var _Board2 = _interopRequireDefault(_Board);
 	
@@ -55947,8 +55947,13 @@
 				this.gridContainer.addChild(this.trailMarker);
 				this.trailMarker.alpha = 0;
 	
-				this.cardsContainer.addChild(this.placeCard(0, 0));
-				this.cardsContainer.addChild(this.placeCard(2, 0));
+				var tempPosRandom = [];
+				for (var i = 0; i < GRID.i; i++) {
+					tempPosRandom.push(i);
+				}
+				_utils2.default.shuffle(tempPosRandom);
+				this.cardsContainer.addChild(this.placeCard(tempPosRandom[0], 0));
+				this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 	
 				this.board.debugBoard();
 	
@@ -56047,6 +56052,540 @@
 
 /***/ }),
 /* 222 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Grid = function (_PIXI$Container) {
+		_inherits(Grid, _PIXI$Container);
+	
+		function Grid(game) {
+			_classCallCheck(this, Grid);
+	
+			var _this = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
+	
+			_this.game = game;
+			return _this;
+		}
+	
+		_createClass(Grid, [{
+			key: 'start',
+			value: function start() {}
+		}, {
+			key: 'createGrid',
+			value: function createGrid() {
+				var gridContainer = new PIXI.Container();
+				var gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0, 0, GRID.width, GRID.height);
+				gridContainer.addChild(gridBackground);
+	
+				for (var i = GRID.i; i >= 0; i--) {
+					var line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, 1, GRID.height);
+					line.x = i * CARD.width;
+					gridContainer.addChild(line);
+				}
+	
+				for (var j = GRID.j; j >= 0; j--) {
+					var _line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, GRID.width, 1);
+					_line.y = j * CARD.height;
+					gridContainer.addChild(_line);
+				}
+	
+				this.addChild(gridContainer);
+			}
+		}]);
+	
+		return Grid;
+	}(PIXI.Container);
+	
+	exports.default = Grid;
+
+/***/ }),
+/* 223 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Card = function (_PIXI$Container) {
+		_inherits(Card, _PIXI$Container);
+	
+		function Card(game) {
+			_classCallCheck(this, Card);
+	
+			var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
+	
+			_this.game = game;
+			_this.zones = [];
+			_this.arrows = [];
+			_this.pos = { i: -1, j: -1 };
+			_this.type = 0;
+			_this.MAX_COUNTER = 10;
+			return _this;
+		}
+	
+		_createClass(Card, [{
+			key: 'start',
+			value: function start() {}
+		}, {
+			key: 'createCard',
+			value: function createCard() {
+				var card = new PIXI.Container();
+				this.counter = this.MAX_COUNTER;
+				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+				this.cardBackground2 = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(8, 8, CARD.width - 16, CARD.height - 16, 0);
+				var cardContainer = new PIXI.Container();
+				this.cardActions = new PIXI.Container();
+				card.addChild(cardContainer);
+				cardContainer.addChild(this.cardBackground);
+				cardContainer.addChild(this.cardBackground2);
+				cardContainer.addChild(this.cardActions);
+				this.label = new PIXI.Text(this.counter, { font: '20px', fill: 0x000000, align: 'right' });
+				cardContainer.addChild(this.label);
+				_utils2.default.centerObject(this.label, this.cardBackground);
+				this.addActionZones();
+	
+				this.cardContainer = card;
+				this.addChild(this.cardContainer);
+				return this.cardContainer;
+			}
+		}, {
+			key: 'hasZone',
+			value: function hasZone(zone) {
+				for (var i = 0; i < this.zones.length; i++) {
+					if (this.zones[i].label == zone) {
+						return this.zones[i];
+					}
+				}
+				return false;
+			}
+		}, {
+			key: 'removeActionZones',
+			value: function removeActionZones() {
+				this.zones = [];
+				while (this.cardActions.children.length > 0) {
+					this.cardActions.removeChildAt(0);
+				}
+			}
+		}, {
+			key: 'updateCounter',
+			value: function updateCounter(value) {
+				this.counter += value;
+				this.label.text = this.counter;
+				if (this.counter <= 0) {
+					this.counter = this.MAX_COUNTER;
+					return this;
+					//this.game.board.moveLaneDown(this);
+				}
+				return null;
+			}
+		}, {
+			key: 'updateCard',
+			value: function updateCard() {
+				if (this.type == 0) {
+					this.cardBackground.tint = 0x777777;
+					this.cardBackground2.tint = 0x888888;
+				} else if (this.type == 1) {
+					this.cardBackground.tint = 0x202022;
+					this.cardBackground2.tint = 0x888888;
+				}
+			}
+		}, {
+			key: 'convertCard',
+			value: function convertCard() {
+				this.type = this.type == 1 ? 0 : 1;
+				this.updateCard();
+			}
+		}, {
+			key: 'getArrow',
+			value: function getArrow(label) {
+				for (var i = 0; i < this.arrows.length; i++) {
+					if (this.arrows[i].zone == label) {
+						return this.arrows[i].arrow;
+					}
+				}
+			}
+		}, {
+			key: 'addActionZones',
+			value: function addActionZones() {
+				this.zones = [];
+				this.removeActionZones();
+				var orderArray = [0, 1, 2, 3, 4, 5, 6, 7];
+				_utils2.default.shuffle(orderArray);
+	
+				var totalSides = Math.floor(Math.random() * ACTION_ZONES.length * 0.4) + 1;
+	
+				for (var i = totalSides - 1; i >= 0; i--) {
+	
+					var arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
+					arrow.moveTo(-5, 0);
+					arrow.lineTo(5, 0);
+					arrow.lineTo(0, -5);
+	
+					var zone = ACTION_ZONES[orderArray[i]];
+	
+					this.zones.push(zone);
+	
+					var tempX = zone.pos.x / 2 * this.cardBackground.width;
+					var tempY = zone.pos.y / 2 * this.cardBackground.height;
+					arrow.x = tempX;
+					arrow.y = tempY;
+	
+					this.arrows.push({ arrow: arrow, zone: zone.label });
+	
+					var centerPos = { x: this.cardBackground.width / 2, y: this.cardBackground.height / 2 };
+					var angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2;
+	
+					angle = Math.round(angle * 180 / Math.PI / 45) * 45 / 180 * Math.PI;
+					arrow.rotation = angle;
+					this.cardActions.addChild(arrow);
+	
+					arrow.x -= Math.sin(angle) * 7;
+					arrow.y += Math.cos(angle) * 7;
+				}
+			}
+		}, {
+			key: 'move',
+			value: function move(pos) {
+				var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.3;
+				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+	
+				TweenLite.to(this, time, { x: pos.x, y: pos.y, delay: delay });
+			}
+		}, {
+			key: 'destroy',
+			value: function destroy() {
+				TweenLite.to(this, 0.2, { alpha: 0, onComplete: function () {
+						this.parent.removeChild(this);
+					}.bind(this) });
+			}
+		}]);
+	
+		return Card;
+	}(PIXI.Container);
+	
+	exports.default = Card;
+
+/***/ }),
+/* 224 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(200);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Board = function () {
+		function Board(game) {
+			_classCallCheck(this, Board);
+	
+			this.game = game;
+			this.cards = [];
+			for (var i = window.GRID.i - 1; i >= 0; i--) {
+				var lane = [];
+				for (var j = window.GRID.j - 1; j >= 0; j--) {
+					lane.push(0);
+				}
+				this.cards.push(lane);
+			}
+		}
+	
+		_createClass(Board, [{
+			key: 'addCard',
+			value: function addCard(card) {
+				this.cards[card.pos.i][card.pos.j] = card;
+			}
+		}, {
+			key: 'isPossibleShot',
+			value: function isPossibleShot(laneID) {
+				if (laneID >= this.cards.length || laneID < 0) {
+					return false;
+				}
+				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
+					if (!this.cards[laneID][i]) {
+						return true;
+					}
+					break;
+				}
+				return false;
+			}
+		}, {
+			key: 'shootCard',
+			value: function shootCard(laneID, card) {
+				var spaceID = -1;
+				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
+					if (!this.cards[laneID][i]) {
+						spaceID = i;
+						//break;
+					} else {
+						break;
+					}
+				}
+				if (spaceID >= 0) {
+					card.pos.i = laneID;
+					card.pos.j = spaceID;
+					this.addCard(card);
+					setTimeout(function () {
+						this.updateRound(card);
+					}.bind(this), 200);
+				}
+			}
+		}, {
+			key: 'moveCardDown',
+			value: function moveCardDown(card) {
+				this.cards[card.pos.i][card.pos.j] = 0;
+				card.pos.j++;
+				if (card.pos.j >= GRID.j) {
+					card.destroy();
+					//GAME OVER AQUI
+					return;
+				}
+				this.addCard(card);
+				card.move({
+					x: card.pos.i * CARD.width,
+					y: card.pos.j * CARD.height
+				}, 0.2, 0.5);
+			}
+		}, {
+			key: 'updateRound',
+			value: function updateRound(card) {
+				var zones = card.zones;
+				var findCards = false;
+				var cardFound = null;
+				var cardsToDestroy = [];
+				var autoDestroyCardData = null;
+				for (var i = 0; i < zones.length; i++) {
+					var actionPosId = {
+						i: card.pos.i + zones[i].dir.x,
+						j: card.pos.j + zones[i].dir.y
+					};
+					if (actionPosId.i >= 0 && actionPosId.i < window.GRID.i && actionPosId.j >= 0 && actionPosId.j < window.GRID.j) {
+						cardFound = this.cards[actionPosId.i][actionPosId.j];
+						if (cardFound) {
+							findCards = true;
+							console.log(cardFound.hasZone(this.getOpposit(zones[i].label)));
+							var tempZone = cardFound.hasZone(this.getOpposit(zones[i].label));
+							if (tempZone && !autoDestroyCardData) {
+								autoDestroyCardData = {
+									card: card,
+									zone: tempZone
+								};
+							}
+							cardsToDestroy.push({ cardFound: cardFound, currentCard: card, attackZone: zones[i] });
+						}
+					}
+				}
+				if (!findCards) {
+					card.type = 0;
+					card.updateCard();
+				} else {
+					//cardsToDestroy.push(card);
+					setTimeout(function () {
+						this.destroyCards(cardsToDestroy, card, autoDestroyCardData);
+					}.bind(this), 300);
+					//this.destroyCards(cardsToDestroy);			
+				}
+	
+				setTimeout(function () {
+					this.updateCardsCounter(-1);
+				}.bind(this), 350);
+			}
+		}, {
+			key: 'updateCardsCounter',
+			value: function updateCardsCounter(value, card) {
+				var cardsToMove = [];
+				for (var i = 0; i < this.cards.length; i++) {
+					for (var j = 0; j < this.cards[i].length; j++) {
+						if (this.cards[i][j]) {
+							var tcard = this.cards[i][j].updateCounter(value);
+							if (tcard) {
+								//console.log(tcard);
+								cardsToMove.push(tcard);
+							}
+						}
+					}
+				}
+				// console.log(cardsToMove);
+				var moveDownList = [];
+	
+				for (var i = 0; i < cardsToMove.length; i++) {
+					var id = cardsToMove[i].pos.i;
+					for (var j = cardsToMove[i].pos.j; j < GRID.j; j++) {
+						var tempCard = this.cards[id][j];
+						if (tempCard) {
+							var canAdd = true;
+							for (var k = 0; k < moveDownList.length; k++) {
+								if (moveDownList[k].pos.i == tempCard.pos.i && moveDownList[k].pos.j == tempCard.pos.j) {
+									canAdd = false;
+									break;
+								}
+							}
+							if (canAdd) {
+								moveDownList.push(tempCard);
+							}
+						}
+					}
+				}
+				for (var i = moveDownList.length - 1; i >= 0; i--) {
+					this.moveCardDown(moveDownList[i]);
+				}
+				console.log(moveDownList);
+			}
+		}, {
+			key: 'destroyCards',
+			value: function destroyCards(list, card, autoDestroyCardData) {
+				var timeline = new TimelineLite();
+				for (var i = 0; i < list.length; i++) {
+					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
+	
+					timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
+						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
+						onStart: function (arrow, zone) {
+							// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
+							TweenLite.to(arrow, 0.2, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
+							TweenLite.to(arrow, 0.2, { delay: 0.2, x: arrow.x, y: arrow.y, ease: Back.easeIn });
+						}.bind(this),
+						onCompleteParams: [list[i].cardFound],
+						onComplete: function (card) {
+							card.destroy();
+							card.convertCard();
+						}.bind(this) }));
+					this.cards[list[i].cardFound.pos.i][list[i].cardFound.pos.j] = 0;
+				}
+				if (autoDestroyCardData) {
+					this.cards[card.pos.i][card.pos.j] = 0;
+					setTimeout(function () {
+						this.delayedDestroy(card);
+					}.bind(this), list.length * 200);
+				} else {
+					card.convertCard();
+				}
+			}
+		}, {
+			key: 'delayedDestroy',
+			value: function delayedDestroy(card) {
+				card.destroy();
+			}
+		}, {
+			key: 'getOpposit',
+			value: function getOpposit(zone) {
+				var id = 0;
+				for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
+					if (ACTION_ZONES[i].label == zone) {
+						id = i;
+						break;
+					}
+				}
+				var opposit = ACTION_ZONES[(id + ACTION_ZONES.length / 2) % ACTION_ZONES.length].label;
+				console.log(opposit);
+				return opposit;
+			}
+		}, {
+			key: 'debugBoard2',
+			value: function debugBoard2() {
+				for (var i = 0; i < this.cards.length; i++) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+		}, {
+			key: 'debugBoard',
+			value: function debugBoard() {
+				for (var i = this.cards.length - 1; i >= 0; i--) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+		}]);
+	
+		return Board;
+	}();
+	
+	exports.default = Board;
+
+/***/ }),
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56272,7 +56811,7 @@
 	exports.default = ChooseMatchScreen;
 
 /***/ }),
-/* 223 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56295,7 +56834,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _Ball = __webpack_require__(224);
+	var _Ball = __webpack_require__(227);
 	
 	var _Ball2 = _interopRequireDefault(_Ball);
 	
@@ -56362,7 +56901,7 @@
 	exports.default = Pool;
 
 /***/ }),
-/* 224 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56820,494 +57359,6 @@
 	}(PIXI.Container);
 	
 	exports.default = Ball;
-
-/***/ }),
-/* 225 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _pixi = __webpack_require__(1);
-	
-	var PIXI = _interopRequireWildcard(_pixi);
-	
-	var _config = __webpack_require__(192);
-	
-	var _config2 = _interopRequireDefault(_config);
-	
-	var _utils = __webpack_require__(200);
-	
-	var _utils2 = _interopRequireDefault(_utils);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Grid = function (_PIXI$Container) {
-		_inherits(Grid, _PIXI$Container);
-	
-		function Grid(game) {
-			_classCallCheck(this, Grid);
-	
-			var _this = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
-	
-			_this.game = game;
-			return _this;
-		}
-	
-		_createClass(Grid, [{
-			key: 'start',
-			value: function start() {}
-		}, {
-			key: 'createGrid',
-			value: function createGrid() {
-				var gridContainer = new PIXI.Container();
-				var gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0, 0, GRID.width, GRID.height);
-				gridContainer.addChild(gridBackground);
-	
-				for (var i = GRID.i; i >= 0; i--) {
-					var line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, 1, GRID.height);
-					line.x = i * CARD.width;
-					gridContainer.addChild(line);
-				}
-	
-				for (var j = GRID.j; j >= 0; j--) {
-					var _line = new PIXI.Graphics().beginFill(0x999999).drawRect(0, 0, GRID.width, 1);
-					_line.y = j * CARD.height;
-					gridContainer.addChild(_line);
-				}
-	
-				this.addChild(gridContainer);
-			}
-		}]);
-	
-		return Grid;
-	}(PIXI.Container);
-	
-	exports.default = Grid;
-
-/***/ }),
-/* 226 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _pixi = __webpack_require__(1);
-	
-	var PIXI = _interopRequireWildcard(_pixi);
-	
-	var _config = __webpack_require__(192);
-	
-	var _config2 = _interopRequireDefault(_config);
-	
-	var _utils = __webpack_require__(200);
-	
-	var _utils2 = _interopRequireDefault(_utils);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Card = function (_PIXI$Container) {
-		_inherits(Card, _PIXI$Container);
-	
-		function Card(game) {
-			_classCallCheck(this, Card);
-	
-			var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
-	
-			_this.game = game;
-			_this.zones = [];
-			_this.arrows = [];
-			_this.pos = { i: -1, j: -1 };
-			_this.type = 0;
-			return _this;
-		}
-	
-		_createClass(Card, [{
-			key: 'start',
-			value: function start() {}
-		}, {
-			key: 'createCard',
-			value: function createCard() {
-				var card = new PIXI.Container();
-				this.counter = 10;
-				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
-				this.cardBackground2 = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(8, 8, CARD.width - 16, CARD.height - 16, 0);
-				var cardContainer = new PIXI.Container();
-				this.cardActions = new PIXI.Container();
-				card.addChild(cardContainer);
-				cardContainer.addChild(this.cardBackground);
-				cardContainer.addChild(this.cardBackground2);
-				cardContainer.addChild(this.cardActions);
-				this.label = new PIXI.Text(this.counter, { font: '20px', fill: 0x000000, align: 'right' });
-				cardContainer.addChild(this.label);
-				_utils2.default.centerObject(this.label, this.cardBackground);
-				this.addActionZones();
-	
-				this.cardContainer = card;
-				this.addChild(this.cardContainer);
-				return this.cardContainer;
-			}
-		}, {
-			key: 'removeActionZones',
-			value: function removeActionZones() {
-				this.zones = [];
-				while (this.cardActions.children.length > 0) {
-					this.cardActions.removeChildAt(0);
-				}
-			}
-		}, {
-			key: 'updateCounter',
-			value: function updateCounter(value) {
-				this.counter += value;
-				this.label.text = this.counter;
-				if (this.counter <= 0) {
-					this.counter = 10;
-					this.game.board.moveLaneDown(this);
-				}
-			}
-		}, {
-			key: 'updateCard',
-			value: function updateCard() {
-				if (this.type == 0) {
-					this.cardBackground.tint = 0x777777;
-					this.cardBackground2.tint = 0x888888;
-				} else if (this.type == 1) {
-					this.cardBackground.tint = 0x202022;
-					this.cardBackground2.tint = 0x888888;
-				}
-			}
-		}, {
-			key: 'convertCard',
-			value: function convertCard() {
-				this.type = this.type == 1 ? 0 : 1;
-				this.updateCard();
-			}
-		}, {
-			key: 'getArrow',
-			value: function getArrow(label) {
-				for (var i = 0; i < this.arrows.length; i++) {
-					if (this.arrows[i].zone == label) {
-						return this.arrows[i].arrow;
-					}
-				}
-			}
-		}, {
-			key: 'addActionZones',
-			value: function addActionZones() {
-				this.zones = [];
-				this.removeActionZones();
-				var orderArray = [0, 1, 2, 3, 4, 5, 6, 7];
-				_utils2.default.shuffle(orderArray);
-	
-				var totalSides = Math.floor(Math.random() * ACTION_ZONES.length * 0.4) + 1;
-	
-				for (var i = totalSides - 1; i >= 0; i--) {
-	
-					var arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
-					arrow.moveTo(-5, 0);
-					arrow.lineTo(5, 0);
-					arrow.lineTo(0, -5);
-	
-					var zone = ACTION_ZONES[orderArray[i]];
-	
-					this.zones.push(zone);
-	
-					var tempX = zone.pos.x / 2 * this.cardBackground.width;
-					var tempY = zone.pos.y / 2 * this.cardBackground.height;
-					arrow.x = tempX;
-					arrow.y = tempY;
-	
-					this.arrows.push({ arrow: arrow, zone: zone.label });
-	
-					var centerPos = { x: this.cardBackground.width / 2, y: this.cardBackground.height / 2 };
-					var angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2;
-	
-					angle = Math.round(angle * 180 / Math.PI / 45) * 45 / 180 * Math.PI;
-					arrow.rotation = angle;
-					this.cardActions.addChild(arrow);
-	
-					arrow.x -= Math.sin(angle) * 7;
-					arrow.y += Math.cos(angle) * 7;
-				}
-			}
-		}, {
-			key: 'move',
-			value: function move(pos) {
-				var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.3;
-	
-				TweenLite.to(this, time, pos);
-			}
-		}, {
-			key: 'destroy',
-			value: function destroy() {
-				TweenLite.to(this, 0.2, { alpha: 0, onComplete: function () {
-						this.parent.removeChild(this);
-					}.bind(this) });
-			}
-		}]);
-	
-		return Card;
-	}(PIXI.Container);
-	
-	exports.default = Card;
-
-/***/ }),
-/* 227 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _pixi = __webpack_require__(1);
-	
-	var PIXI = _interopRequireWildcard(_pixi);
-	
-	var _config = __webpack_require__(192);
-	
-	var _config2 = _interopRequireDefault(_config);
-	
-	var _utils = __webpack_require__(200);
-	
-	var _utils2 = _interopRequireDefault(_utils);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Board = function () {
-		function Board(game) {
-			_classCallCheck(this, Board);
-	
-			this.game = game;
-			this.cards = [];
-			for (var i = window.GRID.i - 1; i >= 0; i--) {
-				var lane = [];
-				for (var j = window.GRID.j - 1; j >= 0; j--) {
-					lane.push(0);
-				}
-				this.cards.push(lane);
-			}
-		}
-	
-		_createClass(Board, [{
-			key: 'addCard',
-			value: function addCard(card) {
-				this.cards[card.pos.i][card.pos.j] = card;
-			}
-		}, {
-			key: 'isPossibleShot',
-			value: function isPossibleShot(laneID) {
-				if (laneID >= this.cards.length || laneID < 0) {
-					return false;
-				}
-				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
-					if (!this.cards[laneID][i]) {
-						return true;
-					}
-					break;
-				}
-				return false;
-			}
-		}, {
-			key: 'shootCard',
-			value: function shootCard(laneID, card) {
-				var spaceID = -1;
-				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
-					if (!this.cards[laneID][i]) {
-						spaceID = i;
-						//break;
-					} else {
-						break;
-					}
-				}
-				if (spaceID >= 0) {
-					card.pos.i = laneID;
-					card.pos.j = spaceID;
-					this.addCard(card);
-					setTimeout(function () {
-						this.updateRound(card);
-					}.bind(this), 200);
-				}
-			}
-		}, {
-			key: 'moveCardDown',
-			value: function moveCardDown(card) {
-				// return;
-				if (card.counter <= 0) {
-					card.counter = 10;
-				}
-				this.cards[card.pos.i][card.pos.j] = 0;
-				card.pos.j++;
-				if (card.pos.j > GRID.j) {
-					card.destroy();
-					return;
-				}
-				this.addCard(card);
-				card.move({
-					x: card.pos.i * CARD.width,
-					y: card.pos.j * CARD.height
-				}, 0.2);
-			}
-		}, {
-			key: 'moveLaneDown',
-			value: function moveLaneDown(card) {
-				//NAO TA FUNCIONANDO
-				var cards = [];
-				cards.push(card);
-				for (var i = card.pos.j; i < this.cards[card.pos.i].length; i++) {
-					if (this.cards[card.pos.i][i]) {
-						cards.push(this.cards[card.pos.i][i]);
-					}
-				}
-	
-				for (var i = 0; i < cards.length; i++) {
-					this.moveCardDown(cards[i]);
-				}
-	
-				//if card is 0, reset the counter e move todos que tao abaixo pra mais perto do game over
-			}
-		}, {
-			key: 'updateRound',
-			value: function updateRound(card) {
-				var zones = card.zones;
-				var findCards = false;
-				var cardFound = null;
-				var cardsToDestroy = [];
-				for (var i = 0; i < zones.length; i++) {
-					var actionPosId = {
-						i: card.pos.i + zones[i].dir.x,
-						j: card.pos.j + zones[i].dir.y
-					};
-					if (actionPosId.i >= 0 && actionPosId.i < window.GRID.i && actionPosId.j >= 0 && actionPosId.j < window.GRID.j) {
-	
-						cardFound = this.cards[actionPosId.i][actionPosId.j];
-						if (cardFound) {
-	
-							findCards = true;
-							cardsToDestroy.push({ cardFound: cardFound, currentCard: card, attackZone: zones[i] });
-						}
-					}
-				}
-				if (!findCards) {
-					card.type = 0;
-					card.updateCard();
-				} else {
-					//cardsToDestroy.push(card);
-					setTimeout(function () {
-						this.destroyCards(cardsToDestroy, card);
-					}.bind(this), 300);
-					//this.destroyCards(cardsToDestroy);			
-				}
-	
-				setTimeout(function () {
-					this.updateCardsCounter(-1);
-				}.bind(this), 350);
-			}
-		}, {
-			key: 'updateCardsCounter',
-			value: function updateCardsCounter(value, card) {
-				for (var i = 0; i < this.cards.length; i++) {
-					for (var j = 0; j < this.cards[i].length; j++) {
-						if (this.cards[i][j]) {
-							this.cards[i][j].updateCounter(value);
-						}
-					}
-				}
-			}
-		}, {
-			key: 'destroyCards',
-			value: function destroyCards(list, card) {
-				var timeline = new TimelineLite();
-				for (var i = 0; i < list.length; i++) {
-					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
-	
-					timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
-						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
-						onStart: function (arrow, zone) {
-							TweenLite.to(arrow.scale, 0.3, { x: 0, y: 0, ease: Back.easeIn });
-							TweenLite.to(arrow, 0.2, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
-						}.bind(this),
-						onCompleteParams: [list[i].cardFound],
-						onComplete: function (card) {
-							card.destroy();
-							card.convertCard();
-						}.bind(this) }));
-					this.cards[list[i].cardFound.pos.i][list[i].cardFound.pos.j] = 0;
-				}
-				card.convertCard();
-			}
-		}, {
-			key: 'getOpposit',
-			value: function getOpposit(zone) {
-				var id = 0;
-				for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
-					if (ACTION_ZONES[i].label == zone) {
-						id = i;
-						break;
-					}
-				}
-			}
-		}, {
-			key: 'debugBoard2',
-			value: function debugBoard2() {
-				for (var i = 0; i < this.cards.length; i++) {
-					var str = i + 1 + '---  ';
-					for (var j = 0; j < this.cards[i].length; j++) {
-						str += (this.cards[i][j] || "0") + ' - ';
-					}
-					console.log(str);
-				}
-			}
-		}, {
-			key: 'debugBoard',
-			value: function debugBoard() {
-				for (var i = this.cards.length - 1; i >= 0; i--) {
-					var str = i + 1 + '---  ';
-					for (var j = 0; j < this.cards[i].length; j++) {
-						str += (this.cards[i][j] || "0") + ' - ';
-					}
-					console.log(str);
-				}
-			}
-		}]);
-	
-		return Board;
-	}();
-	
-	exports.default = Board;
 
 /***/ })
 /******/ ]);

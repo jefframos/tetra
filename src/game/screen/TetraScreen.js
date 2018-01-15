@@ -72,8 +72,13 @@ export default class TetraScreen extends Screen{
 		this.gridContainer.addChild(this.trailMarker);
 		this.trailMarker.alpha = 0;
 
-		this.cardsContainer.addChild(this.placeCard(0, 0));
-		this.cardsContainer.addChild(this.placeCard(2, 0));
+		let tempPosRandom = []
+		for (var i = 0; i <GRID.i; i++) {
+			tempPosRandom.push(i);
+		}
+		utils.shuffle(tempPosRandom);
+		this.cardsContainer.addChild(this.placeCard(tempPosRandom[0], 0));
+		this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 
 		this.board.debugBoard();
 

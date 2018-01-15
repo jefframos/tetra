@@ -51,44 +51,25 @@ export default class Board{
 		}
 	}
 	moveCardDown(card){
-		// return;
-		if(card.counter <= 0){
-			card.counter = 10;
-		}
 		this.cards[card.pos.i][card.pos.j] = 0;
 		card.pos.j ++;
-		if(card.pos.j > GRID.j){
+		if(card.pos.j >= GRID.j){
 			card.destroy();
+			//GAME OVER AQUI
 			return;
 		}
 		this.addCard(card);
 		card.move({
 			x: card.pos.i * CARD.width,
 			y: card.pos.j * CARD.height
-		}, 0.2);
+		}, 0.2, 0.5);
 	}
-	moveLaneDown(card){
-		//NAO TA FUNCIONANDO
-		let cards = [];
-		cards.push(card);
-		for (var i = card.pos.j; i < this.cards[card.pos.i].length; i++) {
-			if(this.cards[card.pos.i][i]){
-				cards.push(this.cards[card.pos.i][i]);
-			}
-		}
-
-		for (var i = 0; i < cards.length; i++) {
-			this.moveCardDown(cards[i])
-		}
-		
-		//if card is 0, reset the counter e move todos que tao abaixo pra mais perto do game over
-	}
-
 	updateRound(card){
 		let zones = card.zones;
 		let findCards = false;
 		let cardFound = null;
 		let cardsToDestroy = [];
+		let autoDestroyCardData = null;
 		for (var i = 0; i < zones.length; i++) {
 			let actionPosId = {
 				i:card.pos.i +zones[i].dir.x,
@@ -96,11 +77,17 @@ export default class Board{
 			}
 			if((actionPosId.i >= 0 && actionPosId.i < window.GRID.i)&&
 				(actionPosId.j >= 0 && actionPosId.j < window.GRID.j)){
-
 				cardFound = this.cards[actionPosId.i][actionPosId.j];
-				if(cardFound){
-					
+				if(cardFound){		
 					findCards = true;
+					console.log(cardFound.hasZone(this.getOpposit(zones[i].label)));
+					let tempZone = cardFound.hasZone(this.getOpposit(zones[i].label));
+					if(tempZone && !autoDestroyCardData){
+						autoDestroyCardData = {
+							card: card,
+							zone: tempZone
+						}
+					}
 					cardsToDestroy.push({cardFound:cardFound, currentCard: card, attackZone:zones[i]});
 				}				
 			}
@@ -111,7 +98,7 @@ export default class Board{
 		}else{
 			//cardsToDestroy.push(card);
 			setTimeout(function() {
-				this.destroyCards(cardsToDestroy, card);		
+				this.destroyCards(cardsToDestroy, card, autoDestroyCardData);		
 			}.bind(this), 300);
 			//this.destroyCards(cardsToDestroy);			
 		}
@@ -120,20 +107,48 @@ export default class Board{
 			this.updateCardsCounter(-1);
 		}.bind(this), 350);
 		
-		
-
 	}
 
 	updateCardsCounter(value, card){
+		let cardsToMove = [];
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = 0; j < this.cards[i].length; j++) {
 				if(this.cards[i][j]){
-					this.cards[i][j].updateCounter(value);
+					let tcard = this.cards[i][j].updateCounter(value);
+					if(tcard){
+						//console.log(tcard);
+						cardsToMove.push(tcard)
+					}
 				}
 			}
 		}
+		// console.log(cardsToMove);
+		let moveDownList = [];
+
+		for (var i = 0; i < cardsToMove.length; i++) {
+			let id = cardsToMove[i].pos.i;
+			for (var j = cardsToMove[i].pos.j; j < GRID.j; j++) {
+				let tempCard = this.cards[id][j];
+				if(tempCard){
+					let canAdd = true;
+					for (var k = 0; k < moveDownList.length; k++) {
+						if((moveDownList[k].pos.i == tempCard.pos.i) && (moveDownList[k].pos.j == tempCard.pos.j)){
+							canAdd = false;
+							break;
+						}
+					}
+					if(canAdd){
+						moveDownList.push(tempCard);
+					}
+				}
+			}
+		}
+		for (var i = moveDownList.length - 1; i >= 0; i--) {
+			this.moveCardDown(moveDownList[i]);
+		}
+		console.log(moveDownList);
 	}
-	destroyCards(list, card){
+	destroyCards(list, card, autoDestroyCardData){
 		let timeline = new TimelineLite();
 		for (var i = 0; i < list.length; i++) {
 			//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
@@ -141,8 +156,9 @@ export default class Board{
 			timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
 				onStartParams:[list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
 				onStart:function(arrow, zone){
-					TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
+					// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
 					TweenLite.to(arrow, 0.2, {x:arrow.x  + 10 * zone.dir.x, y:arrow.y + 10 * zone.dir.y, ease:Back.easeIn})
+					TweenLite.to(arrow, 0.2, {delay:0.2, x:arrow.x, y:arrow.y, ease:Back.easeIn})
 				}.bind(this),
 				onCompleteParams:[list[i].cardFound],
 				onComplete:function(card){
@@ -151,9 +167,18 @@ export default class Board{
 				}.bind(this)}));
 			this.cards[list[i].cardFound.pos.i][list[i].cardFound.pos.j] = 0;
 		}
-		card.convertCard();
+		if(autoDestroyCardData){
+			this.cards[card.pos.i][card.pos.j] = 0;
+			setTimeout(function() {
+				this.delayedDestroy(card);
+			}.bind(this), list.length * 200);
+		}else{			
+			card.convertCard();
+		}
 	}
-
+	delayedDestroy(card){
+		card.destroy();
+	}
 	getOpposit(zone){
 		let id = 0;
 		for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
@@ -162,6 +187,9 @@ export default class Board{
 				break;
 			}
 		}
+		let opposit = ACTION_ZONES[(id + ACTION_ZONES.length/2)%ACTION_ZONES.length].label;
+		console.log(opposit);
+		return opposit;
 	}
 
 	debugBoard2(){

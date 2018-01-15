@@ -9,12 +9,13 @@ export default class Card extends PIXI.Container{
 		this.arrows = [];
 		this.pos = {i:-1, j:-1};
 		this.type = 0;
+		this.MAX_COUNTER = 10;
 	}
 	start(){
 	}
 	createCard(){
 		let card = new PIXI.Container();
-		this.counter = 10;
+		this.counter = this.MAX_COUNTER;
 		this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0,0,CARD.width, CARD.height, 0);
 		this.cardBackground2 = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(8,8,CARD.width-16, CARD.height-16, 0);
 		let cardContainer = new PIXI.Container();
@@ -32,6 +33,14 @@ export default class Card extends PIXI.Container{
 		this.addChild(this.cardContainer);
 		return this.cardContainer;
 	}
+	hasZone(zone){
+		for (var i = 0; i < this.zones.length; i++) {
+			if(this.zones[i].label == zone){
+				return this.zones[i];
+			}
+		}
+		return false;
+	}
 	removeActionZones(){
 		this.zones = [];
 		while(this.cardActions.children.length > 0){
@@ -42,9 +51,11 @@ export default class Card extends PIXI.Container{
 		this.counter += value;
 		this.label.text = this.counter;
 		if(this.counter <= 0){
-			this.counter = 10;
-			this.game.board.moveLaneDown(this);
+			this.counter = this.MAX_COUNTER;
+			return this;
+			//this.game.board.moveLaneDown(this);
 		}
+		return null;
 	}
 	updateCard(){
 		if(this.type == 0){
@@ -104,8 +115,8 @@ export default class Card extends PIXI.Container{
 			arrow.y += Math.cos(angle) * 7;
 		}
 	}
-	move(pos, time = 0.3){
-		TweenLite.to(this, time, pos);
+	move(pos, time = 0.3, delay = 0){
+		TweenLite.to(this, time, {x:pos.x, y:pos.y, delay: delay});
 	}
 	destroy(){
 		TweenLite.to(this, 0.2, {alpha:0, onComplete:function(){			
