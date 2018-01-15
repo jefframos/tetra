@@ -6,6 +6,7 @@ import Screen from '../../screenManager/Screen'
 import Grid from '../elements/Grid'
 import Card from '../elements/Card'
 import Board from '../core/Board'
+import BackgroundEffects from '../effects/BackgroundEffects'
 
 export default class TetraScreen extends Screen{
 	constructor(label){
@@ -42,7 +43,7 @@ export default class TetraScreen extends Screen{
 	
 	build(){
 		super.build();
-		this.background = new PIXI.Graphics().beginFill(0x333333).drawRect(0,0,config.width,config.height);
+		this.background = new BackgroundEffects();
         this.addChild(this.background)
 
         this.gameContainer = new PIXI.Container();

@@ -10,7 +10,7 @@ export default class Grid extends PIXI.Container{
 	}
 	createGrid(){
 		let gridContainer = new PIXI.Container();
-		let gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0,0,GRID.width, GRID.height);
+		let gridBackground = new PIXI.Graphics().beginFill(0).drawRect(0,0,GRID.width, GRID.height);
 		gridContainer.addChild(gridBackground)
 
 		for (var i = GRID.i; i >= 0; i--) {
@@ -24,7 +24,7 @@ export default class Grid extends PIXI.Container{
 			line.y = j * CARD.height;
 			gridContainer.addChild(line)
 		}
-
+		gridContainer.alpha = 0.3;
 
 		this.addChild(gridContainer);
 	}

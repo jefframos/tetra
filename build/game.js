@@ -55875,6 +55875,10 @@
 	
 	var _Board2 = _interopRequireDefault(_Board);
 	
+	var _BackgroundEffects = __webpack_require__(228);
+	
+	var _BackgroundEffects2 = _interopRequireDefault(_BackgroundEffects);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -55918,7 +55922,7 @@
 			key: 'build',
 			value: function build() {
 				_get(TetraScreen.prototype.__proto__ || Object.getPrototypeOf(TetraScreen.prototype), 'build', this).call(this);
-				this.background = new PIXI.Graphics().beginFill(0x333333).drawRect(0, 0, _config2.default.width, _config2.default.height);
+				this.background = new _BackgroundEffects2.default();
 				this.addChild(this.background);
 	
 				this.gameContainer = new PIXI.Container();
@@ -56103,7 +56107,7 @@
 			key: 'createGrid',
 			value: function createGrid() {
 				var gridContainer = new PIXI.Container();
-				var gridBackground = new PIXI.Graphics().beginFill(0x555555).drawRect(0, 0, GRID.width, GRID.height);
+				var gridBackground = new PIXI.Graphics().beginFill(0).drawRect(0, 0, GRID.width, GRID.height);
 				gridContainer.addChild(gridBackground);
 	
 				for (var i = GRID.i; i >= 0; i--) {
@@ -56117,6 +56121,7 @@
 					_line.y = j * CARD.height;
 					gridContainer.addChild(_line);
 				}
+				gridContainer.alpha = 0.3;
 	
 				this.addChild(gridContainer);
 			}
@@ -57359,6 +57364,57 @@
 	}(PIXI.Container);
 	
 	exports.default = Ball;
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _gsap = __webpack_require__(195);
+	
+	var _gsap2 = _interopRequireDefault(_gsap);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var BackgroundEffects = function (_PIXI$Container) {
+		_inherits(BackgroundEffects, _PIXI$Container);
+	
+		function BackgroundEffects() {
+			_classCallCheck(this, BackgroundEffects);
+	
+			var _this = _possibleConstructorReturn(this, (BackgroundEffects.__proto__ || Object.getPrototypeOf(BackgroundEffects)).call(this));
+	
+			_this.background = new PIXI.Graphics().beginFill(0).drawRect(0, 0, _config2.default.width, _config2.default.height);
+			_this.addChild(_this.background);
+			_this.particles = [];
+			return _this;
+		}
+	
+		return BackgroundEffects;
+	}(PIXI.Container);
+	
+	exports.default = BackgroundEffects;
 
 /***/ })
 /******/ ]);
