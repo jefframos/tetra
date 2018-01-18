@@ -12,6 +12,7 @@ import ChooseTeamScreen from './game/screen/ChooseTeamScreen';
 import ChooseFieldScreen from './game/screen/ChooseFieldScreen';
 import GameOverScreen from './game/screen/GameOverScreen';
 import TetraScreen from './game/screen/TetraScreen';
+import EffectLayer from './game/effects/EffectLayer';
 import ChooseMatchScreen from './game/screen/ChooseMatchScreen';
 import Pool from './game/core/Pool';
 // window.GRAPHICS_DATA = {
@@ -69,6 +70,12 @@ window.console.groupCollapsed = function(teste){return teste}//('hided warnings'
 
 PIXI.loader
 	.add('./assets/fonts/stylesheet.css')
+	.add('./assets/images/tvlines.png')
+	.add('./assets/images/game_bg.png')
+	.add('./assets/images/glitch1.jpg')
+	.add('./assets/images/glitch2.jpg')
+	.add('./assets/images/screen_displacement.jpg')
+	.add('./assets/images/map.jpg')
 	.load(configGame);
 
 function configGame(){
@@ -86,6 +93,10 @@ function configGame(){
 	screenManager.addScreen(gameScreen);
 	//change to init screen
 	screenManager.forceChange('GameScreen');
+
+	window.EFFECTS = new EffectLayer(screenManager);
+	game.stage.addChild(EFFECTS);
+
 
 	// screenManager.filters = [this.pixelate]
 

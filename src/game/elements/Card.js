@@ -29,8 +29,10 @@ export default class Card extends PIXI.Container{
 		utils.centerObject(this.label, this.cardBackground);
 		this.addActionZones();
 
-		this.cardContainer = card;
-		this.addChild(this.cardContainer);
+		this.cardContainer = cardContainer;//card;
+		this.addChild(card);
+		cardContainer.pivot.x = CARD.width / 2;
+		cardContainer.x = CARD.width / 2;
 		return this.cardContainer;
 	}
 	hasZone(zone){

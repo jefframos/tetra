@@ -24,7 +24,7 @@ export default class TetraScreen extends Screen{
         ]
 
         window.GRID = {
-        	i:6,
+        	i:4,
         	j:7,
         	width: config.width * 0.7,
         	height: config.height * 0.7,
@@ -56,6 +56,7 @@ export default class TetraScreen extends Screen{
         this.gameContainer.addChild(this.gridContainer);
         this.gameContainer.addChild(this.cardsContainer);
 
+        this.mousePosID = 0;
         // this.currentCard = this.createCard();
         // this.cardsContainer.addChild(this.currentCard)
         // utils.centerObject(this.currentCard, this.background)
@@ -64,13 +65,17 @@ export default class TetraScreen extends Screen{
 
 		this.grid.createGrid();
 		this.gridContainer.addChild(this.grid);
-		utils.centerObject(this.gridContainer, this.background);
+		utils.centerObject(this.gridContainer, this.background.background);
 
 		this.cardsContainer.x = this.gridContainer.x;
 		this.cardsContainer.y = this.gridContainer.y;
 
 		this.trailMarker = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0,0,CARD.width, GRID.height, 0);
 		this.gridContainer.addChild(this.trailMarker);
+
+		this.initGridY = this.gridContainer.y;
+		this.initGridAcc = 0;
+
 		this.trailMarker.alpha = 0;
 
 		let tempPosRandom = []
@@ -89,10 +94,14 @@ export default class TetraScreen extends Screen{
 
 	}
 
+	addRandomPiece(){
+	}
+
 	newRound(){
 		this.currentCard =  new Card(this);
 		this.currentCard.createCard();
 		this.currentCard.type = 1;
+		this.currentCard.x = CARD.width * this.mousePosID;
 		this.currentCard.y = this.gridContainer.height + 20;
 		this.currentCard.updateCard();
 		this.cardsContainer.addChild(this.currentCard);
@@ -113,17 +122,23 @@ export default class TetraScreen extends Screen{
 
 	
 	update(delta){
-		this.mousePosition = renderer.plugins.interaction.mouse.global;
+		if(renderer.plugins.interaction.mouse.global){
+			this.mousePosition = renderer.plugins.interaction.mouse.global;
+		}
 		this.updateMousePosition();
+
+		this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
+		this.initGridAcc += 0.05
+		
 		//console.log(this.mousePosition);
 	}
 
 	updateMousePosition(){
 		this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
-		this.trailMarker.alpha = 0;
+		// this.trailMarker.alpha = 0;
 		if(this.mousePosID >= 0 && this.mousePosID < GRID.i){
-			TweenLite.to(this.trailMarker, 0.3, {x:this.mousePosID * CARD.width});
-			this.currentCard.move({x:this.mousePosID * CARD.width, y:this.currentCard.y}, 0.3);
+			TweenLite.to(this.trailMarker, 0.1, {x:this.mousePosID * CARD.width});
+			this.currentCard.move({x:this.mousePosID * CARD.width, y:this.currentCard.y}, 0.1);
 			this.trailMarker.alpha = 0.15;
 		}
 	}
@@ -139,21 +154,56 @@ export default class TetraScreen extends Screen{
 
 	}
 	
-	onTapDown(){
+	onTapUp(){
+		if(renderer.plugins.interaction.activeInteractionData[0]){
+			this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global
+		}
+		else{
+			this.mousePosition = renderer.plugins.interaction.mouse.global
+		}
+		this.updateMousePosition();
+		//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 		if(!this.board.isPossibleShot(this.mousePosID)){
 			return;
 		}
+
 		this.board.shootCard(this.mousePosID, this.currentCard);
 		let normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
 		this.currentCard.move({
 			x: this.currentCard.pos.i * CARD.width,
 			y: this.currentCard.pos.j * CARD.height
-		}, 0.3 * normalDist);
+		}, 0.1 * normalDist);
 		
 		// console.log((this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height);
 		// console.log(this.mousePosID);
 
 		this.newRound();
+	}
+
+	onTapDown(){
+		if(renderer.plugins.interaction.activeInteractionData[0]){
+			this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global
+		}
+		else{
+			this.mousePosition = renderer.plugins.interaction.mouse.global
+		}
+		this.updateMousePosition();
+		//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
+		// if(!this.board.isPossibleShot(this.mousePosID)){
+		// 	return;
+		// }
+
+		// this.board.shootCard(this.mousePosID, this.currentCard);
+		// let normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
+		// this.currentCard.move({
+		// 	x: this.currentCard.pos.i * CARD.width,
+		// 	y: this.currentCard.pos.j * CARD.height
+		// }, 0.1 * normalDist);
+		
+		// console.log((this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height);
+		// console.log(this.mousePosID);
+
+		// this.newRound();
 	}
 
 	removeEvents(){
@@ -162,5 +212,7 @@ export default class TetraScreen extends Screen{
 	addEvents(){
 		this.gameContainer.interactive = true;
 		this.gameContainer.on('mousedown', this.onTapDown.bind(this)).on('touchstart', this.onTapDown.bind(this));
+		this.gameContainer.on('mouseup', this.onTapUp.bind(this)).on('touchend', this.onTapUp.bind(this));
+
 	}
 }

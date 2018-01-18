@@ -32,6 +32,10 @@ export default class Board{
 	}
 
 	shootCard(laneID, card){
+		card.cardContainer.scale.x = 0.5;
+		card.cardContainer.scale.y = 1.5;
+
+		TweenLite.to(card.cardContainer.scale, 0.2, {x:1, y:1});
 		let spaceID = -1;
 		for (var i = this.cards[laneID].length-1; i >= 0; i--) {
 			if(!this.cards[laneID][i]){
@@ -47,7 +51,7 @@ export default class Board{
 			this.addCard(card);
 			setTimeout(function() {
 				this.updateRound(card);				
-			}.bind(this), 200);
+			}.bind(this), 50);
 		}
 	}
 	moveCardDown(card){
@@ -157,8 +161,18 @@ export default class Board{
 				onStartParams:[list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
 				onStart:function(arrow, zone){
 					// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
-					TweenLite.to(arrow, 0.2, {x:arrow.x  + 10 * zone.dir.x, y:arrow.y + 10 * zone.dir.y, ease:Back.easeIn})
+
+					TweenLite.to(arrow, 0.05, {x:arrow.x  + 10 * zone.dir.x, y:arrow.y + 10 * zone.dir.y, ease:Back.easeIn})
 					TweenLite.to(arrow, 0.2, {delay:0.2, x:arrow.x, y:arrow.y, ease:Back.easeIn})
+					let arrowGlobal = arrow.getGlobalPosition ({x:0, y:0});
+					let screenPos = {
+						x:arrowGlobal.x / config.width,
+						y:arrowGlobal.y / config.height
+					}
+					console.log(arrow.getGlobalPosition ({x:0, y:0}));
+					console.log(screenPos);
+					window.EFFECTS.addShockwave(screenPos.x,screenPos.y,2);
+					window.EFFECTS.shakeSplitter(0.2,3,0.5);
 				}.bind(this),
 				onCompleteParams:[list[i].cardFound],
 				onComplete:function(card){

@@ -41434,11 +41434,15 @@
 	
 	var _TetraScreen2 = _interopRequireDefault(_TetraScreen);
 	
-	var _ChooseMatchScreen = __webpack_require__(225);
+	var _EffectLayer = __webpack_require__(226);
+	
+	var _EffectLayer2 = _interopRequireDefault(_EffectLayer);
+	
+	var _ChooseMatchScreen = __webpack_require__(227);
 	
 	var _ChooseMatchScreen2 = _interopRequireDefault(_ChooseMatchScreen);
 	
-	var _Pool = __webpack_require__(226);
+	var _Pool = __webpack_require__(228);
 	
 	var _Pool2 = _interopRequireDefault(_Pool);
 	
@@ -41497,7 +41501,7 @@
 		return teste;
 	}; //('hided warnings')
 	
-	PIXI.loader.add('./assets/fonts/stylesheet.css').load(configGame);
+	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/screen_displacement.jpg').add('./assets/images/map.jpg').load(configGame);
 	
 	function configGame() {
 	
@@ -41513,6 +41517,9 @@
 		screenManager.addScreen(gameScreen);
 		//change to init screen
 		screenManager.forceChange('GameScreen');
+	
+		window.EFFECTS = new _EffectLayer2.default(screenManager);
+		game.stage.addChild(EFFECTS);
 	
 		// screenManager.filters = [this.pixelate]
 	
@@ -41533,11 +41540,16 @@
 	
 	var PIXI = _interopRequireWildcard(_pixi);
 	
+	var _pixiFilters = __webpack_require__(230);
+	
+	var FILTERS = _interopRequireWildcard(_pixiFilters);
+	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
-	exports.default = {}; /*
-	                        import all the plugins to extend pixi here.
-	                      */
+	/*
+	  import all the plugins to extend pixi here.
+	*/
+	exports.default = {};
 
 /***/ }),
 /* 192 */
@@ -55875,7 +55887,7 @@
 	
 	var _Board2 = _interopRequireDefault(_Board);
 	
-	var _BackgroundEffects = __webpack_require__(228);
+	var _BackgroundEffects = __webpack_require__(225);
 	
 	var _BackgroundEffects2 = _interopRequireDefault(_BackgroundEffects);
 	
@@ -55900,7 +55912,7 @@
 			window.ACTION_ZONES = [{ label: "TOP_LEFT", pos: { x: 0, y: 0 }, dir: { x: -1, y: -1 } }, { label: "TOP_CENTER", pos: { x: 1, y: 0 }, dir: { x: 0, y: -1 } }, { label: "TOP_RIGHT", pos: { x: 2, y: 0 }, dir: { x: 1, y: -1 } }, { label: "CENTER_RIGHT", pos: { x: 2, y: 1 }, dir: { x: 1, y: 0 } }, { label: "BOTTOM_RIGHT", pos: { x: 2, y: 2 }, dir: { x: 1, y: 1 } }, { label: "BOTTOM_CENTER", pos: { x: 1, y: 2 }, dir: { x: 0, y: 1 } }, { label: "BOTTOM_LEFT", pos: { x: 0, y: 2 }, dir: { x: -1, y: 1 } }, { label: "CENTER_LEFT", pos: { x: 0, y: 1 }, dir: { x: -1, y: 0 } }];
 	
 			window.GRID = {
-				i: 6,
+				i: 4,
 				j: 7,
 				width: _config2.default.width * 0.7,
 				height: _config2.default.height * 0.7
@@ -55935,6 +55947,7 @@
 				this.gameContainer.addChild(this.gridContainer);
 				this.gameContainer.addChild(this.cardsContainer);
 	
+				this.mousePosID = 0;
 				// this.currentCard = this.createCard();
 				// this.cardsContainer.addChild(this.currentCard)
 				// utils.centerObject(this.currentCard, this.background)
@@ -55942,13 +55955,17 @@
 	
 				this.grid.createGrid();
 				this.gridContainer.addChild(this.grid);
-				_utils2.default.centerObject(this.gridContainer, this.background);
+				_utils2.default.centerObject(this.gridContainer, this.background.background);
 	
 				this.cardsContainer.x = this.gridContainer.x;
 				this.cardsContainer.y = this.gridContainer.y;
 	
 				this.trailMarker = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, GRID.height, 0);
 				this.gridContainer.addChild(this.trailMarker);
+	
+				this.initGridY = this.gridContainer.y;
+				this.initGridAcc = 0;
+	
 				this.trailMarker.alpha = 0;
 	
 				var tempPosRandom = [];
@@ -55966,11 +55983,15 @@
 				this.newRound();
 			}
 		}, {
+			key: 'addRandomPiece',
+			value: function addRandomPiece() {}
+		}, {
 			key: 'newRound',
 			value: function newRound() {
 				this.currentCard = new _Card2.default(this);
 				this.currentCard.createCard();
 				this.currentCard.type = 1;
+				this.currentCard.x = CARD.width * this.mousePosID;
 				this.currentCard.y = this.gridContainer.height + 20;
 				this.currentCard.updateCard();
 				this.cardsContainer.addChild(this.currentCard);
@@ -55991,18 +56012,24 @@
 		}, {
 			key: 'update',
 			value: function update(delta) {
-				this.mousePosition = renderer.plugins.interaction.mouse.global;
+				if (renderer.plugins.interaction.mouse.global) {
+					this.mousePosition = renderer.plugins.interaction.mouse.global;
+				}
 				this.updateMousePosition();
+	
+				this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
+				this.initGridAcc += 0.05;
+	
 				//console.log(this.mousePosition);
 			}
 		}, {
 			key: 'updateMousePosition',
 			value: function updateMousePosition() {
 				this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
-				this.trailMarker.alpha = 0;
+				// this.trailMarker.alpha = 0;
 				if (this.mousePosID >= 0 && this.mousePosID < GRID.i) {
-					_gsap2.default.to(this.trailMarker, 0.3, { x: this.mousePosID * CARD.width });
-					this.currentCard.move({ x: this.mousePosID * CARD.width, y: this.currentCard.y }, 0.3);
+					_gsap2.default.to(this.trailMarker, 0.1, { x: this.mousePosID * CARD.width });
+					this.currentCard.move({ x: this.mousePosID * CARD.width, y: this.currentCard.y }, 0.1);
 					this.trailMarker.alpha = 0.15;
 				}
 			}
@@ -56021,22 +56048,56 @@
 			key: 'destroy',
 			value: function destroy() {}
 		}, {
-			key: 'onTapDown',
-			value: function onTapDown() {
+			key: 'onTapUp',
+			value: function onTapUp() {
+				if (renderer.plugins.interaction.activeInteractionData[0]) {
+					this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global;
+				} else {
+					this.mousePosition = renderer.plugins.interaction.mouse.global;
+				}
+				this.updateMousePosition();
+				//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 				if (!this.board.isPossibleShot(this.mousePosID)) {
 					return;
 				}
+	
 				this.board.shootCard(this.mousePosID, this.currentCard);
 				var normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
 				this.currentCard.move({
 					x: this.currentCard.pos.i * CARD.width,
 					y: this.currentCard.pos.j * CARD.height
-				}, 0.3 * normalDist);
+				}, 0.1 * normalDist);
 	
 				// console.log((this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height);
 				// console.log(this.mousePosID);
 	
 				this.newRound();
+			}
+		}, {
+			key: 'onTapDown',
+			value: function onTapDown() {
+				if (renderer.plugins.interaction.activeInteractionData[0]) {
+					this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global;
+				} else {
+					this.mousePosition = renderer.plugins.interaction.mouse.global;
+				}
+				this.updateMousePosition();
+				//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
+				// if(!this.board.isPossibleShot(this.mousePosID)){
+				// 	return;
+				// }
+	
+				// this.board.shootCard(this.mousePosID, this.currentCard);
+				// let normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
+				// this.currentCard.move({
+				// 	x: this.currentCard.pos.i * CARD.width,
+				// 	y: this.currentCard.pos.j * CARD.height
+				// }, 0.1 * normalDist);
+	
+				// console.log((this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height);
+				// console.log(this.mousePosID);
+	
+				// this.newRound();
 			}
 		}, {
 			key: 'removeEvents',
@@ -56046,6 +56107,7 @@
 			value: function addEvents() {
 				this.gameContainer.interactive = true;
 				this.gameContainer.on('mousedown', this.onTapDown.bind(this)).on('touchstart', this.onTapDown.bind(this));
+				this.gameContainer.on('mouseup', this.onTapUp.bind(this)).on('touchend', this.onTapUp.bind(this));
 			}
 		}]);
 	
@@ -56204,8 +56266,10 @@
 				_utils2.default.centerObject(this.label, this.cardBackground);
 				this.addActionZones();
 	
-				this.cardContainer = card;
-				this.addChild(this.cardContainer);
+				this.cardContainer = cardContainer; //card;
+				this.addChild(card);
+				cardContainer.pivot.x = CARD.width / 2;
+				cardContainer.x = CARD.width / 2;
 				return this.cardContainer;
 			}
 		}, {
@@ -56392,6 +56456,10 @@
 		}, {
 			key: 'shootCard',
 			value: function shootCard(laneID, card) {
+				card.cardContainer.scale.x = 0.5;
+				card.cardContainer.scale.y = 1.5;
+	
+				TweenLite.to(card.cardContainer.scale, 0.2, { x: 1, y: 1 });
 				var spaceID = -1;
 				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
 					if (!this.cards[laneID][i]) {
@@ -56407,7 +56475,7 @@
 					this.addCard(card);
 					setTimeout(function () {
 						this.updateRound(card);
-					}.bind(this), 200);
+					}.bind(this), 50);
 				}
 			}
 		}, {
@@ -56522,8 +56590,18 @@
 						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
 						onStart: function (arrow, zone) {
 							// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
-							TweenLite.to(arrow, 0.2, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
+	
+							TweenLite.to(arrow, 0.05, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
 							TweenLite.to(arrow, 0.2, { delay: 0.2, x: arrow.x, y: arrow.y, ease: Back.easeIn });
+							var arrowGlobal = arrow.getGlobalPosition({ x: 0, y: 0 });
+							var screenPos = {
+								x: arrowGlobal.x / _config2.default.width,
+								y: arrowGlobal.y / _config2.default.height
+							};
+							console.log(arrow.getGlobalPosition({ x: 0, y: 0 }));
+							console.log(screenPos);
+							window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
+							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
 						}.bind(this),
 						onCompleteParams: [list[i].cardFound],
 						onComplete: function (card) {
@@ -56591,6 +56669,584 @@
 
 /***/ }),
 /* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+			value: true
+	});
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _gsap = __webpack_require__(195);
+	
+	var _gsap2 = _interopRequireDefault(_gsap);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var BackgroundEffects = function (_PIXI$Container) {
+			_inherits(BackgroundEffects, _PIXI$Container);
+	
+			function BackgroundEffects() {
+					_classCallCheck(this, BackgroundEffects);
+	
+					var _this = _possibleConstructorReturn(this, (BackgroundEffects.__proto__ || Object.getPrototypeOf(BackgroundEffects)).call(this));
+	
+					_this.background = new PIXI.Graphics().beginFill(0).drawRect(0, 0, _config2.default.width, _config2.default.height);
+					_this.addChild(_this.background);
+	
+					_this.bgImage = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
+					_this.bgImage.anchor.x = 0.5;
+					_this.bgImage.x = _config2.default.width / 2;
+					_this.bgImage.y = _config2.default.height - _this.bgImage.height;
+					_this.addChild(_this.bgImage);
+	
+					_this.bgImageTop = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
+					_this.bgImageTop.anchor.x = 0.5;
+					_this.bgImageTop.x = _config2.default.width / 2;
+					_this.bgImageTop.y = _this.bgImageTop.height;
+					_this.bgImageTop.scale.y = -1;
+					_this.addChild(_this.bgImageTop);
+	
+					_this.particles = [];
+					return _this;
+			}
+	
+			return BackgroundEffects;
+	}(PIXI.Container);
+	
+	exports.default = BackgroundEffects;
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(192);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _gsap = __webpack_require__(195);
+	
+	var _gsap2 = _interopRequireDefault(_gsap);
+	
+	var _pixiFilters = __webpack_require__(230);
+	
+	var FILTERS = _interopRequireWildcard(_pixiFilters);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var EffectLayer = function (_PIXI$Container) {
+		_inherits(EffectLayer, _PIXI$Container);
+	
+		function EffectLayer(screenManager) {
+			_classCallCheck(this, EffectLayer);
+	
+			var _this = _possibleConstructorReturn(this, (EffectLayer.__proto__ || Object.getPrototypeOf(EffectLayer)).call(this));
+	
+			_this.screenManager = screenManager;
+	
+			_this.blackShape = new PIXI.Graphics();
+			_this.blackShape.beginFill(0);
+			_this.blackShape.drawRect(0, 0, _config2.default.width, _config2.default.height);
+			_this.blackShape.alpha = 0;
+			_this.addChild(_this.blackShape);
+	
+			_this.grey = new PIXI.Graphics();
+			_this.grey.beginFill(0X555555);
+			_this.grey.drawRect(0, 0, _config2.default.width, _config2.default.height);
+			_this.grey.alpha = 0;
+			_this.addChild(_this.grey);
+	
+			_this.tvLines = new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/tvlines.png', _config2.default.width, _config2.default.height));
+			_this.addChild(_this.tvLines);
+			_this.tvLines.width = _config2.default.width;
+			_this.tvLines.height = _config2.default.height;
+			_this.tvLines.blendMode = PIXI.BLEND_MODES.ADD;
+	
+			// this.tvShape = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/frontTVsoft.png'))
+			// this.addChild(this.tvShape)
+			// this.tvShape.width = config.width;
+			// this.tvShape.height = config.height;
+	
+			// this.tvShape.blendMode = PIXI.BLEND_MODES.OVERLAY;
+	
+	
+			//RGB SPLITTER
+			_this.rgpSplit = new FILTERS.RGBSplitFilter();
+			_this.rgpSplit.red = new PIXI.Point(1.5, 1.5);
+			_this.rgpSplit.green = new PIXI.Point(-1.5, -1.5);
+			_this.rgpSplit.blue = new PIXI.Point(1.5, -1.5);
+	
+			//crosshatch
+			_this.crossHatch = new FILTERS.CrossHatchFilter();
+	
+			//blur
+			_this.blur = new PIXI.filters.BlurFilter();
+	
+			//gray
+			// this.gray = new FILTERS.GrayFilter();
+	
+			//invert
+			_this.invertFilter = new PIXI.filters.ColorMatrixFilter();
+	
+			//ascii
+			_this.ascii = new FILTERS.AsciiFilter();
+	
+			//GLITCH 1
+			// this.glitch1 = new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/glitch1.jpg', config.width, config.height))
+			// this.addChild(this.glitch1)
+			// this.glitch1.width = config.width;
+			// this.glitch1.height = config.width;
+			// this.displacementFilterGlitch1 = new PIXI.filters.DisplacementFilter(this.glitch1);
+	
+			//PIXELATE
+			_this.pixelate = new FILTERS.PixelateFilter();
+			_this.pixelate.size.x = 2;
+			_this.pixelate.size.y = 2;
+	
+			//DISPLACEMENT FILTER
+			// let displacementTexture2 = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/glitch1.jpg'))
+			// this.addChild(displacementTexture2);
+	
+			//GLITCH 1
+			// this.glitch2 = new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/glitch2.jpg', config.width, config.height))
+			// this.addChild(this.glitch2)
+			// this.glitch2.width = config.width;
+			// this.glitch2.height = config.width;
+			// this.displacementFilterGlitch2 = new PIXI.filters.DisplacementFilter(this.glitch2);
+	
+			//GLITCH 1
+			_this.screenDisplacement = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/screen_displacement.jpg'));
+			_this.addChild(_this.screenDisplacement);
+			_this.screenDisplacement.width = _config2.default.width;
+			_this.screenDisplacement.height = _config2.default.height;
+			_this.displacementFilterscreenDisplacement = new PIXI.filters.DisplacementFilter(_this.screenDisplacement);
+	
+			//BLOOM
+			_this.bloom = new FILTERS.AdvancedBloomFilter();
+			_this.bloom.blur = 10;
+	
+			//SHOCKWAVE
+			_this.shockwave = new FILTERS.ShockwaveFilter();
+			_this.shockwave.time = 0;
+			// this.shockwave.center.x = 0.5;
+			// this.shockwave.center.y = 0.5;
+	
+			_this.filtersList = [_this.rgpSplit, _this.pixelate, _this.displacementFilterGlitch1, _this.bloom, _this.shockwave, _this.crossHatch, _this.invertFilter, _this.ascii, _this.gray, _this.displacementFilterscreenDisplacement, _this.blur];
+	
+			_this.filtersActives = [false, true, false, false, false, false, false, false, false, true, false];
+	
+			_this.updateFilters();
+	
+			_this.ID_RGBSPLIT = 0;
+			_this.ID_PIXELATE = 1;
+			_this.ID_GLITCH2 = 2;
+			_this.ID_GLITCH1 = 3;
+			_this.ID_BLOOM = 4;
+			_this.ID_SHOCKWAVE = 4;
+			_this.ID_CROSSHATCH = 6;
+			_this.ID_INVERT = 7;
+			_this.ID_ASCII = 8;
+			_this.ID_GRAY = 9;
+			_this.ID_BLUR = 10;
+	
+			//this.updatePixelate(config.pixelSize,config.pixelSize);
+	
+			return _this;
+		}
+	
+		_createClass(EffectLayer, [{
+			key: 'hideGreyShape',
+			value: function hideGreyShape(time, delay) {
+				_gsap2.default.to(this.grey, time, { alpha: 0, delay: delay });
+			}
+		}, {
+			key: 'removeAllFilters',
+			value: function removeAllFilters() {
+				for (var i = this.filtersActives.length - 1; i >= 0; i--) {
+					this.filtersActives[i] = false;
+				}
+				this.updateFilters();
+			}
+		}, {
+			key: 'updateRGBSplitter',
+			value: function updateRGBSplitter(value) {
+				this.rgpSplit.red = new PIXI.Point(value, value);
+				this.rgpSplit.green = new PIXI.Point(-value, -value);
+				this.rgpSplit.blue = new PIXI.Point(value, -value);
+			}
+		}, {
+			key: 'updateFilters',
+			value: function updateFilters() {
+				var filtersToApply = [];
+				for (var i = 0; i < this.filtersList.length; i++) {
+	
+					if (this.filtersActives[i]) {
+						filtersToApply.push(this.filtersList[i]);
+					}
+				};
+				this.screenManager.filters = filtersToApply.length > 0 ? filtersToApply : null;
+				// console.log(this.screenManager.filters);
+			}
+		}, {
+			key: 'removeBlur',
+			value: function removeBlur() {
+				this.filtersActives[this.ID_BLUR] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addBlur',
+			value: function addBlur() {
+				this.filtersActives[this.ID_BLUR] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeGlitch2',
+			value: function removeGlitch2() {
+				this.filtersActives[this.ID_GLITCH2] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addGlitch2',
+			value: function addGlitch2() {
+				this.filtersActives[this.ID_GLITCH2] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeGray',
+			value: function removeGray() {
+				this.filtersActives[this.ID_GRAY] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addGray',
+			value: function addGray() {
+				this.filtersActives[this.ID_GRAY] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeCrossHatch',
+			value: function removeCrossHatch() {
+				this.filtersActives[this.ID_CROSSHATCH] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addCrossHatch',
+			value: function addCrossHatch() {
+				this.filtersActives[this.ID_CROSSHATCH] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeInvert',
+			value: function removeInvert() {
+				this.filtersActives[this.ID_INVERT] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addInvert',
+			value: function addInvert() {
+				this.filtersActives[this.ID_INVERT] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeAscii',
+			value: function removeAscii() {
+				this.filtersActives[this.ID_ASCII] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addAscii',
+			value: function addAscii() {
+				this.filtersActives[this.ID_ASCII] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeBloom',
+			value: function removeBloom() {
+				this.filtersActives[this.ID_BLOOM] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addBloom',
+			value: function addBloom() {
+				this.filtersActives[this.ID_BLOOM] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removePixelate',
+			value: function (_removePixelate) {
+				function removePixelate() {
+					return _removePixelate.apply(this, arguments);
+				}
+	
+				removePixelate.toString = function () {
+					return _removePixelate.toString();
+				};
+	
+				return removePixelate;
+			}(function () {
+				console.log(removePixelate);
+				this.filtersActives[this.ID_PIXELATE] = false;
+				this.updateFilters();
+			})
+		}, {
+			key: 'addPixelate',
+			value: function addPixelate() {
+				this.filtersActives[this.ID_PIXELATE] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'removeRGBSplitter',
+			value: function removeRGBSplitter() {
+				this.filtersActives[this.ID_RGBSPLIT] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addRGBSplitter',
+			value: function addRGBSplitter() {
+				this.filtersActives[this.ID_RGBSPLIT] = true;
+				this.updateFilters();
+			}
+		}, {
+			key: 'updatePixelate',
+			value: function updatePixelate(x, y) {
+				this.pixelate.size.x = x;
+				this.pixelate.size.y = y;
+			}
+		}, {
+			key: 'removeShockwave',
+			value: function removeShockwave() {
+				this.filtersActives[this.ID_SHOCKWAVE] = false;
+				this.updateFilters();
+			}
+		}, {
+			key: 'addShockwave',
+			value: function addShockwave(x, y) {
+				var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+				var delay = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+	
+				this.filtersActives[this.ID_SHOCKWAVE] = true;
+				this.updateFilters();
+				// this.shockwave.wavelength = 0.5;
+				this.shockwave.amplitude = 10;
+				this.shockwave.time = 0;
+				this.shockwave.radius = 50;
+				this.shockwave.center = [x * this.width, y * this.height];
+				// [0] = x;
+				// this.shockwave.center[1] = y;
+				// this.shockwave.center.x = x;
+				// this.shockwave.center.y = y;
+				// console.log('shockcenter', this.shockwave, this.width);
+				_gsap2.default.killTweensOf(this.shockwave);
+				_gsap2.default.to(this.shockwave, time, { delay: delay, time: 1, onComplete: this.removeShockwave, onCompleteScope: this });
+			}
+		}, {
+			key: 'fadeBloom',
+			value: function fadeBloom(initValue, endValue, time, delay, removeAfter) {
+				this.addBloom();
+				this.bloom.blur = initValue;
+				_gsap2.default.killTweensOf(this.bloom);
+				if (removeAfter) {
+					_gsap2.default.to(this.bloom, time, { delay: delay, blur: endValue, onComplete: this.removeBloom, onCompleteScope: this });
+				} else {
+					_gsap2.default.to(this.bloom, time, { delay: delay, blur: endValue });
+				}
+			}
+		}, {
+			key: 'fadeSplitter',
+			value: function fadeSplitter(endValue, time, delay) {
+				// this.addRGBSplitter();
+				_gsap2.default.killTweensOf(this.rgpSplit.red);
+				_gsap2.default.killTweensOf(this.rgpSplit.green);
+				_gsap2.default.killTweensOf(this.rgpSplit.blue);
+				_gsap2.default.to(this.rgpSplit.red, time, { delay: delay, x: endValue, y: endValue, onStart: this.addRGBSplitter, onStartScope: this });
+				_gsap2.default.to(this.rgpSplit.green, time, { delay: delay, x: -endValue, y: -endValue });
+				_gsap2.default.to(this.rgpSplit.blue, time, { delay: delay, x: endValue, y: -endValue });
+			}
+		}, {
+			key: 'shakeSplitter',
+			value: function shakeSplitter() {
+				var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+				var steps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+				var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+				var removeAfter = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+	
+				this.filtersActives[this.ID_RGBSPLIT] = true;
+				this.updateFilters();
+				if (_config2.default.isJuicy == 0) {
+					return;
+				}
+				var timelineSplitRed = new TimelineLite();
+				var timelineSplitGreen = new TimelineLite();
+				var timelineSplitBlue = new TimelineLite();
+				var spliterForce = force * 20;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelineSplitRed.append(_gsap2.default.to(this.rgpSplit.red, speed, { x: Math.random() * spliterForce - spliterForce / 2, y: Math.random() * spliterForce - spliterForce / 2, ease: "easeNoneLinear" }));
+					timelineSplitGreen.append(_gsap2.default.to(this.rgpSplit.green, speed, { x: Math.random() * spliterForce - spliterForce / 2, y: Math.random() * spliterForce - spliterForce / 2, ease: "easeNoneLinear" }));
+					timelineSplitBlue.append(_gsap2.default.to(this.rgpSplit.blue, speed, { x: Math.random() * spliterForce - spliterForce / 2, y: Math.random() * spliterForce - spliterForce / 2, ease: "easeNoneLinear" }));
+				};
+				timelineSplitRed.append(_gsap2.default.to(this.rgpSplit.red, speed, { x: 1, y: 1, ease: "easeNoneLinear" }));
+				timelineSplitGreen.append(_gsap2.default.to(this.rgpSplit.green, speed, { x: -1, y: -1, ease: "easeNoneLinear" }));
+				if (removeAfter) {
+					timelineSplitBlue.append(_gsap2.default.to(this.rgpSplit.blue, speed, { x: 1, y: -1, ease: "easeNoneLinear", onComplete: this.removeRGBSplitter, onCompleteScope: this }));
+				} else {
+					timelineSplitBlue.append(_gsap2.default.to(this.rgpSplit.blue, speed, { x: 1, y: -1, ease: "easeNoneLinear" }));
+				}
+			}
+		}, {
+			key: 'shake',
+			value: function shake(force, steps, time) {
+				if (_config2.default.isJuicy == 0) {
+					return;
+				}
+				if (!force) {
+					force = 1;
+				}
+				if (!steps) {
+					steps = 4;
+				}
+				if (!time) {
+					time = 1;
+				}
+				var timelinePosition = new TimelineLite();
+				var positionForce = force * 50;
+				var spliterForce = force * 20;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { x: Math.random() * positionForce - positionForce / 2, y: Math.random() * positionForce - positionForce / 2, ease: "easeNoneLinear" }));
+				};
+	
+				timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { x: 0, y: 0, ease: "easeeaseNoneLinear" }));
+			}
+		}, {
+			key: 'shakeX',
+			value: function shakeX(force, steps, time) {
+				if (_config2.default.isJuicy == 0) {
+					return;
+				}
+				if (!force) {
+					force = 1;
+				}
+				if (!steps) {
+					steps = 4;
+				}
+				if (!time) {
+					time = 1;
+				}
+				var timelinePosition = new TimelineLite();
+				var positionForce = force * 50;
+				var spliterForce = force * 20;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { x: Math.random() * positionForce - positionForce / 2, ease: "easeNoneLinear" }));
+				};
+	
+				timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { x: 0, y: 0, ease: "easeeaseNoneLinear" }));
+			}
+		}, {
+			key: 'shakeY',
+			value: function shakeY(force, steps, time) {
+				if (_config2.default.isJuicy == 0) {
+					return;
+				}
+				if (!force) {
+					force = 1;
+				}
+				if (!steps) {
+					steps = 4;
+				}
+				if (!time) {
+					time = 1;
+				}
+				var timelinePosition = new TimelineLite();
+				var positionForce = force * 50;
+				var spliterForce = force * 20;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { y: Math.random() * positionForce - positionForce / 2, ease: "easeNoneLinear" }));
+				};
+	
+				timelinePosition.append(_gsap2.default.to(this.screenManager.position, speed, { x: 0, y: 0, ease: "easeeaseNoneLinear" }));
+			}
+		}, {
+			key: 'shakeRotation',
+			value: function shakeRotation(force, steps, time) {
+				if (_config2.default.isJuicy == 0) {
+					return;
+				}
+				if (!force) {
+					force = 1;
+				}
+				if (!steps) {
+					steps = 4;
+				}
+				if (!time) {
+					time = 1;
+				}
+				var timelinePosition = new TimelineLite();
+				var rotationForce = force * 180 / Math.PI;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelinePosition.append(_gsap2.default.to(this.screenManager, speed, { rotation: Math.random() * rotationForce - rotationForce / 2, ease: "easeNoneLinear" }));
+				};
+	
+				timelinePosition.append(_gsap2.default.to(this.screenManager, speed, { rotation: 0, ease: "easeeaseNoneLinear" }));
+			}
+		}, {
+			key: 'update',
+			value: function update(delta) {
+				this.blackShape.alpha = Math.random() * 0.1;
+				this.tvLines.tilePosition.y += 1;
+				if (this.tvLines.tilePosition.y > 40) {
+					this.tvLines.tilePosition.y = 0;
+				}
+				//this.glitch1.tilePosition.y += 1;
+			}
+		}]);
+	
+		return EffectLayer;
+	}(PIXI.Container);
+	
+	exports.default = EffectLayer;
+
+/***/ }),
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56816,7 +57472,7 @@
 	exports.default = ChooseMatchScreen;
 
 /***/ }),
-/* 226 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56839,7 +57495,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _Ball = __webpack_require__(227);
+	var _Ball = __webpack_require__(229);
 	
 	var _Ball2 = _interopRequireDefault(_Ball);
 	
@@ -56906,7 +57562,7 @@
 	exports.default = Pool;
 
 /***/ }),
-/* 227 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57366,55 +58022,454 @@
 	exports.default = Ball;
 
 /***/ }),
-/* 228 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _pixi = __webpack_require__(1);
-	
-	var PIXI = _interopRequireWildcard(_pixi);
-	
-	var _config = __webpack_require__(192);
-	
-	var _config2 = _interopRequireDefault(_config);
-	
-	var _gsap = __webpack_require__(195);
-	
-	var _gsap2 = _interopRequireDefault(_gsap);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var BackgroundEffects = function (_PIXI$Container) {
-		_inherits(BackgroundEffects, _PIXI$Container);
-	
-		function BackgroundEffects() {
-			_classCallCheck(this, BackgroundEffects);
-	
-			var _this = _possibleConstructorReturn(this, (BackgroundEffects.__proto__ || Object.getPrototypeOf(BackgroundEffects)).call(this));
-	
-			_this.background = new PIXI.Graphics().beginFill(0).drawRect(0, 0, _config2.default.width, _config2.default.height);
-			_this.addChild(_this.background);
-			_this.particles = [];
-			return _this;
-		}
-	
-		return BackgroundEffects;
-	}(PIXI.Container);
-	
-	exports.default = BackgroundEffects;
+	/*!
+	 * pixi-filters - v2.5.1
+	 * Compiled Wed, 17 Jan 2018 02:35:33 UTC
+	 *
+	 * pixi-filters is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var filterAdjustment=__webpack_require__(231),filterAdvancedBloom=__webpack_require__(232),filterAscii=__webpack_require__(234),filterBloom=__webpack_require__(235),filterBulgePinch=__webpack_require__(236),filterColorReplace=__webpack_require__(237),filterConvolution=__webpack_require__(238),filterCrossHatch=__webpack_require__(239),filterCrt=__webpack_require__(240),filterDot=__webpack_require__(241),filterDropShadow=__webpack_require__(242),filterEmboss=__webpack_require__(243),filterGlitch=__webpack_require__(244),filterGlow=__webpack_require__(245),filterGodray=__webpack_require__(246),filterKawaseBlur=__webpack_require__(233),filterMotionBlur=__webpack_require__(247),filterMultiColorReplace=__webpack_require__(248),filterOldFilm=__webpack_require__(249),filterOutline=__webpack_require__(250),filterPixelate=__webpack_require__(251),filterRadialBlur=__webpack_require__(252),filterReflection=__webpack_require__(253),filterRgbSplit=__webpack_require__(254),filterShockwave=__webpack_require__(255),filterSimpleLightmap=__webpack_require__(256),filterTiltShift=__webpack_require__(257),filterTwist=__webpack_require__(258),filterZoomBlur=__webpack_require__(259);exports.AdjustmentFilter=filterAdjustment.AdjustmentFilter,exports.AdvancedBloomFilter=filterAdvancedBloom.AdvancedBloomFilter,exports.AsciiFilter=filterAscii.AsciiFilter,exports.BloomFilter=filterBloom.BloomFilter,exports.BulgePinchFilter=filterBulgePinch.BulgePinchFilter,exports.ColorReplaceFilter=filterColorReplace.ColorReplaceFilter,exports.ConvolutionFilter=filterConvolution.ConvolutionFilter,exports.CrossHatchFilter=filterCrossHatch.CrossHatchFilter,exports.CRTFilter=filterCrt.CRTFilter,exports.DotFilter=filterDot.DotFilter,exports.DropShadowFilter=filterDropShadow.DropShadowFilter,exports.EmbossFilter=filterEmboss.EmbossFilter,exports.GlitchFilter=filterGlitch.GlitchFilter,exports.GlowFilter=filterGlow.GlowFilter,exports.GodrayFilter=filterGodray.GodrayFilter,exports.KawaseBlurFilter=filterKawaseBlur.KawaseBlurFilter,exports.MotionBlurFilter=filterMotionBlur.MotionBlurFilter,exports.MultiColorReplaceFilter=filterMultiColorReplace.MultiColorReplaceFilter,exports.OldFilmFilter=filterOldFilm.OldFilmFilter,exports.OutlineFilter=filterOutline.OutlineFilter,exports.PixelateFilter=filterPixelate.PixelateFilter,exports.RadialBlurFilter=filterRadialBlur.RadialBlurFilter,exports.ReflectionFilter=filterReflection.ReflectionFilter,exports.RGBSplitFilter=filterRgbSplit.RGBSplitFilter,exports.ShockwaveFilter=filterShockwave.ShockwaveFilter,exports.SimpleLightmapFilter=filterSimpleLightmap.SimpleLightmapFilter,exports.TiltShiftFilter=filterTiltShift.TiltShiftFilter,exports.TiltShiftAxisFilter=filterTiltShift.TiltShiftAxisFilter,exports.TiltShiftXFilter=filterTiltShift.TiltShiftXFilter,exports.TiltShiftYFilter=filterTiltShift.TiltShiftYFilter,exports.TwistFilter=filterTwist.TwistFilter,exports.ZoomBlurFilter=filterZoomBlur.ZoomBlurFilter;
+	//# sourceMappingURL=pixi-filters.cjs.js.map
+
+
+/***/ }),
+/* 231 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-adjustment - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-adjustment is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(t,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(t.__filters={},t.PIXI)}(this,function(t,n){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",e="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform float gamma;\nuniform float contrast;\nuniform float saturation;\nuniform float brightness;\nuniform float red;\nuniform float green;\nuniform float blue;\nuniform float alpha;\n\nvoid main(void)\n{\n    vec4 c = texture2D(uSampler, vTextureCoord);\n\n    if (c.a > 0.0) {\n        c.rgb /= c.a;\n\n        vec3 rgb = pow(c.rgb, vec3(1. / gamma));\n        rgb = mix(vec3(.5), mix(vec3(dot(vec3(.2125, .7154, .0721), rgb)), rgb, saturation), contrast);\n        rgb.r *= red;\n        rgb.g *= green;\n        rgb.b *= blue;\n        c.rgb = rgb * brightness;\n\n        c.rgb *= c.a;\n    }\n\n    gl_FragColor = c * alpha;\n}\n",i=function(t){function n(n){t.call(this,r,e),Object.assign(this,{gamma:1,saturation:1,contrast:1,brightness:1,red:1,green:1,blue:1,alpha:1},n)}return t&&(n.__proto__=t),n.prototype=Object.create(t&&t.prototype),n.prototype.constructor=n,n.prototype.apply=function(t,n,r,e){this.uniforms.gamma=Math.max(this.gamma,1e-4),this.uniforms.saturation=this.saturation,this.uniforms.contrast=this.contrast,this.uniforms.brightness=this.brightness,this.uniforms.red=this.red,this.uniforms.green=this.green,this.uniforms.blue=this.blue,this.uniforms.alpha=this.alpha,t.applyFilter(this,n,r,e)},n}(n.Filter);t.AdjustmentFilter=i,Object.defineProperty(t,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-adjustment.js.map
+
+
+/***/ }),
+/* 232 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-advanced-bloom - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-advanced-bloom is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1),__webpack_require__(233)):"function"==typeof define&&define.amd?define(["exports","pixi.js","@pixi/filter-kawase-blur"],t):t(e.__filters={},e.PIXI,e.PIXI.filters)}(this,function(e,t,r){"use strict";var o="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="\nuniform sampler2D uSampler;\nvarying vec2 vTextureCoord;\n\nuniform float threshold;\n\nvoid main() {\n    vec4 color = texture2D(uSampler, vTextureCoord);\n\n    // A simple & fast algorithm for getting brightness.\n    // It's inaccuracy , but good enought for this feature.\n    float _max = max(max(color.r, color.g), color.b);\n    float _min = min(min(color.r, color.g), color.b);\n    float brightness = (_max + _min) * 0.5;\n\n    if(brightness > threshold) {\n        gl_FragColor = color;\n    } else {\n        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n    }\n}\n",n=function(e){function t(t){void 0===t&&(t=.5),e.call(this,o,i),this.threshold=t}e&&(t.__proto__=e),t.prototype=Object.create(e&&e.prototype),t.prototype.constructor=t;var r={threshold:{configurable:!0}};return r.threshold.get=function(){return this.uniforms.threshold},r.threshold.set=function(e){this.uniforms.threshold=e},Object.defineProperties(t.prototype,r),t}(t.Filter),l="uniform sampler2D uSampler;\nvarying vec2 vTextureCoord;\n\nuniform sampler2D bloomTexture;\nuniform float bloomScale;\nuniform float brightness;\n\nvoid main() {\n    vec4 color = texture2D(uSampler, vTextureCoord);\n    color.rgb *= brightness;\n    vec4 bloomColor = vec4(texture2D(bloomTexture, vTextureCoord).rgb, 0.0);\n    bloomColor.rgb *= bloomScale;\n    gl_FragColor = color + bloomColor;\n}\n",s=function(e){function i(i){e.call(this,o,l),"number"==typeof i&&(i={threshold:i}),i=Object.assign({threshold:.5,bloomScale:1,brightness:1,kernels:null,blur:8,quality:4,pixelSize:1,resolution:t.settings.RESOLUTION},i),this.bloomScale=i.bloomScale,this.brightness=i.brightness;var s=i.kernels,u=i.blur,a=i.quality,c=i.pixelSize,h=i.resolution;this._extractFilter=new n(i.threshold),this._extractFilter.resolution=h,this._blurFilter=s?new r.KawaseBlurFilter(s):new r.KawaseBlurFilter(u,a),this.pixelSize=c,this.resolution=h}e&&(i.__proto__=e),i.prototype=Object.create(e&&e.prototype),i.prototype.constructor=i;var s={resolution:{configurable:!0},threshold:{configurable:!0},blur:{configurable:!0},kernels:{configurable:!0},quality:{configurable:!0},pixelSize:{configurable:!0}};return i.prototype.apply=function(e,t,r,o,i){var n=e.getRenderTarget(!0);this._extractFilter.apply(e,t,n,!0,i);var l=e.getRenderTarget(!0);this._blurFilter.apply(e,n,l,!0,i),this.uniforms.bloomScale=this.bloomScale,this.uniforms.brightness=this.brightness,this.uniforms.bloomTexture=l,e.applyFilter(this,t,r,o),e.returnRenderTarget(l),e.returnRenderTarget(n)},s.resolution.get=function(){return this._resolution},s.resolution.set=function(e){this._resolution=e,this._blurFilter&&(this._blurFilter.resolution=e)},s.threshold.get=function(){return this._extractFilter.threshold},s.threshold.set=function(e){this._extractFilter.threshold=e},s.blur.get=function(){return this._blurFilter.blur},s.blur.set=function(e){this._blurFilter.blur=e},s.kernels.get=function(){return this._blurFilter.kernels},s.kernels.set=function(e){this._blurFilter.kernels=e},s.quality.get=function(){return this._blurFilter.quality},s.quality.set=function(e){this._blurFilter.quality=e},s.pixelSize.get=function(){return this._blurFilter.pixelSize},s.pixelSize.set=function(e){this._blurFilter.pixelSize=e},Object.defineProperties(i.prototype,s),i}(t.Filter);e.AdvancedBloomFilter=s,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-advanced-bloom.js.map
+
+
+/***/ }),
+/* 233 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-kawase-blur - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-kawase-blur is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var i="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="\nvarying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform vec2 uOffset;\n\nvoid main(void)\n{\n    vec4 color = vec4(0.0);\n\n    // Sample top left pixel\n    color += texture2D(uSampler, vec2(vTextureCoord.x - uOffset.x, vTextureCoord.y + uOffset.y));\n\n    // Sample top right pixel\n    color += texture2D(uSampler, vec2(vTextureCoord.x + uOffset.x, vTextureCoord.y + uOffset.y));\n\n    // Sample bottom right pixel\n    color += texture2D(uSampler, vec2(vTextureCoord.x + uOffset.x, vTextureCoord.y - uOffset.y));\n\n    // Sample bottom left pixel\n    color += texture2D(uSampler, vec2(vTextureCoord.x - uOffset.x, vTextureCoord.y - uOffset.y));\n\n    // Average\n    color *= 0.25;\n\n    gl_FragColor = color;\n}\n",n=function(e){function n(n,o){void 0===n&&(n=4),void 0===o&&(o=3),e.call(this,i,r),this._pixelSize=new t.Point,this.pixelSize=1,this._kernels=null,Array.isArray(n)?this.kernels=n:(this._blur=n,this.quality=o)}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var o={kernels:{configurable:!0},pixelSize:{configurable:!0},quality:{configurable:!0},blur:{configurable:!0}};return n.prototype.apply=function(e,t,i,r){var n,o=this.pixelSize.x/t.size.width,s=this.pixelSize.y/t.size.height;if(1===this._quality||0===this._blur)n=this._kernels[0]+.5,this.uniforms.uOffset[0]=n*o,this.uniforms.uOffset[1]=n*s,e.applyFilter(this,t,i,r);else{for(var l,u=e.getRenderTarget(!0),f=t,a=u,p=this._quality-1,x=0;x<p;x++)n=this._kernels[x]+.5,this.uniforms.uOffset[0]=n*o,this.uniforms.uOffset[1]=n*s,e.applyFilter(this,f,a,!0),l=f,f=a,a=l;n=this._kernels[p]+.5,this.uniforms.uOffset[0]=n*o,this.uniforms.uOffset[1]=n*s,e.applyFilter(this,f,i,r),e.returnRenderTarget(u)}},n.prototype._generateKernels=function(){var e=this._blur,t=this._quality,i=[e];if(e>0)for(var r=e,n=e/t,o=1;o<t;o++)r-=n,i.push(r);this._kernels=i},o.kernels.get=function(){return this._kernels},o.kernels.set=function(e){Array.isArray(e)&&e.length>0?(this._kernels=e,this._quality=e.length,this._blur=Math.max.apply(Math,e)):(this._kernels=[0],this._quality=1)},o.pixelSize.set=function(e){"number"==typeof e?(this._pixelSize.x=e,this._pixelSize.y=e):Array.isArray(e)?(this._pixelSize.x=e[0],this._pixelSize.y=e[1]):e instanceof t.Point?(this._pixelSize.x=e.x,this._pixelSize.y=e.y):(this._pixelSize.x=1,this._pixelSize.y=1)},o.pixelSize.get=function(){return this._pixelSize},o.quality.get=function(){return this._quality},o.quality.set=function(e){this._quality=Math.max(1,Math.round(e)),this._generateKernels()},o.blur.get=function(){return this._blur},o.blur.set=function(e){this._blur=e,this._generateKernels()},Object.defineProperties(n.prototype,o),n}(t.Filter);e.KawaseBlurFilter=n,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-kawase-blur.js.map
+
+
+/***/ }),
+/* 234 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-ascii - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-ascii is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(e.__filters={},e.PIXI)}(this,function(e,n){"use strict";var o="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\n\nuniform vec4 filterArea;\nuniform float pixelSize;\nuniform sampler2D uSampler;\n\nvec2 mapCoord( vec2 coord )\n{\n    coord *= filterArea.xy;\n    coord += filterArea.zw;\n\n    return coord;\n}\n\nvec2 unmapCoord( vec2 coord )\n{\n    coord -= filterArea.zw;\n    coord /= filterArea.xy;\n\n    return coord;\n}\n\nvec2 pixelate(vec2 coord, vec2 size)\n{\n    return floor( coord / size ) * size;\n}\n\nvec2 getMod(vec2 coord, vec2 size)\n{\n    return mod( coord , size) / size;\n}\n\nfloat character(float n, vec2 p)\n{\n    p = floor(p*vec2(4.0, -4.0) + 2.5);\n    if (clamp(p.x, 0.0, 4.0) == p.x && clamp(p.y, 0.0, 4.0) == p.y)\n    {\n        if (int(mod(n/exp2(p.x + 5.0*p.y), 2.0)) == 1) return 1.0;\n    }\n    return 0.0;\n}\n\nvoid main()\n{\n    vec2 coord = mapCoord(vTextureCoord);\n\n    // get the rounded color..\n    vec2 pixCoord = pixelate(coord, vec2(pixelSize));\n    pixCoord = unmapCoord(pixCoord);\n\n    vec4 color = texture2D(uSampler, pixCoord);\n\n    // determine the character to use\n    float gray = (color.r + color.g + color.b) / 3.0;\n\n    float n =  65536.0;             // .\n    if (gray > 0.2) n = 65600.0;    // :\n    if (gray > 0.3) n = 332772.0;   // *\n    if (gray > 0.4) n = 15255086.0; // o\n    if (gray > 0.5) n = 23385164.0; // &\n    if (gray > 0.6) n = 15252014.0; // 8\n    if (gray > 0.7) n = 13199452.0; // @\n    if (gray > 0.8) n = 11512810.0; // #\n\n    // get the mod..\n    vec2 modd = getMod(coord, vec2(pixelSize));\n\n    gl_FragColor = color * character( n, vec2(-1.0) + modd * 2.0);\n\n}",t=function(e){function n(n){void 0===n&&(n=8),e.call(this,o,r),this.size=n}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var t={size:{configurable:!0}};return t.size.get=function(){return this.uniforms.pixelSize},t.size.set=function(e){this.uniforms.pixelSize=e},Object.defineProperties(n.prototype,t),n}(n.Filter);e.AsciiFilter=t,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-ascii.js.map
+
+
+/***/ }),
+/* 235 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-bloom - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-bloom is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(t,r){ true?r(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],r):r(t.__filters={},t.PIXI)}(this,function(t,r){"use strict";var e=r.filters,i=e.BlurXFilter,l=e.BlurYFilter,u=e.AlphaFilter,n=function(t){function e(e,n,o,s){var b,f;void 0===e&&(e=2),void 0===n&&(n=4),void 0===o&&(o=r.settings.RESOLUTION),void 0===s&&(s=5),t.call(this),"number"==typeof e?(b=e,f=e):e instanceof r.Point?(b=e.x,f=e.y):Array.isArray(e)&&(b=e[0],f=e[1]),this.blurXFilter=new i(b,n,o,s),this.blurYFilter=new l(f,n,o,s),this.blurYFilter.blendMode=r.BLEND_MODES.SCREEN,this.defaultFilter=new u}t&&(e.__proto__=t),e.prototype=Object.create(t&&t.prototype),e.prototype.constructor=e;var n={blur:{configurable:!0},blurX:{configurable:!0},blurY:{configurable:!0}};return e.prototype.apply=function(t,r,e){var i=t.getRenderTarget(!0);this.defaultFilter.apply(t,r,e),this.blurXFilter.apply(t,r,i),this.blurYFilter.apply(t,i,e),t.returnRenderTarget(i)},n.blur.get=function(){return this.blurXFilter.blur},n.blur.set=function(t){this.blurXFilter.blur=this.blurYFilter.blur=t},n.blurX.get=function(){return this.blurXFilter.blur},n.blurX.set=function(t){this.blurXFilter.blur=t},n.blurY.get=function(){return this.blurYFilter.blur},n.blurY.set=function(t){this.blurYFilter.blur=t},Object.defineProperties(e.prototype,n),e}(r.Filter);t.BloomFilter=n,Object.defineProperty(t,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-bloom.js.map
+
+
+/***/ }),
+/* 236 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-bulge-pinch - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-bulge-pinch is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var n="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="uniform float radius;\nuniform float strength;\nuniform vec2 center;\nuniform sampler2D uSampler;\nvarying vec2 vTextureCoord;\n\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\nuniform vec2 dimensions;\n\nvoid main()\n{\n    vec2 coord = vTextureCoord * filterArea.xy;\n    coord -= center * dimensions.xy;\n    float distance = length(coord);\n    if (distance < radius) {\n        float percent = distance / radius;\n        if (strength > 0.0) {\n            coord *= mix(1.0, smoothstep(0.0, radius / distance, percent), strength * 0.75);\n        } else {\n            coord *= mix(1.0, pow(percent, 1.0 + strength * 0.75) * radius / distance, 1.0 - percent);\n        }\n    }\n    coord += center * dimensions.xy;\n    coord /= filterArea.xy;\n    vec2 clampedCoord = clamp(coord, filterClamp.xy, filterClamp.zw);\n    gl_FragColor = texture2D(uSampler, clampedCoord);\n    if (coord != clampedCoord) {\n        gl_FragColor *= max(0.0, 1.0 - length(coord - clampedCoord));\n    }\n}\n",o=function(e){function t(t,o,i){e.call(this,n,r),this.center=t||[.5,.5],this.radius=o||100,this.strength=i||1}e&&(t.__proto__=e),t.prototype=Object.create(e&&e.prototype),t.prototype.constructor=t;var o={radius:{configurable:!0},strength:{configurable:!0},center:{configurable:!0}};return t.prototype.apply=function(e,t,n,r){this.uniforms.dimensions[0]=t.sourceFrame.width,this.uniforms.dimensions[1]=t.sourceFrame.height,e.applyFilter(this,t,n,r)},o.radius.get=function(){return this.uniforms.radius},o.radius.set=function(e){this.uniforms.radius=e},o.strength.get=function(){return this.uniforms.strength},o.strength.set=function(e){this.uniforms.strength=e},o.center.get=function(){return this.uniforms.center},o.center.set=function(e){this.uniforms.center=e},Object.defineProperties(t.prototype,o),t}(t.Filter);e.BulgePinchFilter=o,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-bulge-pinch.js.map
+
+
+/***/ }),
+/* 237 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-color-replace - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-color-replace is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(o,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(o.__filters={},o.PIXI)}(this,function(o,e){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="varying vec2 vTextureCoord;\nuniform sampler2D texture;\nuniform vec3 originalColor;\nuniform vec3 newColor;\nuniform float epsilon;\nvoid main(void) {\n    vec4 currentColor = texture2D(texture, vTextureCoord);\n    vec3 colorDiff = originalColor - (currentColor.rgb / max(currentColor.a, 0.0000000001));\n    float colorDistance = length(colorDiff);\n    float doReplace = step(colorDistance, epsilon);\n    gl_FragColor = vec4(mix(currentColor.rgb, (newColor + colorDiff) * currentColor.a, doReplace), currentColor.a);\n}\n",n=function(o){function n(e,n,t){void 0===e&&(e=16711680),void 0===n&&(n=0),void 0===t&&(t=.4),o.call(this,r,i),this.originalColor=e,this.newColor=n,this.epsilon=t}o&&(n.__proto__=o),n.prototype=Object.create(o&&o.prototype),n.prototype.constructor=n;var t={originalColor:{configurable:!0},newColor:{configurable:!0},epsilon:{configurable:!0}};return t.originalColor.set=function(o){var r=this.uniforms.originalColor;"number"==typeof o?(e.utils.hex2rgb(o,r),this._originalColor=o):(r[0]=o[0],r[1]=o[1],r[2]=o[2],this._originalColor=e.utils.rgb2hex(r))},t.originalColor.get=function(){return this._originalColor},t.newColor.set=function(o){var r=this.uniforms.newColor;"number"==typeof o?(e.utils.hex2rgb(o,r),this._newColor=o):(r[0]=o[0],r[1]=o[1],r[2]=o[2],this._newColor=e.utils.rgb2hex(r))},t.newColor.get=function(){return this._newColor},t.epsilon.set=function(o){this.uniforms.epsilon=o},t.epsilon.get=function(){return this.uniforms.epsilon},Object.defineProperties(n.prototype,t),n}(e.Filter);o.ColorReplaceFilter=n,Object.defineProperty(o,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-color-replace.js.map
+
+
+/***/ }),
+/* 238 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-convolution - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-convolution is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="precision mediump float;\n\nvarying mediump vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform vec2 texelSize;\nuniform float matrix[9];\n\nvoid main(void)\n{\n   vec4 c11 = texture2D(uSampler, vTextureCoord - texelSize); // top left\n   vec4 c12 = texture2D(uSampler, vec2(vTextureCoord.x, vTextureCoord.y - texelSize.y)); // top center\n   vec4 c13 = texture2D(uSampler, vec2(vTextureCoord.x + texelSize.x, vTextureCoord.y - texelSize.y)); // top right\n\n   vec4 c21 = texture2D(uSampler, vec2(vTextureCoord.x - texelSize.x, vTextureCoord.y)); // mid left\n   vec4 c22 = texture2D(uSampler, vTextureCoord); // mid center\n   vec4 c23 = texture2D(uSampler, vec2(vTextureCoord.x + texelSize.x, vTextureCoord.y)); // mid right\n\n   vec4 c31 = texture2D(uSampler, vec2(vTextureCoord.x - texelSize.x, vTextureCoord.y + texelSize.y)); // bottom left\n   vec4 c32 = texture2D(uSampler, vec2(vTextureCoord.x, vTextureCoord.y + texelSize.y)); // bottom center\n   vec4 c33 = texture2D(uSampler, vTextureCoord + texelSize); // bottom right\n\n   gl_FragColor =\n       c11 * matrix[0] + c12 * matrix[1] + c13 * matrix[2] +\n       c21 * matrix[3] + c22 * matrix[4] + c23 * matrix[5] +\n       c31 * matrix[6] + c32 * matrix[7] + c33 * matrix[8];\n\n   gl_FragColor.a = c22.a;\n}\n",o=function(e){function t(t,o,n){e.call(this,r,i),this.matrix=t,this.width=o,this.height=n}e&&(t.__proto__=e),t.prototype=Object.create(e&&e.prototype),t.prototype.constructor=t;var o={matrix:{configurable:!0},width:{configurable:!0},height:{configurable:!0}};return o.matrix.get=function(){return this.uniforms.matrix},o.matrix.set=function(e){this.uniforms.matrix=new Float32Array(e)},o.width.get=function(){return 1/this.uniforms.texelSize[0]},o.width.set=function(e){this.uniforms.texelSize[0]=1/e},o.height.get=function(){return 1/this.uniforms.texelSize[1]},o.height.set=function(e){this.uniforms.texelSize[1]=1/e},Object.defineProperties(t.prototype,o),t}(t.Filter);e.ConvolutionFilter=o,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-convolution.js.map
+
+
+/***/ }),
+/* 239 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-cross-hatch - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-cross-hatch is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(n,o){ true?o(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],o):o(n.__filters={},n.PIXI)}(this,function(n,o){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",e="precision mediump float;\n\nvarying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\n\nvoid main(void)\n{\n    float lum = length(texture2D(uSampler, vTextureCoord.xy).rgb);\n\n    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n\n    if (lum < 1.00)\n    {\n        if (mod(gl_FragCoord.x + gl_FragCoord.y, 10.0) == 0.0)\n        {\n            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n        }\n    }\n\n    if (lum < 0.75)\n    {\n        if (mod(gl_FragCoord.x - gl_FragCoord.y, 10.0) == 0.0)\n        {\n            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n        }\n    }\n\n    if (lum < 0.50)\n    {\n        if (mod(gl_FragCoord.x + gl_FragCoord.y - 5.0, 10.0) == 0.0)\n        {\n            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n        }\n    }\n\n    if (lum < 0.3)\n    {\n        if (mod(gl_FragCoord.x - gl_FragCoord.y - 5.0, 10.0) == 0.0)\n        {\n            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n        }\n    }\n}\n",t=function(n){function o(){n.call(this,r,e)}return n&&(o.__proto__=n),o.prototype=Object.create(n&&n.prototype),o.prototype.constructor=o,o}(o.Filter);n.CrossHatchFilter=t,Object.defineProperty(n,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-cross-hatch.js.map
+
+
+/***/ }),
+/* 240 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-crt - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-crt is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(n,i){ true?i(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],i):i(n.__filters={},n.PIXI)}(this,function(n,i){"use strict";var e="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",t="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform vec4 filterArea;\nuniform vec2 dimensions;\n\nconst float SQRT_2 = 1.414213;\n\nconst float light = 1.0;\n\nuniform float curvature;\nuniform float lineWidth;\nuniform float lineContrast;\nuniform bool verticalLine;\nuniform float noise;\nuniform float noiseSize;\n\nuniform float vignetting;\nuniform float vignettingAlpha;\nuniform float vignettingBlur;\n\nuniform float seed;\nuniform float time;\n\nfloat rand(vec2 co) {\n    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);\n}\n\nvoid main(void)\n{\n    vec2 pixelCoord = vTextureCoord.xy * filterArea.xy;\n    vec2 coord = pixelCoord / dimensions;\n\n    vec2 dir = vec2(coord - vec2(0.5, 0.5));\n\n    float _c = curvature > 0. ? curvature : 1.;\n    float k = curvature > 0. ?(length(dir * dir) * 0.25 * _c * _c + 0.935 * _c) : 1.;\n    vec2 uv = dir * k;\n\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n    vec3 rgb = gl_FragColor.rgb;\n\n\n    if (noise > 0.0 && noiseSize > 0.0)\n    {\n        pixelCoord.x = floor(pixelCoord.x / noiseSize);\n        pixelCoord.y = floor(pixelCoord.y / noiseSize);\n        float _noise = rand(pixelCoord * noiseSize * seed) - 0.5;\n        rgb += _noise * noise;\n    }\n\n    if (lineWidth > 0.0) {\n        float v = (verticalLine ? uv.x * dimensions.x : uv.y * dimensions.y) * min(1.0, 2.0 / lineWidth ) / _c;\n        float j = 1. + cos(v * 1.2 - time) * 0.5 * lineContrast;\n        rgb *= j;\n        float segment = verticalLine ? mod((dir.x + .5) * dimensions.x, 4.) : mod((dir.y + .5) * dimensions.y, 4.);\n        rgb *= 0.99 + ceil(segment) * 0.015;\n    }\n\n    if (vignetting > 0.0)\n    {\n        float outter = SQRT_2 - vignetting * SQRT_2;\n        float darker = clamp((outter - length(dir) * SQRT_2) / ( 0.00001 + vignettingBlur * SQRT_2), 0.0, 1.0);\n        rgb *= darker + (1.0 - darker) * (1.0 - vignettingAlpha);\n    }\n\n    gl_FragColor.rgb = rgb;\n}\n",o=function(n){function i(i){n.call(this,e,t),this.time=0,this.seed=0,Object.assign(this,{curvature:1,lineWidth:1,lineContrast:.25,verticalLine:!1,noise:0,noiseSize:1,seed:0,vignetting:.3,vignettingAlpha:1,vignettingBlur:.3,time:0},i)}n&&(i.__proto__=n),i.prototype=Object.create(n&&n.prototype),i.prototype.constructor=i;var o={curvature:{configurable:!0},lineWidth:{configurable:!0},lineContrast:{configurable:!0},verticalLine:{configurable:!0},noise:{configurable:!0},noiseSize:{configurable:!0},vignetting:{configurable:!0},vignettingAlpha:{configurable:!0},vignettingBlur:{configurable:!0}};return i.prototype.apply=function(n,i,e,t){this.uniforms.dimensions[0]=i.sourceFrame.width,this.uniforms.dimensions[1]=i.sourceFrame.height,this.uniforms.seed=this.seed,this.uniforms.time=this.time,n.applyFilter(this,i,e,t)},o.curvature.set=function(n){this.uniforms.curvature=n},o.curvature.get=function(){return this.uniforms.curvature},o.lineWidth.set=function(n){this.uniforms.lineWidth=n},o.lineWidth.get=function(){return this.uniforms.lineWidth},o.lineContrast.set=function(n){this.uniforms.lineContrast=n},o.lineContrast.get=function(){return this.uniforms.lineContrast},o.verticalLine.set=function(n){this.uniforms.verticalLine=n},o.verticalLine.get=function(){return this.uniforms.verticalLine},o.noise.set=function(n){this.uniforms.noise=n},o.noise.get=function(){return this.uniforms.noise},o.noiseSize.set=function(n){this.uniforms.noiseSize=n},o.noiseSize.get=function(){return this.uniforms.noiseSize},o.vignetting.set=function(n){this.uniforms.vignetting=n},o.vignetting.get=function(){return this.uniforms.vignetting},o.vignettingAlpha.set=function(n){this.uniforms.vignettingAlpha=n},o.vignettingAlpha.get=function(){return this.uniforms.vignettingAlpha},o.vignettingBlur.set=function(n){this.uniforms.vignettingBlur=n},o.vignettingBlur.get=function(){return this.uniforms.vignettingBlur},Object.defineProperties(i.prototype,o),i}(i.Filter);n.CRTFilter=o,Object.defineProperty(n,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-crt.js.map
+
+
+/***/ }),
+/* 241 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-dot - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-dot is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(e.__filters={},e.PIXI)}(this,function(e,n){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",o="precision mediump float;\n\nvarying vec2 vTextureCoord;\nvarying vec4 vColor;\n\nuniform vec4 filterArea;\nuniform sampler2D uSampler;\n\nuniform float angle;\nuniform float scale;\n\nfloat pattern()\n{\n   float s = sin(angle), c = cos(angle);\n   vec2 tex = vTextureCoord * filterArea.xy;\n   vec2 point = vec2(\n       c * tex.x - s * tex.y,\n       s * tex.x + c * tex.y\n   ) * scale;\n   return (sin(point.x) * sin(point.y)) * 4.0;\n}\n\nvoid main()\n{\n   vec4 color = texture2D(uSampler, vTextureCoord);\n   float average = (color.r + color.g + color.b) / 3.0;\n   gl_FragColor = vec4(vec3(average * 10.0 - 5.0 + pattern()), color.a);\n}\n",r=function(e){function n(n,r){void 0===n&&(n=1),void 0===r&&(r=5),e.call(this,t,o),this.scale=n,this.angle=r}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var r={scale:{configurable:!0},angle:{configurable:!0}};return r.scale.get=function(){return this.uniforms.scale},r.scale.set=function(e){this.uniforms.scale=e},r.angle.get=function(){return this.uniforms.angle},r.angle.set=function(e){this.uniforms.angle=e},Object.defineProperties(n.prototype,r),n}(n.Filter);e.DotFilter=r,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-dot.js.map
+
+
+/***/ }),
+/* 242 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-drop-shadow - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-drop-shadow is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(t,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(t.__filters={},t.PIXI)}(this,function(t,e){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform float alpha;\nuniform vec3 color;\nvoid main(void){\n    vec4 sample = texture2D(uSampler, vTextureCoord);\n\n    // Un-premultiply alpha before applying the color\n    if (sample.a > 0.0) {\n        sample.rgb /= sample.a;\n    }\n\n    // Premultiply alpha again\n    sample.rgb = color.rgb * sample.a;\n\n    // alpha user alpha\n    sample *= alpha;\n\n    gl_FragColor = sample;\n}",n=function(t){function n(n,o,a,s,l){void 0===n&&(n=45),void 0===o&&(o=5),void 0===a&&(a=2),void 0===s&&(s=0),void 0===l&&(l=.5),t.call(this),this.tintFilter=new e.Filter(r,i),this.blurFilter=new e.filters.BlurFilter,this.blurFilter.blur=a,this.targetTransform=new e.Matrix,this.rotation=n,this.padding=o,this.distance=o,this.alpha=l,this.color=s}t&&(n.__proto__=t),n.prototype=Object.create(t&&t.prototype),n.prototype.constructor=n;var o={distance:{configurable:!0},rotation:{configurable:!0},blur:{configurable:!0},alpha:{configurable:!0},color:{configurable:!0}};return n.prototype.apply=function(t,e,r,i){var n=t.getRenderTarget();n.transform=this.targetTransform,this.tintFilter.apply(t,e,n,!0),this.blurFilter.apply(t,n,r),t.applyFilter(this,e,r,i),n.transform=null,t.returnRenderTarget(n)},n.prototype._updatePadding=function(){this.padding=this.distance+2*this.blur},n.prototype._updateTargetTransform=function(){this.targetTransform.tx=this.distance*Math.cos(this.angle),this.targetTransform.ty=this.distance*Math.sin(this.angle)},o.distance.get=function(){return this._distance},o.distance.set=function(t){this._distance=t,this._updatePadding(),this._updateTargetTransform()},o.rotation.get=function(){return this.angle/e.DEG_TO_RAD},o.rotation.set=function(t){this.angle=t*e.DEG_TO_RAD,this._updateTargetTransform()},o.blur.get=function(){return this.blurFilter.blur},o.blur.set=function(t){this.blurFilter.blur=t,this._updatePadding()},o.alpha.get=function(){return this.tintFilter.uniforms.alpha},o.alpha.set=function(t){this.tintFilter.uniforms.alpha=t},o.color.get=function(){return e.utils.rgb2hex(this.tintFilter.uniforms.color)},o.color.set=function(t){e.utils.hex2rgb(t,this.tintFilter.uniforms.color)},Object.defineProperties(n.prototype,o),n}(e.Filter);t.DropShadowFilter=n,Object.defineProperty(t,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-drop-shadow.js.map
+
+
+/***/ }),
+/* 243 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-emboss - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-emboss is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",o="precision mediump float;\n\nvarying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform float strength;\nuniform vec4 filterArea;\n\n\nvoid main(void)\n{\n\tvec2 onePixel = vec2(1.0 / filterArea);\n\n\tvec4 color;\n\n\tcolor.rgb = vec3(0.5);\n\n\tcolor -= texture2D(uSampler, vTextureCoord - onePixel) * strength;\n\tcolor += texture2D(uSampler, vTextureCoord + onePixel) * strength;\n\n\tcolor.rgb = vec3((color.r + color.g + color.b) / 3.0);\n\n\tfloat alpha = texture2D(uSampler, vTextureCoord).a;\n\n\tgl_FragColor = vec4(color.rgb * alpha, alpha);\n}\n",n=function(e){function t(t){void 0===t&&(t=5),e.call(this,r,o),this.strength=t}e&&(t.__proto__=e),t.prototype=Object.create(e&&e.prototype),t.prototype.constructor=t;var n={strength:{configurable:!0}};return n.strength.get=function(){return this.uniforms.strength},n.strength.set=function(e){this.uniforms.strength=e},Object.defineProperties(t.prototype,n),t}(t.Filter);e.EmbossFilter=n,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-emboss.js.map
+
+
+/***/ }),
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-glitch - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-glitch is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,i){ true?i(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],i):i(e.__filters={},e.PIXI)}(this,function(e,i){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",n="// precision highp float;\n\nvarying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\nuniform vec2 dimensions;\nuniform float aspect;\n\nuniform sampler2D displacementMap;\nuniform float offset;\nuniform float sinDir;\nuniform float cosDir;\nuniform int fillMode;\n\nuniform float seed;\nuniform vec2 red;\nuniform vec2 green;\nuniform vec2 blue;\n\nconst int TRANSPARENT = 0;\nconst int ORIGINAL = 1;\nconst int LOOP = 2;\nconst int CLAMP = 3;\nconst int MIRROR = 4;\n\nvoid main(void)\n{\n    vec2 coord = (vTextureCoord * filterArea.xy) / dimensions;\n\n    if (coord.x > 1.0 || coord.y > 1.0) {\n        return;\n    }\n\n    float cx = coord.x - 0.5;\n    float cy = (coord.y - 0.5) * aspect;\n    float ny = (-sinDir * cx + cosDir * cy) / aspect + 0.5;\n\n    // displacementMap: repeat\n    // ny = ny > 1.0 ? ny - 1.0 : (ny < 0.0 ? 1.0 + ny : ny);\n\n    // displacementMap: mirror\n    ny = ny > 1.0 ? 2.0 - ny : (ny < 0.0 ? -ny : ny);\n\n    vec4 dc = texture2D(displacementMap, vec2(0.5, ny));\n\n    float displacement = (dc.r - dc.g) * (offset / filterArea.x);\n\n    coord = vTextureCoord + vec2(cosDir * displacement, sinDir * displacement * aspect);\n\n    if (fillMode == CLAMP) {\n        coord = clamp(coord, filterClamp.xy, filterClamp.zw);\n    } else {\n        if( coord.x > filterClamp.z ) {\n            if (fillMode == ORIGINAL) {\n                gl_FragColor = texture2D(uSampler, vTextureCoord);\n                return;\n            } else if (fillMode == LOOP) {\n                coord.x -= filterClamp.z;\n            } else if (fillMode == MIRROR) {\n                coord.x = filterClamp.z * 2.0 - coord.x;\n            } else {\n                gl_FragColor = vec4(0., 0., 0., 0.);\n                return;\n            }\n        } else if( coord.x < filterClamp.x ) {\n            if (fillMode == ORIGINAL) {\n                gl_FragColor = texture2D(uSampler, vTextureCoord);\n                return;\n            } else if (fillMode == LOOP) {\n                coord.x += filterClamp.z;\n            } else if (fillMode == MIRROR) {\n                coord.x *= -filterClamp.z;\n            } else {\n                gl_FragColor = vec4(0., 0., 0., 0.);\n                return;\n            }\n        }\n\n        if( coord.y > filterClamp.w ) {\n            if (fillMode == ORIGINAL) {\n                gl_FragColor = texture2D(uSampler, vTextureCoord);\n                return;\n            } else if (fillMode == LOOP) {\n                coord.y -= filterClamp.w;\n            } else if (fillMode == MIRROR) {\n                coord.y = filterClamp.w * 2.0 - coord.y;\n            } else {\n                gl_FragColor = vec4(0., 0., 0., 0.);\n                return;\n            }\n        } else if( coord.y < filterClamp.y ) {\n            if (fillMode == ORIGINAL) {\n                gl_FragColor = texture2D(uSampler, vTextureCoord);\n                return;\n            } else if (fillMode == LOOP) {\n                coord.y += filterClamp.w;\n            } else if (fillMode == MIRROR) {\n                coord.y *= -filterClamp.w;\n            } else {\n                gl_FragColor = vec4(0., 0., 0., 0.);\n                return;\n            }\n        }\n    }\n\n    gl_FragColor.r = texture2D(uSampler, coord + red * (1.0 - seed * 0.4) / filterArea.xy).r;\n    gl_FragColor.g = texture2D(uSampler, coord + green * (1.0 - seed * 0.3) / filterArea.xy).g;\n    gl_FragColor.b = texture2D(uSampler, coord + blue * (1.0 - seed * 0.2) / filterArea.xy).b;\n    gl_FragColor.a = texture2D(uSampler, coord).a;\n}\n",r=function(e){function r(r){void 0===r&&(r={}),e.call(this,t,n),r=Object.assign({slices:5,offset:100,direction:0,fillMode:0,average:!1,seed:0,red:[0,0],green:[0,0],blue:[0,0],minSize:8,sampleSize:512},r),this.direction=r.direction,this.red=r.red,this.green=r.green,this.blue=r.blue,this.offset=r.offset,this.fillMode=r.fillMode,this.average=r.average,this.seed=r.seed,this.minSize=r.minSize,this.sampleSize=r.sampleSize,this._canvas=document.createElement("canvas"),this._canvas.width=4,this._canvas.height=this.sampleSize,this.texture=i.Texture.fromCanvas(this._canvas,i.SCALE_MODES.NEAREST),this._slices=0,this.slices=r.slices}e&&(r.__proto__=e),r.prototype=Object.create(e&&e.prototype),r.prototype.constructor=r;var s={sizes:{configurable:!0},offsets:{configurable:!0},slices:{configurable:!0},direction:{configurable:!0},red:{configurable:!0},green:{configurable:!0},blue:{configurable:!0}};return r.prototype.apply=function(e,i,t,n){var r=i.sourceFrame.width,s=i.sourceFrame.height;this.uniforms.dimensions[0]=r,this.uniforms.dimensions[1]=s,this.uniforms.aspect=s/r,this.uniforms.seed=this.seed,this.uniforms.offset=this.offset,this.uniforms.fillMode=this.fillMode,e.applyFilter(this,i,t,n)},r.prototype._randomizeSizes=function(){var e=this._sizes,i=this._slices-1,t=this.sampleSize,n=Math.min(this.minSize/t,.9/this._slices);if(this.average){for(var r=this._slices,s=1,o=0;o<i;o++){var l=s/(r-o),f=Math.max(l*(1-.6*Math.random()),n);e[o]=f,s-=f}e[i]=s}else{for(var a=1,c=Math.sqrt(1/this._slices),u=0;u<i;u++){var d=Math.max(c*a*Math.random(),n);e[u]=d,a-=d}e[i]=a}this.shuffle()},r.prototype.shuffle=function(){for(var e=this._sizes,i=this._slices-1;i>0;i--){var t=Math.random()*i>>0,n=e[i];e[i]=e[t],e[t]=n}},r.prototype._randomizeOffsets=function(){for(var e=0;e<this._slices;e++)this._offsets[e]=Math.random()*(Math.random()<.5?-1:1)},r.prototype.refresh=function(){this._randomizeSizes(),this._randomizeOffsets(),this.redraw()},r.prototype.redraw=function(){var e,i=this.sampleSize,t=this.texture,n=this._canvas.getContext("2d");n.clearRect(0,0,8,i);for(var r=0,s=0;s<this._slices;s++){e=Math.floor(256*this._offsets[s]);var o=this._sizes[s]*i,l=e>0?e:0,f=e<0?-e:0;n.fillStyle="rgba("+l+", "+f+", 0, 1)",n.fillRect(0,r>>0,i,o+1>>0),r+=o}t._updateID++,t.baseTexture.emit("update",t.baseTexture),this.uniforms.displacementMap=t},s.sizes.set=function(e){for(var i=Math.min(this._slices,e.length),t=0;t<i;t++)this._sizes[t]=e[t]},s.sizes.get=function(){return this._sizes},s.offsets.set=function(e){for(var i=Math.min(this._slices,e.length),t=0;t<i;t++)this._offsets[t]=e[t]},s.offsets.get=function(){return this._offsets},s.slices.get=function(){return this._slices},s.slices.set=function(e){this._slices!==e&&(this._slices=e,this.uniforms.slices=e,this._sizes=this.uniforms.slicesWidth=new Float32Array(e),this._offsets=this.uniforms.slicesOffset=new Float32Array(e),this.refresh())},s.direction.get=function(){return this._direction},s.direction.set=function(e){if(this._direction!==e){this._direction=e;var t=e*i.DEG_TO_RAD;this.uniforms.sinDir=Math.sin(t),this.uniforms.cosDir=Math.cos(t)}},s.red.get=function(){return this.uniforms.red},s.red.set=function(e){this.uniforms.red=e},s.green.get=function(){return this.uniforms.green},s.green.set=function(e){this.uniforms.green=e},s.blue.get=function(){return this.uniforms.blue},s.blue.set=function(e){this.uniforms.blue=e},r.prototype.destroy=function(){this.texture.destroy(!0),this.texture=null,this._canvas=null,this.red=null,this.green=null,this.blue=null,this._sizes=null,this._offsets=null},Object.defineProperties(r.prototype,s),r}(i.Filter);r.TRANSPARENT=0,r.ORIGINAL=1,r.LOOP=2,r.CLAMP=3,r.MIRROR=4,e.GlitchFilter=r,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-glitch.js.map
+
+
+/***/ }),
+/* 245 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-glow - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-glow is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(o,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(o.__filters={},o.PIXI)}(this,function(o,t){"use strict";var n="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",e="varying vec2 vTextureCoord;\nvarying vec4 vColor;\n\nuniform sampler2D uSampler;\n\nuniform float distance;\nuniform float outerStrength;\nuniform float innerStrength;\nuniform vec4 glowColor;\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\nconst float PI = 3.14159265358979323846264;\n\nvoid main(void) {\n    vec2 px = vec2(1.0 / filterArea.x, 1.0 / filterArea.y);\n    vec4 ownColor = texture2D(uSampler, vTextureCoord);\n    vec4 curColor;\n    float totalAlpha = 0.0;\n    float maxTotalAlpha = 0.0;\n    float cosAngle;\n    float sinAngle;\n    vec2 displaced;\n    for (float angle = 0.0; angle <= PI * 2.0; angle += %QUALITY_DIST%) {\n       cosAngle = cos(angle);\n       sinAngle = sin(angle);\n       for (float curDistance = 1.0; curDistance <= %DIST%; curDistance++) {\n           displaced.x = vTextureCoord.x + cosAngle * curDistance * px.x;\n           displaced.y = vTextureCoord.y + sinAngle * curDistance * px.y;\n           curColor = texture2D(uSampler, clamp(displaced, filterClamp.xy, filterClamp.zw));\n           totalAlpha += (distance - curDistance) * curColor.a;\n           maxTotalAlpha += (distance - curDistance);\n       }\n    }\n    maxTotalAlpha = max(maxTotalAlpha, 0.0001);\n\n    ownColor.a = max(ownColor.a, 0.0001);\n    ownColor.rgb = ownColor.rgb / ownColor.a;\n    float outerGlowAlpha = (totalAlpha / maxTotalAlpha)  * outerStrength * (1. - ownColor.a);\n    float innerGlowAlpha = ((maxTotalAlpha - totalAlpha) / maxTotalAlpha) * innerStrength * ownColor.a;\n    float resultAlpha = (ownColor.a + outerGlowAlpha);\n    gl_FragColor = vec4(mix(mix(ownColor.rgb, glowColor.rgb, innerGlowAlpha / ownColor.a), glowColor.rgb, outerGlowAlpha / resultAlpha) * resultAlpha, resultAlpha);\n}\n",r=function(o){function r(t,r,i,l,a){void 0===t&&(t=10),void 0===r&&(r=4),void 0===i&&(i=0),void 0===l&&(l=16777215),void 0===a&&(a=.1),o.call(this,n,e.replace(/%QUALITY_DIST%/gi,""+(1/a/t).toFixed(7)).replace(/%DIST%/gi,""+t.toFixed(7))),this.uniforms.glowColor=new Float32Array([0,0,0,1]),this.distance=t,this.color=l,this.outerStrength=r,this.innerStrength=i}o&&(r.__proto__=o),r.prototype=Object.create(o&&o.prototype),r.prototype.constructor=r;var i={color:{configurable:!0},distance:{configurable:!0},outerStrength:{configurable:!0},innerStrength:{configurable:!0}};return i.color.get=function(){return t.utils.rgb2hex(this.uniforms.glowColor)},i.color.set=function(o){t.utils.hex2rgb(o,this.uniforms.glowColor)},i.distance.get=function(){return this.uniforms.distance},i.distance.set=function(o){this.uniforms.distance=o},i.outerStrength.get=function(){return this.uniforms.outerStrength},i.outerStrength.set=function(o){this.uniforms.outerStrength=o},i.innerStrength.get=function(){return this.uniforms.innerStrength},i.innerStrength.set=function(o){this.uniforms.innerStrength=o},Object.defineProperties(r.prototype,i),r}(t.Filter);o.GlowFilter=r,Object.defineProperty(o,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-glow.js.map
+
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-godray - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-godray is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(n,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(n.__filters={},n.PIXI)}(this,function(n,e){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="vec3 mod289(vec3 x)\n{\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\nvec4 mod289(vec4 x)\n{\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\nvec4 permute(vec4 x)\n{\n    return mod289(((x * 34.0) + 1.0) * x);\n}\nvec4 taylorInvSqrt(vec4 r)\n{\n    return 1.79284291400159 - 0.85373472095314 * r;\n}\nvec3 fade(vec3 t)\n{\n    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);\n}\n// Classic Perlin noise, periodic variant\nfloat pnoise(vec3 P, vec3 rep)\n{\n    vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period\n    vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period\n    Pi0 = mod289(Pi0);\n    Pi1 = mod289(Pi1);\n    vec3 Pf0 = fract(P); // Fractional part for interpolation\n    vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n    vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n    vec4 iy = vec4(Pi0.yy, Pi1.yy);\n    vec4 iz0 = Pi0.zzzz;\n    vec4 iz1 = Pi1.zzzz;\n    vec4 ixy = permute(permute(ix) + iy);\n    vec4 ixy0 = permute(ixy + iz0);\n    vec4 ixy1 = permute(ixy + iz1);\n    vec4 gx0 = ixy0 * (1.0 / 7.0);\n    vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n    gx0 = fract(gx0);\n    vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n    vec4 sz0 = step(gz0, vec4(0.0));\n    gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n    gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n    vec4 gx1 = ixy1 * (1.0 / 7.0);\n    vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n    gx1 = fract(gx1);\n    vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n    vec4 sz1 = step(gz1, vec4(0.0));\n    gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n    gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n    vec3 g000 = vec3(gx0.x, gy0.x, gz0.x);\n    vec3 g100 = vec3(gx0.y, gy0.y, gz0.y);\n    vec3 g010 = vec3(gx0.z, gy0.z, gz0.z);\n    vec3 g110 = vec3(gx0.w, gy0.w, gz0.w);\n    vec3 g001 = vec3(gx1.x, gy1.x, gz1.x);\n    vec3 g101 = vec3(gx1.y, gy1.y, gz1.y);\n    vec3 g011 = vec3(gx1.z, gy1.z, gz1.z);\n    vec3 g111 = vec3(gx1.w, gy1.w, gz1.w);\n    vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n    g000 *= norm0.x;\n    g010 *= norm0.y;\n    g100 *= norm0.z;\n    g110 *= norm0.w;\n    vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n    g001 *= norm1.x;\n    g011 *= norm1.y;\n    g101 *= norm1.z;\n    g111 *= norm1.w;\n    float n000 = dot(g000, Pf0);\n    float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n    float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n    float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n    float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n    float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n    float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n    float n111 = dot(g111, Pf1);\n    vec3 fade_xyz = fade(Pf0);\n    vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n    vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n    float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);\n    return 2.2 * n_xyz;\n}\nfloat turb(vec3 P, vec3 rep, float lacunarity, float gain)\n{\n    float sum = 0.0;\n    float sc = 1.0;\n    float totalgain = 1.0;\n    for (float i = 0.0; i < 6.0; i++)\n    {\n        sum += totalgain * pnoise(P * sc, rep);\n        sc *= lacunarity;\n        totalgain *= gain;\n    }\n    return abs(sum);\n}\n",o="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\nuniform vec2 dimensions;\n\nuniform vec2 light;\nuniform bool parallel;\nuniform float aspect;\n\nuniform float gain;\nuniform float lacunarity;\nuniform float time;\n\n${perlin}\n\nvoid main(void) {\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n    vec2 coord = vTextureCoord * filterArea.xy / dimensions.xy;\n\n    float d;\n\n    if (parallel) {\n        float _cos = light.x;\n        float _sin = light.y;\n        d = (_cos * coord.x) + (_sin * coord.y * aspect);\n    } else {\n        float dx = coord.x - light.x / dimensions.x;\n        float dy = (coord.y - light.y / dimensions.y) * aspect;\n        float dis = sqrt(dx * dx + dy * dy) + 0.00001;\n        d = dy / dis;\n    }\n\n    vec3 dir = vec3(d, d, 0.0);\n\n    float noise = turb(dir + vec3(time, 0.0, 62.1 + time) * 0.05, vec3(480.0, 320.0, 480.0), lacunarity, gain);\n    noise = mix(noise, 0.0, 0.3);\n    //fade vertically.\n    vec4 mist = vec4(noise, noise, noise, 1.0) * (1.0 - coord.y);\n    mist.a = 1.0;\n    gl_FragColor += mist;\n}\n",r=function(n){function r(r){n.call(this,t,o.replace("${perlin}",i)),"number"==typeof r&&(console.warn("GodrayFilter now uses options instead of (angle, gain, lacunarity, time)"),r={angle:r},void 0!==arguments[1]&&(r.gain=arguments[1]),void 0!==arguments[2]&&(r.lacunarity=arguments[2]),void 0!==arguments[3]&&(r.time=arguments[3])),r=Object.assign({angle:30,gain:.5,lacunarity:2.5,time:0,parallel:!0,center:[0,0]},r),this._angleLight=new e.Point,this.angle=r.angle,this.gain=r.gain,this.lacunarity=r.lacunarity,this.parallel=r.parallel,this.center=r.center,this.time=r.time}n&&(r.__proto__=n),r.prototype=Object.create(n&&n.prototype),r.prototype.constructor=r;var a={angle:{configurable:!0},gain:{configurable:!0},lacunarity:{configurable:!0}};return r.prototype.apply=function(n,e,t,i){var o=e.sourceFrame,r=o.width,a=o.height;this.uniforms.light=this.parallel?this._angleLight:this.center,this.uniforms.parallel=this.parallel,this.uniforms.dimensions[0]=r,this.uniforms.dimensions[1]=a,this.uniforms.aspect=a/r,this.uniforms.time=this.time,n.applyFilter(this,e,t,i)},a.angle.get=function(){return this._angle},a.angle.set=function(n){this._angle=n;var t=n*e.DEG_TO_RAD;this._angleLight.x=Math.cos(t),this._angleLight.y=Math.sin(t)},a.gain.get=function(){return this.uniforms.gain},a.gain.set=function(n){this.uniforms.gain=n},a.lacunarity.get=function(){return this.uniforms.lacunarity},a.lacunarity.set=function(n){this.uniforms.lacunarity=n},Object.defineProperties(r.prototype,a),r}(e.Filter);n.GodrayFilter=r,Object.defineProperty(n,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-godray.js.map
+
+
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-motion-blur - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-motion-blur is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var i="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",n="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\n\nuniform vec2 uVelocity;\nuniform int uKernelSize;\nuniform float uOffset;\n\nconst int MAX_KERNEL_SIZE = 2048;\nconst int ITERATION = MAX_KERNEL_SIZE - 1;\n\nvec2 velocity = uVelocity / filterArea.xy;\n\n// float kernelSize = min(float(uKernelSize), float(MAX_KERNELSIZE));\n\n// In real use-case , uKernelSize < MAX_KERNELSIZE almost always.\n// So use uKernelSize directly.\nfloat kernelSize = float(uKernelSize);\nfloat k = kernelSize - 1.0;\nfloat offset = -uOffset / length(uVelocity) - 0.5;\n\nvoid main(void)\n{\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n\n    if (uKernelSize == 0)\n    {\n        return;\n    }\n\n    for(int i = 0; i < ITERATION; i++) {\n        if (i == int(k)) {\n            break;\n        }\n        vec2 bias = velocity * (float(i) / k + offset);\n        gl_FragColor += texture2D(uSampler, vTextureCoord + bias);\n    }\n    gl_FragColor /= kernelSize;\n}\n",o=function(e){function o(o,r,l){void 0===o&&(o=[0,0]),void 0===r&&(r=5),void 0===l&&(l=0),e.call(this,i,n),this._velocity=new t.Point(0,0),this.velocity=o,this.kernelSize=r,this.offset=l}e&&(o.__proto__=e),o.prototype=Object.create(e&&e.prototype),o.prototype.constructor=o;var r={velocity:{configurable:!0},offset:{configurable:!0}};return o.prototype.apply=function(e,t,i,n){var o=this.velocity,r=o.x,l=o.y;this.uniforms.uKernelSize=0!==r||0!==l?this.kernelSize:0,e.applyFilter(this,t,i,n)},r.velocity.set=function(e){Array.isArray(e)?(this._velocity.x=e[0],this._velocity.y=e[1]):e instanceof t.Point&&(this._velocity.x=e.x,this._velocity.y=e.y),this.uniforms.uVelocity[0]=this._velocity.x,this.uniforms.uVelocity[1]=this._velocity.y},r.velocity.get=function(){return this._velocity},r.offset.set=function(e){this.uniforms.uOffset=e},r.offset.get=function(){return this.uniforms.uOffset},Object.defineProperties(o.prototype,r),o}(t.Filter);e.MotionBlurFilter=o,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-motion-blur.js.map
+
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-multi-color-replace - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-multi-color-replace is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(o,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(o.__filters={},o.PIXI)}(this,function(o,e){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",n="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform float epsilon;\n\nconst int MAX_COLORS = %maxColors%;\n\nuniform vec3 originalColors[MAX_COLORS];\nuniform vec3 targetColors[MAX_COLORS];\n\nvoid main(void)\n{\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n\n    float alpha = gl_FragColor.a;\n    if (alpha < 0.0001)\n    {\n      return;\n    }\n\n    vec3 color = gl_FragColor.rgb / alpha;\n\n    for(int i = 0; i < MAX_COLORS; i++)\n    {\n      vec3 origColor = originalColors[i];\n      if (origColor.r < 0.0)\n      {\n        break;\n      }\n      vec3 colorDiff = origColor - color;\n      if (length(colorDiff) < epsilon)\n      {\n        vec3 targetColor = targetColors[i];\n        gl_FragColor = vec4((targetColor + colorDiff) * alpha, alpha);\n        return;\n      }\n    }\n}\n",t=function(o){function t(e,t,i){void 0===t&&(t=.05),void 0===i&&(i=null),i=i||e.length,o.call(this,r,n.replace(/%maxColors%/g,i)),this.epsilon=t,this._maxColors=i,this._replacements=null,this.uniforms.originalColors=new Float32Array(3*i),this.uniforms.targetColors=new Float32Array(3*i),this.replacements=e}o&&(t.__proto__=o),t.prototype=Object.create(o&&o.prototype),t.prototype.constructor=t;var i={replacements:{configurable:!0},maxColors:{configurable:!0},epsilon:{configurable:!0}};return i.replacements.set=function(o){var r=this.uniforms.originalColors,n=this.uniforms.targetColors,t=o.length;if(t>this._maxColors)throw"Length of replacements ("+t+") exceeds the maximum colors length ("+this._maxColors+")";r[3*t]=-1;for(var i=0;i<t;i++){var l=o[i],s=l[0];"number"==typeof s?s=e.utils.hex2rgb(s):l[0]=e.utils.rgb2hex(s),r[3*i]=s[0],r[3*i+1]=s[1],r[3*i+2]=s[2];var a=l[1];"number"==typeof a?a=e.utils.hex2rgb(a):l[1]=e.utils.rgb2hex(a),n[3*i]=a[0],n[3*i+1]=a[1],n[3*i+2]=a[2]}this._replacements=o},i.replacements.get=function(){return this._replacements},t.prototype.refresh=function(){this.replacements=this._replacements},i.maxColors.get=function(){return this._maxColors},i.epsilon.set=function(o){this.uniforms.epsilon=o},i.epsilon.get=function(){return this.uniforms.epsilon},Object.defineProperties(t.prototype,i),t}(e.Filter);o.MultiColorReplaceFilter=t,Object.defineProperty(o,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-multi-color-replace.js.map
+
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-old-film - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-old-film is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(n,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(n.__filters={},n.PIXI)}(this,function(n,t){"use strict";var i="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",e="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\nuniform vec2 dimensions;\n\nuniform float sepia;\nuniform float noise;\nuniform float noiseSize;\nuniform float scratch;\nuniform float scratchDensity;\nuniform float scratchWidth;\nuniform float vignetting;\nuniform float vignettingAlpha;\nuniform float vignettingBlur;\nuniform float seed;\n\nconst float SQRT_2 = 1.414213;\nconst vec3 SEPIA_RGB = vec3(112.0 / 255.0, 66.0 / 255.0, 20.0 / 255.0);\n\nfloat rand(vec2 co) {\n    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);\n}\n\nvec3 Overlay(vec3 src, vec3 dst)\n{\n    // if (dst <= 0.5) then: 2 * src * dst\n    // if (dst > 0.5) then: 1 - 2 * (1 - dst) * (1 - src)\n    return vec3((dst.x <= 0.5) ? (2.0 * src.x * dst.x) : (1.0 - 2.0 * (1.0 - dst.x) * (1.0 - src.x)),\n                (dst.y <= 0.5) ? (2.0 * src.y * dst.y) : (1.0 - 2.0 * (1.0 - dst.y) * (1.0 - src.y)),\n                (dst.z <= 0.5) ? (2.0 * src.z * dst.z) : (1.0 - 2.0 * (1.0 - dst.z) * (1.0 - src.z)));\n}\n\n\nvoid main()\n{\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n    vec3 color = gl_FragColor.rgb;\n\n    if (sepia > 0.0)\n    {\n        float gray = (color.x + color.y + color.z) / 3.0;\n        vec3 grayscale = vec3(gray);\n\n        color = Overlay(SEPIA_RGB, grayscale);\n\n        color = grayscale + sepia * (color - grayscale);\n    }\n\n    vec2 coord = vTextureCoord * filterArea.xy / dimensions.xy;\n\n    if (vignetting > 0.0)\n    {\n        float outter = SQRT_2 - vignetting * SQRT_2;\n        vec2 dir = vec2(vec2(0.5, 0.5) - coord);\n        dir.y *= dimensions.y / dimensions.x;\n        float darker = clamp((outter - length(dir) * SQRT_2) / ( 0.00001 + vignettingBlur * SQRT_2), 0.0, 1.0);\n        color.rgb *= darker + (1.0 - darker) * (1.0 - vignettingAlpha);\n    }\n\n    if (scratchDensity > seed && scratch != 0.0)\n    {\n        float phase = seed * 256.0;\n        float s = mod(floor(phase), 2.0);\n        float dist = 1.0 / scratchDensity;\n        float d = distance(coord, vec2(seed * dist, abs(s - seed * dist)));\n        if (d < seed * 0.6 + 0.4)\n        {\n            highp float period = scratchDensity * 10.0;\n\n            float xx = coord.x * period + phase;\n            float aa = abs(mod(xx, 0.5) * 4.0);\n            float bb = mod(floor(xx / 0.5), 2.0);\n            float yy = (1.0 - bb) * aa + bb * (2.0 - aa);\n\n            float kk = 2.0 * period;\n            float dw = scratchWidth / dimensions.x * (0.75 + seed);\n            float dh = dw * kk;\n\n            float tine = (yy - (2.0 - dh));\n\n            if (tine > 0.0) {\n                float _sign = sign(scratch);\n\n                tine = s * tine / period + scratch + 0.1;\n                tine = clamp(tine + 1.0, 0.5 + _sign * 0.5, 1.5 + _sign * 0.5);\n\n                color.rgb *= tine;\n            }\n        }\n    }\n\n    if (noise > 0.0 && noiseSize > 0.0)\n    {\n        vec2 pixelCoord = vTextureCoord.xy * filterArea.xy;\n        pixelCoord.x = floor(pixelCoord.x / noiseSize);\n        pixelCoord.y = floor(pixelCoord.y / noiseSize);\n        // vec2 d = pixelCoord * noiseSize * vec2(1024.0 + seed * 512.0, 1024.0 - seed * 512.0);\n        // float _noise = snoise(d) * 0.5;\n        float _noise = rand(pixelCoord * noiseSize * seed) - 0.5;\n        color += _noise * noise;\n    }\n\n    gl_FragColor.rgb = color;\n}\n",o=function(n){function t(t,o){void 0===o&&(o=0),n.call(this,i,e),"number"==typeof t?(this.seed=t,t=null):this.seed=o,Object.assign(this,{sepia:.3,noise:.3,noiseSize:1,scratch:.5,scratchDensity:.3,scratchWidth:1,vignetting:.3,vignettingAlpha:1,vignettingBlur:.3},t)}n&&(t.__proto__=n),t.prototype=Object.create(n&&n.prototype),t.prototype.constructor=t;var o={sepia:{configurable:!0},noise:{configurable:!0},noiseSize:{configurable:!0},scratch:{configurable:!0},scratchDensity:{configurable:!0},scratchWidth:{configurable:!0},vignetting:{configurable:!0},vignettingAlpha:{configurable:!0},vignettingBlur:{configurable:!0}};return t.prototype.apply=function(n,t,i,e){this.uniforms.dimensions[0]=t.sourceFrame.width,this.uniforms.dimensions[1]=t.sourceFrame.height,this.uniforms.seed=this.seed,n.applyFilter(this,t,i,e)},o.sepia.set=function(n){this.uniforms.sepia=n},o.sepia.get=function(){return this.uniforms.sepia},o.noise.set=function(n){this.uniforms.noise=n},o.noise.get=function(){return this.uniforms.noise},o.noiseSize.set=function(n){this.uniforms.noiseSize=n},o.noiseSize.get=function(){return this.uniforms.noiseSize},o.scratch.set=function(n){this.uniforms.scratch=n},o.scratch.get=function(){return this.uniforms.scratch},o.scratchDensity.set=function(n){this.uniforms.scratchDensity=n},o.scratchDensity.get=function(){return this.uniforms.scratchDensity},o.scratchWidth.set=function(n){this.uniforms.scratchWidth=n},o.scratchWidth.get=function(){return this.uniforms.scratchWidth},o.vignetting.set=function(n){this.uniforms.vignetting=n},o.vignetting.get=function(){return this.uniforms.vignetting},o.vignettingAlpha.set=function(n){this.uniforms.vignettingAlpha=n},o.vignettingAlpha.get=function(){return this.uniforms.vignettingAlpha},o.vignettingBlur.set=function(n){this.uniforms.vignettingBlur=n},o.vignettingBlur.get=function(){return this.uniforms.vignettingBlur},Object.defineProperties(t.prototype,o),t}(t.Filter);n.OldFilmFilter=o,Object.defineProperty(n,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-old-film.js.map
+
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-outline - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-outline is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,o){ true?o(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],o):o(e.__filters={},e.PIXI)}(this,function(e,o){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform vec2 thickness;\nuniform vec4 outlineColor;\nuniform vec4 filterClamp;\n\nconst float DOUBLE_PI = 3.14159265358979323846264 * 2.;\n\nvoid main(void) {\n    vec4 ownColor = texture2D(uSampler, vTextureCoord);\n    vec4 curColor;\n    float maxAlpha = 0.;\n    vec2 displaced;\n    for (float angle = 0.; angle <= DOUBLE_PI; angle += ${angleStep}) {\n        displaced.x = vTextureCoord.x + thickness.x * cos(angle);\n        displaced.y = vTextureCoord.y + thickness.y * sin(angle);\n        curColor = texture2D(uSampler, clamp(displaced, filterClamp.xy, filterClamp.zw));\n        maxAlpha = max(maxAlpha, curColor.a);\n    }\n    float resultAlpha = max(maxAlpha, ownColor.a);\n    gl_FragColor = vec4((ownColor.rgb + outlineColor.rgb * (1. - ownColor.a)) * resultAlpha, resultAlpha);\n}\n",n=function(e){function n(o,i,l){void 0===o&&(o=1),void 0===i&&(i=0),void 0===l&&(l=.1);var a=Math.max(l*n.MAX_SAMPLES,n.MIN_SAMPLES),s=(2*Math.PI/a).toFixed(7);e.call(this,t,r.replace(/\$\{angleStep\}/,s)),this.uniforms.thickness=new Float32Array([0,0]),this.thickness=o,this.uniforms.outlineColor=new Float32Array([0,0,0,1]),this.color=i,this.quality=l}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var i={color:{configurable:!0}};return n.prototype.apply=function(e,o,t,r){this.uniforms.thickness[0]=this.thickness/o.size.width,this.uniforms.thickness[1]=this.thickness/o.size.height,e.applyFilter(this,o,t,r)},i.color.get=function(){return o.utils.rgb2hex(this.uniforms.outlineColor)},i.color.set=function(e){o.utils.hex2rgb(e,this.uniforms.outlineColor)},Object.defineProperties(n.prototype,i),n}(o.Filter);n.MIN_SAMPLES=1,n.MAX_SAMPLES=100,e.OutlineFilter=n,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-outline.js.map
+
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-pixelate - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-pixelate is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,o){ true?o(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],o):o(e.__filters={},e.PIXI)}(this,function(e,o){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",n="precision mediump float;\n\nvarying vec2 vTextureCoord;\n\nuniform vec2 size;\nuniform sampler2D uSampler;\n\nuniform vec4 filterArea;\n\nvec2 mapCoord( vec2 coord )\n{\n    coord *= filterArea.xy;\n    coord += filterArea.zw;\n\n    return coord;\n}\n\nvec2 unmapCoord( vec2 coord )\n{\n    coord -= filterArea.zw;\n    coord /= filterArea.xy;\n\n    return coord;\n}\n\nvec2 pixelate(vec2 coord, vec2 size)\n{\n\treturn floor( coord / size ) * size;\n}\n\nvoid main(void)\n{\n    vec2 coord = mapCoord(vTextureCoord);\n\n    coord = pixelate(coord, size);\n\n    coord = unmapCoord(coord);\n\n    gl_FragColor = texture2D(uSampler, coord);\n}\n",t=function(e){function o(o){void 0===o&&(o=10),e.call(this,r,n),this.size=o}e&&(o.__proto__=e),o.prototype=Object.create(e&&e.prototype),o.prototype.constructor=o;var t={size:{configurable:!0}};return t.size.get=function(){return this.uniforms.size},t.size.set=function(e){"number"==typeof e&&(e=[e,e]),this.uniforms.size=e},Object.defineProperties(o.prototype,t),o}(o.Filter);e.PixelateFilter=t,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-pixelate.js.map
+
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-radial-blur - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-radial-blur is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(e.__filters={},e.PIXI)}(this,function(e,n){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\n\nuniform float uRadian;\nuniform vec2 uCenter;\nuniform float uRadius;\nuniform int uKernelSize;\n\nconst int MAX_KERNEL_SIZE = 2048;\nconst int ITERATION = MAX_KERNEL_SIZE - 1;\n\n// float kernelSize = min(float(uKernelSize), float(MAX_KERNELSIZE));\n\n// In real use-case , uKernelSize < MAX_KERNELSIZE almost always.\n// So use uKernelSize directly.\nfloat kernelSize = float(uKernelSize);\nfloat k = kernelSize - 1.0;\n\n\nvec2 center = uCenter.xy / filterArea.xy;\nfloat aspect = filterArea.y / filterArea.x;\n\nfloat gradient = uRadius / filterArea.x * 0.3;\nfloat radius = uRadius / filterArea.x - gradient * 0.5;\n\nvoid main(void)\n{\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n\n    if (uKernelSize == 0)\n    {\n        return;\n    }\n\n    vec2 coord = vTextureCoord;\n\n    vec2 dir = vec2(center - coord);\n    float dist = length(vec2(dir.x, dir.y * aspect));\n\n    float radianStep;\n\n    if (radius >= 0.0 && dist > radius) {\n        float delta = dist - radius;\n        float gap = gradient;\n        float scale = 1.0 - abs(delta / gap);\n        if (scale <= 0.0) {\n            return;\n        }\n        radianStep = uRadian * scale / k;\n    } else {\n        radianStep = uRadian / k;\n    }\n\n    float s = sin(radianStep);\n    float c = cos(radianStep);\n    mat2 rotationMatrix = mat2(vec2(c, -s), vec2(s, c));\n\n    for(int i = 0; i < ITERATION; i++) {\n        if (i == int(k)) {\n            break;\n        }\n\n        coord -= center;\n        coord.y *= aspect;\n        coord = rotationMatrix * coord;\n        coord.y /= aspect;\n        coord += center;\n\n        vec4 sample = texture2D(uSampler, coord);\n\n        // switch to pre-multiplied alpha to correctly blur transparent images\n        // sample.rgb *= sample.a;\n\n        gl_FragColor += sample;\n    }\n    gl_FragColor /= kernelSize;\n}\n",i=function(e){function n(n,i,o,a){void 0===n&&(n=0),void 0===i&&(i=[0,0]),void 0===o&&(o=5),void 0===a&&(a=-1),e.call(this,t,r),this._angle=0,this.angle=n,this.center=i,this.kernelSize=o,this.radius=a}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var i={angle:{configurable:!0},center:{configurable:!0},radius:{configurable:!0}};return n.prototype.apply=function(e,n,t,r){this.uniforms.uKernelSize=0!==this._angle?this.kernelSize:0,e.applyFilter(this,n,t,r)},i.angle.set=function(e){this._angle=e,this.uniforms.uRadian=e*Math.PI/180},i.angle.get=function(){return this._angle},i.center.get=function(){return this.uniforms.uCenter},i.center.set=function(e){this.uniforms.uCenter=e},i.radius.get=function(){return this.uniforms.uRadius},i.radius.set=function(e){(e<0||e===1/0)&&(e=-1),this.uniforms.uRadius=e},Object.defineProperties(n.prototype,i),n}(n.Filter);e.RadialBlurFilter=i,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-radial-blur.js.map
+
+
+/***/ }),
+/* 253 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-reflection - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-reflection is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(e.__filters={},e.PIXI)}(this,function(e,n){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",t="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\n\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\nuniform vec2 dimensions;\n\nuniform bool mirror;\nuniform float boundary;\nuniform vec2 amplitude;\nuniform vec2 waveLength;\nuniform vec2 alpha;\nuniform float time;\n\nfloat rand(vec2 co) {\n    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);\n}\n\nvoid main(void)\n{\n    vec2 pixelCoord = vTextureCoord.xy * filterArea.xy;\n    vec2 coord = pixelCoord / dimensions;\n\n    if (coord.y < boundary) {\n        gl_FragColor = texture2D(uSampler, vTextureCoord);\n        return;\n    }\n\n    float k = (coord.y - boundary) / (1. - boundary + 0.0001);\n    float areaY = boundary * dimensions.y / filterArea.y;\n    float v = areaY + areaY - vTextureCoord.y;\n    float y = mirror ? v : vTextureCoord.y;\n\n    float _amplitude = ((amplitude.y - amplitude.x) * k + amplitude.x ) / filterArea.x;\n    float _waveLength = ((waveLength.y - waveLength.x) * k + waveLength.x) / filterArea.y;\n    float _alpha = (alpha.y - alpha.x) * k + alpha.x;\n\n    float x = vTextureCoord.x + cos(v * 6.28 / _waveLength - time) * _amplitude;\n    x = clamp(x, filterClamp.x, filterClamp.z);\n\n    vec4 color = texture2D(uSampler, vec2(x, y));\n\n    gl_FragColor = color * _alpha;\n}\n",o=function(e){function n(n){e.call(this,r,t),Object.assign(this,{mirror:!0,boundary:.5,amplitude:[0,20],waveLength:[30,100],alpha:[1,1],time:0},n)}e&&(n.__proto__=e),n.prototype=Object.create(e&&e.prototype),n.prototype.constructor=n;var o={mirror:{configurable:!0},boundary:{configurable:!0},amplitude:{configurable:!0},waveLength:{configurable:!0},alpha:{configurable:!0}};return n.prototype.apply=function(e,n,r,t){this.uniforms.dimensions[0]=n.sourceFrame.width,this.uniforms.dimensions[1]=n.sourceFrame.height,this.uniforms.time=this.time,e.applyFilter(this,n,r,t)},o.mirror.set=function(e){this.uniforms.mirror=e},o.mirror.get=function(){return this.uniforms.mirror},o.boundary.set=function(e){this.uniforms.boundary=e},o.boundary.get=function(){return this.uniforms.boundary},o.amplitude.set=function(e){this.uniforms.amplitude[0]=e[0],this.uniforms.amplitude[1]=e[1]},o.amplitude.get=function(){return this.uniforms.amplitude},o.waveLength.set=function(e){this.uniforms.waveLength[0]=e[0],this.uniforms.waveLength[1]=e[1]},o.waveLength.get=function(){return this.uniforms.waveLength},o.alpha.set=function(e){this.uniforms.alpha[0]=e[0],this.uniforms.alpha[1]=e[1]},o.alpha.get=function(){return this.uniforms.alpha},Object.defineProperties(n.prototype,o),n}(n.Filter);e.ReflectionFilter=o,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-reflection.js.map
+
+
+/***/ }),
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-rgb-split - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-rgb-split is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,r){ true?r(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],r):r(e.__filters={},e.PIXI)}(this,function(e,r){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",n="precision mediump float;\n\nvarying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\nuniform vec2 red;\nuniform vec2 green;\nuniform vec2 blue;\n\nvoid main(void)\n{\n   gl_FragColor.r = texture2D(uSampler, vTextureCoord + red/filterArea.xy).r;\n   gl_FragColor.g = texture2D(uSampler, vTextureCoord + green/filterArea.xy).g;\n   gl_FragColor.b = texture2D(uSampler, vTextureCoord + blue/filterArea.xy).b;\n   gl_FragColor.a = texture2D(uSampler, vTextureCoord).a;\n}\n",o=function(e){function r(r,o,i){void 0===r&&(r=[-10,0]),void 0===o&&(o=[0,10]),void 0===i&&(i=[0,0]),e.call(this,t,n),this.red=r,this.green=o,this.blue=i}e&&(r.__proto__=e),r.prototype=Object.create(e&&e.prototype),r.prototype.constructor=r;var o={red:{configurable:!0},green:{configurable:!0},blue:{configurable:!0}};return o.red.get=function(){return this.uniforms.red},o.red.set=function(e){this.uniforms.red=e},o.green.get=function(){return this.uniforms.green},o.green.set=function(e){this.uniforms.green=e},o.blue.get=function(){return this.uniforms.blue},o.blue.set=function(e){this.uniforms.blue=e},Object.defineProperties(r.prototype,o),r}(r.Filter);e.RGBSplitFilter=o,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-rgb-split.js.map
+
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-shockwave - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-shockwave is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var n="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\n\nuniform vec2 center;\n\nuniform float amplitude;\nuniform float wavelength;\n// uniform float power;\nuniform float brightness;\nuniform float speed;\nuniform float radius;\n\nuniform float time;\n\nconst float PI = 3.14159;\n\nvoid main()\n{\n    float halfWavelength = wavelength * 0.5 / filterArea.x;\n    float maxRadius = radius / filterArea.x;\n    float currentRadius = time * speed / filterArea.x;\n\n    float fade = 1.0;\n\n    if (maxRadius > 0.0) {\n        if (currentRadius > maxRadius) {\n            gl_FragColor = texture2D(uSampler, vTextureCoord);\n            return;\n        }\n        fade = 1.0 - pow(currentRadius / maxRadius, 2.0);\n    }\n\n    vec2 dir = vec2(vTextureCoord - center / filterArea.xy);\n    dir.y *= filterArea.y / filterArea.x;\n    float dist = length(dir);\n\n    if (dist <= 0.0 || dist < currentRadius - halfWavelength || dist > currentRadius + halfWavelength) {\n        gl_FragColor = texture2D(uSampler, vTextureCoord);\n        return;\n    }\n\n    vec2 diffUV = normalize(dir);\n\n    float diff = (dist - currentRadius) / halfWavelength;\n\n    float p = 1.0 - pow(abs(diff), 2.0);\n\n    // float powDiff = diff * pow(p, 2.0) * ( amplitude * fade );\n    float powDiff = 1.25 * sin(diff * PI) * p * ( amplitude * fade );\n\n    vec2 offset = diffUV * powDiff / filterArea.xy;\n\n    // Do clamp :\n    vec2 coord = vTextureCoord + offset;\n    vec2 clampedCoord = clamp(coord, filterClamp.xy, filterClamp.zw);\n    gl_FragColor = texture2D(uSampler, clampedCoord);\n    if (coord != clampedCoord) {\n        gl_FragColor *= max(0.0, 1.0 - length(coord - clampedCoord));\n    }\n\n    // No clamp :\n    // gl_FragColor = texture2D(uSampler, vTextureCoord + offset);\n\n    gl_FragColor.rgb *= 1.0 + (brightness - 1.0) * p * fade;\n}\n",i=function(e){function t(t,i,o){void 0===t&&(t=[0,0]),void 0===i&&(i={}),void 0===o&&(o=0),e.call(this,n,r),this.center=t,Array.isArray(i)&&(console.warn("Deprecated Warning: ShockwaveFilter params Array has been changed to options Object."),i={}),i=Object.assign({amplitude:30,wavelength:160,brightness:1,speed:500,radius:-1},i),this.amplitude=i.amplitude,this.wavelength=i.wavelength,this.brightness=i.brightness,this.speed=i.speed,this.radius=i.radius,this.time=o}e&&(t.__proto__=e),t.prototype=Object.create(e&&e.prototype),t.prototype.constructor=t;var i={center:{configurable:!0},amplitude:{configurable:!0},wavelength:{configurable:!0},brightness:{configurable:!0},speed:{configurable:!0},radius:{configurable:!0}};return t.prototype.apply=function(e,t,n,r){this.uniforms.time=this.time,e.applyFilter(this,t,n,r)},i.center.get=function(){return this.uniforms.center},i.center.set=function(e){this.uniforms.center=e},i.amplitude.get=function(){return this.uniforms.amplitude},i.amplitude.set=function(e){this.uniforms.amplitude=e},i.wavelength.get=function(){return this.uniforms.wavelength},i.wavelength.set=function(e){this.uniforms.wavelength=e},i.brightness.get=function(){return this.uniforms.brightness},i.brightness.set=function(e){this.uniforms.brightness=e},i.speed.get=function(){return this.uniforms.speed},i.speed.set=function(e){this.uniforms.speed=e},i.radius.get=function(){return this.uniforms.radius},i.radius.set=function(e){this.uniforms.radius=e},Object.defineProperties(t.prototype,i),t}(t.Filter);e.ShockwaveFilter=i,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-shockwave.js.map
+
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-simple-lightmap - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-simple-lightmap is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(e,t){ true?t(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],t):t(e.__filters={},e.PIXI)}(this,function(e,t){"use strict";var o="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",i="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform sampler2D uLightmap;\nuniform vec4 filterArea;\nuniform vec2 dimensions;\nuniform vec4 ambientColor;\nvoid main() {\n    vec4 diffuseColor = texture2D(uSampler, vTextureCoord);\n    vec2 lightCoord = (vTextureCoord * filterArea.xy) / dimensions;\n    vec4 light = texture2D(uLightmap, lightCoord);\n    vec3 ambient = ambientColor.rgb * ambientColor.a;\n    vec3 intensity = ambient + light.rgb;\n    vec3 finalColor = diffuseColor.rgb * intensity;\n    gl_FragColor = vec4(finalColor, diffuseColor.a);\n}\n",r=function(e){function r(t,r,n){void 0===r&&(r=0),void 0===n&&(n=1),e.call(this,o,i),this.uniforms.ambientColor=new Float32Array([0,0,0,n]),this.texture=t,this.color=r}e&&(r.__proto__=e),r.prototype=Object.create(e&&e.prototype),r.prototype.constructor=r;var n={texture:{configurable:!0},color:{configurable:!0},alpha:{configurable:!0}};return r.prototype.apply=function(e,t,o,i){this.uniforms.dimensions[0]=t.sourceFrame.width,this.uniforms.dimensions[1]=t.sourceFrame.height,e.applyFilter(this,t,o,i)},n.texture.get=function(){return this.uniforms.uLightmap},n.texture.set=function(e){this.uniforms.uLightmap=e},n.color.set=function(e){var o=this.uniforms.ambientColor;"number"==typeof e?(t.utils.hex2rgb(e,o),this._color=e):(o[0]=e[0],o[1]=e[1],o[2]=e[2],o[3]=e[3],this._color=t.utils.rgb2hex(o))},n.color.get=function(){return this._color},n.alpha.get=function(){return this.uniforms.ambientColor[3]},n.alpha.set=function(e){this.uniforms.ambientColor[3]=e},Object.defineProperties(r.prototype,n),r}(t.Filter);e.SimpleLightmapFilter=r,Object.defineProperty(e,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-simple-lightmap.js.map
+
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-tilt-shift - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-tilt-shift is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(t,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(t.__filters={},t.PIXI)}(this,function(t,e){"use strict";var i="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform float blur;\nuniform float gradientBlur;\nuniform vec2 start;\nuniform vec2 end;\nuniform vec2 delta;\nuniform vec2 texSize;\n\nfloat random(vec3 scale, float seed)\n{\n    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);\n}\n\nvoid main(void)\n{\n    vec4 color = vec4(0.0);\n    float total = 0.0;\n\n    float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);\n    vec2 normal = normalize(vec2(start.y - end.y, end.x - start.x));\n    float radius = smoothstep(0.0, 1.0, abs(dot(vTextureCoord * texSize - start, normal)) / gradientBlur) * blur;\n\n    for (float t = -30.0; t <= 30.0; t++)\n    {\n        float percent = (t + offset - 0.5) / 30.0;\n        float weight = 1.0 - abs(percent);\n        vec4 sample = texture2D(uSampler, vTextureCoord + delta / texSize * percent * radius);\n        sample.rgb *= sample.a;\n        color += sample * weight;\n        total += weight;\n    }\n\n    gl_FragColor = color / total;\n    gl_FragColor.rgb /= gl_FragColor.a + 0.00001;\n}\n",n=function(t){function n(n,o,s,l){void 0===n&&(n=100),void 0===o&&(o=600),void 0===s&&(s=null),void 0===l&&(l=null),t.call(this,i,r),this.uniforms.blur=n,this.uniforms.gradientBlur=o,this.uniforms.start=s||new e.Point(0,window.innerHeight/2),this.uniforms.end=l||new e.Point(600,window.innerHeight/2),this.uniforms.delta=new e.Point(30,30),this.uniforms.texSize=new e.Point(window.innerWidth,window.innerHeight),this.updateDelta()}t&&(n.__proto__=t),n.prototype=Object.create(t&&t.prototype),n.prototype.constructor=n;var o={blur:{configurable:!0},gradientBlur:{configurable:!0},start:{configurable:!0},end:{configurable:!0}};return n.prototype.updateDelta=function(){this.uniforms.delta.x=0,this.uniforms.delta.y=0},o.blur.get=function(){return this.uniforms.blur},o.blur.set=function(t){this.uniforms.blur=t},o.gradientBlur.get=function(){return this.uniforms.gradientBlur},o.gradientBlur.set=function(t){this.uniforms.gradientBlur=t},o.start.get=function(){return this.uniforms.start},o.start.set=function(t){this.uniforms.start=t,this.updateDelta()},o.end.get=function(){return this.uniforms.end},o.end.set=function(t){this.uniforms.end=t,this.updateDelta()},Object.defineProperties(n.prototype,o),n}(e.Filter),o=function(t){function e(){t.apply(this,arguments)}return t&&(e.__proto__=t),e.prototype=Object.create(t&&t.prototype),e.prototype.constructor=e,e.prototype.updateDelta=function(){var t=this.uniforms.end.x-this.uniforms.start.x,e=this.uniforms.end.y-this.uniforms.start.y,i=Math.sqrt(t*t+e*e);this.uniforms.delta.x=t/i,this.uniforms.delta.y=e/i},e}(n),s=function(t){function e(){t.apply(this,arguments)}return t&&(e.__proto__=t),e.prototype=Object.create(t&&t.prototype),e.prototype.constructor=e,e.prototype.updateDelta=function(){var t=this.uniforms.end.x-this.uniforms.start.x,e=this.uniforms.end.y-this.uniforms.start.y,i=Math.sqrt(t*t+e*e);this.uniforms.delta.x=-e/i,this.uniforms.delta.y=t/i},e}(n),l=function(t){function e(e,i,r,n){void 0===e&&(e=100),void 0===i&&(i=600),void 0===r&&(r=null),void 0===n&&(n=null),t.call(this),this.tiltShiftXFilter=new o(e,i,r,n),this.tiltShiftYFilter=new s(e,i,r,n)}t&&(e.__proto__=t),e.prototype=Object.create(t&&t.prototype),e.prototype.constructor=e;var i={blur:{configurable:!0},gradientBlur:{configurable:!0},start:{configurable:!0},end:{configurable:!0}};return e.prototype.apply=function(t,e,i){var r=t.getRenderTarget(!0);this.tiltShiftXFilter.apply(t,e,r),this.tiltShiftYFilter.apply(t,r,i),t.returnRenderTarget(r)},i.blur.get=function(){return this.tiltShiftXFilter.blur},i.blur.set=function(t){this.tiltShiftXFilter.blur=this.tiltShiftYFilter.blur=t},i.gradientBlur.get=function(){return this.tiltShiftXFilter.gradientBlur},i.gradientBlur.set=function(t){this.tiltShiftXFilter.gradientBlur=this.tiltShiftYFilter.gradientBlur=t},i.start.get=function(){return this.tiltShiftXFilter.start},i.start.set=function(t){this.tiltShiftXFilter.start=this.tiltShiftYFilter.start=t},i.end.get=function(){return this.tiltShiftXFilter.end},i.end.set=function(t){this.tiltShiftXFilter.end=this.tiltShiftYFilter.end=t},Object.defineProperties(e.prototype,i),e}(e.Filter);t.TiltShiftFilter=l,t.TiltShiftXFilter=o,t.TiltShiftYFilter=s,t.TiltShiftAxisFilter=n,Object.defineProperty(t,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-tilt-shift.js.map
+
+
+/***/ }),
+/* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-twist - v2.5.0
+	 * Compiled Wed, 10 Jan 2018 17:38:59 UTC
+	 *
+	 * @pixi/filter-twist is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(o,n){ true?n(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],n):n(o.__filters={},o.PIXI)}(this,function(o,n){"use strict";var r="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",e="varying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform float radius;\nuniform float angle;\nuniform vec2 offset;\nuniform vec4 filterArea;\n\nvec2 mapCoord( vec2 coord )\n{\n    coord *= filterArea.xy;\n    coord += filterArea.zw;\n\n    return coord;\n}\n\nvec2 unmapCoord( vec2 coord )\n{\n    coord -= filterArea.zw;\n    coord /= filterArea.xy;\n\n    return coord;\n}\n\nvec2 twist(vec2 coord)\n{\n    coord -= offset;\n\n    float dist = length(coord);\n\n    if (dist < radius)\n    {\n        float ratioDist = (radius - dist) / radius;\n        float angleMod = ratioDist * ratioDist * angle;\n        float s = sin(angleMod);\n        float c = cos(angleMod);\n        coord = vec2(coord.x * c - coord.y * s, coord.x * s + coord.y * c);\n    }\n\n    coord += offset;\n\n    return coord;\n}\n\nvoid main(void)\n{\n\n    vec2 coord = mapCoord(vTextureCoord);\n\n    coord = twist(coord);\n\n    coord = unmapCoord(coord);\n\n    gl_FragColor = texture2D(uSampler, coord );\n\n}\n",t=function(o){function n(n,t,i){void 0===n&&(n=200),void 0===t&&(t=4),void 0===i&&(i=20),o.call(this,r,e),this.radius=n,this.angle=t,this.padding=i}o&&(n.__proto__=o),n.prototype=Object.create(o&&o.prototype),n.prototype.constructor=n;var t={offset:{configurable:!0},radius:{configurable:!0},angle:{configurable:!0}};return t.offset.get=function(){return this.uniforms.offset},t.offset.set=function(o){this.uniforms.offset=o},t.radius.get=function(){return this.uniforms.radius},t.radius.set=function(o){this.uniforms.radius=o},t.angle.get=function(){return this.uniforms.angle},t.angle.set=function(o){this.uniforms.angle=o},Object.defineProperties(n.prototype,t),n}(n.Filter);o.TwistFilter=t,Object.defineProperty(o,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-twist.js.map
+
+
+/***/ }),
+/* 259 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*!
+	 * @pixi/filter-zoom-blur - v2.5.1
+	 * Compiled Wed, 17 Jan 2018 02:35:33 UTC
+	 *
+	 * @pixi/filter-zoom-blur is licensed under the MIT License.
+	 * http://www.opensource.org/licenses/mit-license
+	 */
+	!function(n,e){ true?e(exports,__webpack_require__(1)):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e(n.__filters={},n.PIXI)}(this,function(n,e){"use strict";var t="attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}",r="varying vec2 vTextureCoord;\nuniform sampler2D uSampler;\nuniform vec4 filterArea;\n\nuniform vec2 uCenter;\nuniform float uStrength;\nuniform float uInnerRadius;\nuniform float uRadius;\n\nconst float MAX_KERNEL_SIZE = 32.0;\n\nfloat random(vec3 scale, float seed) {\n    // use the fragment position for a different seed per-pixel\n    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);\n}\n\nvoid main() {\n\n    float minGradient = uInnerRadius * 0.3;\n    float innerRadius = (uInnerRadius + minGradient * 0.5) / filterArea.x;\n\n    float gradient = uRadius * 0.3;\n    float radius = (uRadius - gradient * 0.5) / filterArea.x;\n\n    float countLimit = MAX_KERNEL_SIZE;\n\n    vec2 dir = vec2(uCenter.xy / filterArea.xy - vTextureCoord);\n    float dist = length(vec2(dir.x, dir.y * filterArea.y / filterArea.x));\n\n    float strength = uStrength;\n\n    float delta = 0.0;\n    float gap;\n    if (dist < innerRadius) {\n        delta = innerRadius - dist;\n        gap = minGradient;\n    } else if (radius >= 0.0 && dist > radius) { // radius < 0 means it's infinity\n        delta = dist - radius;\n        gap = gradient;\n    }\n\n    if (delta > 0.0) {\n        float normalCount = gap / filterArea.x;\n        delta = (normalCount - delta) / normalCount;\n        countLimit *= delta;\n        strength *= delta;\n        if (countLimit < 1.0)\n        {\n            gl_FragColor = texture2D(uSampler, vTextureCoord);\n            return;\n        }\n    }\n\n    // randomize the lookup values to hide the fixed number of samples\n    float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);\n\n    float total = 0.0;\n    vec4 color = vec4(0.0);\n\n    dir *= strength;\n\n    for (float t = 0.0; t < MAX_KERNEL_SIZE; t++) {\n        float percent = (t + offset) / MAX_KERNEL_SIZE;\n        float weight = 4.0 * (percent - percent * percent);\n        vec2 p = vTextureCoord + dir * percent;\n        vec4 sample = texture2D(uSampler, p);\n\n        // switch to pre-multiplied alpha to correctly blur transparent images\n        // sample.rgb *= sample.a;\n\n        color += sample * weight;\n        total += weight;\n\n        if (t > countLimit){\n            break;\n        }\n    }\n\n    gl_FragColor = color / total;\n\n    // switch back from pre-multiplied alpha\n    gl_FragColor.rgb /= gl_FragColor.a + 0.00001;\n\n}\n",i=function(n){function e(e,i,o,a){void 0===e&&(e=.1),void 0===i&&(i=[0,0]),void 0===o&&(o=0),void 0===a&&(a=-1),n.call(this,t,r),this.center=i,this.strength=e,this.innerRadius=o,this.radius=a}n&&(e.__proto__=n),e.prototype=Object.create(n&&n.prototype),e.prototype.constructor=e;var i={center:{configurable:!0},strength:{configurable:!0},innerRadius:{configurable:!0},radius:{configurable:!0}};return i.center.get=function(){return this.uniforms.uCenter},i.center.set=function(n){this.uniforms.uCenter=n},i.strength.get=function(){return this.uniforms.uStrength},i.strength.set=function(n){this.uniforms.uStrength=n},i.innerRadius.get=function(){return this.uniforms.uInnerRadius},i.innerRadius.set=function(n){this.uniforms.uInnerRadius=n},i.radius.get=function(){return this.uniforms.uRadius},i.radius.set=function(n){(n<0||n===1/0)&&(n=-1),this.uniforms.uRadius=n},Object.defineProperties(e.prototype,i),e}(e.Filter);n.ZoomBlurFilter=i,Object.defineProperty(n,"__esModule",{value:!0})}),Object.assign(PIXI.filters,this.__filters);
+	//# sourceMappingURL=filter-zoom-blur.js.map
+
 
 /***/ })
 /******/ ]);
