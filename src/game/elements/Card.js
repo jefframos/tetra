@@ -19,12 +19,15 @@ export default class Card extends PIXI.Container{
 		this.counter = this.MAX_COUNTER;
 		this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0,0,CARD.width, CARD.height, 0);
 		this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+
+		this.cardBackground2.scale.set(this.cardBackground2.width / CARD.width * 0.9)
+
 		let cardContainer = new PIXI.Container();
 		this.cardActions = new PIXI.Container();
 		card.addChild(cardContainer);
 		// cardContainer.addChild(this.cardBackground);
-		cardContainer.addChild(this.cardBackground2);
 		cardContainer.addChild(this.cardActions);
+		cardContainer.addChild(this.cardBackground2);
 		
 		
 		this.lifeContainer = new PIXI.Container();
@@ -129,10 +132,19 @@ export default class Card extends PIXI.Container{
 
 		for (var i = totalSides - 1; i >= 0; i--) {
 
+			let arrowContainer = new PIXI.Container();
 			let arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
-			arrow.moveTo(-5,0);
-			arrow.lineTo(5,0);
-			arrow.lineTo(0,-5);
+			arrow.moveTo(-7,0);
+			arrow.lineTo(7,0);
+			arrow.lineTo(0,-7);
+
+			let arrowLine = new PIXI.Graphics().lineStyle(1, 0xFFFFFF);
+			arrowLine.moveTo(0,0);
+			arrowLine.lineTo(0,25);
+
+			arrowContainer.addChild(arrow);
+			arrowContainer.addChild(arrowLine);
+			// arrow.lineTo(0,-5);
 
 			let zone = ACTION_ZONES[orderArray[i]];
 
@@ -140,31 +152,46 @@ export default class Card extends PIXI.Container{
 
 			let tempX = (zone.pos.x / 2) * this.cardBackground.width;
 			let tempY = (zone.pos.y / 2) * this.cardBackground.height;
-			arrow.x = tempX;
-			arrow.y = tempY;
+			arrowContainer.x = tempX;
+			arrowContainer.y = tempY;
 
-			this.arrows.push({arrow:arrow, zone:zone.label});
+			this.arrows.push({arrow:arrowContainer, zone:zone.label});
 
 			let centerPos = {x: this.cardBackground.width/2, y: this.cardBackground.height / 2};
 			let angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2;
 
 			angle = (Math.round((angle * 180 / Math.PI) / 45) * 45) / 180 * Math.PI;
-			arrow.rotation = angle;
-			this.cardActions.addChild(arrow);
+			arrowContainer.rotation = angle;
+			this.cardActions.addChild(arrowContainer);
 
-			arrow.x -= Math.sin(angle) * 7;
-			arrow.y += Math.cos(angle) * 7;
+			arrowContainer.x -= Math.sin(angle) * 8;
+			arrowContainer.y += Math.cos(angle) * 8;
 		}
 	}
 	move(pos, time = 0.3, delay = 0){
+		// console.log(	pos);
 		TweenLite.to(this, time, {x:pos.x, y:pos.y, delay: delay});
 	}
 	moveX(pos, time = 0.3, delay = 0){
+		// console.log(	'moveX', pos);
 		TweenLite.to(this, time, {x:pos, delay: delay});
 	}
 	destroy(){
-		TweenLite.to(this, 0.2, {alpha:0, onComplete:function(){			
+			this.shake(0.2, 6, 0.2);
+		TweenLite.to(this, 0.2, {delay:0.2, alpha:0, onComplete:function(){			
 			this.parent.removeChild(this);
 		}.bind(this)});
+	}
+
+	shake(force = 1, steps = 4, time = 0.5){		
+		let timelinePosition = new TimelineLite();
+		let positionForce = (force * 50);
+		let spliterForce = (force * 20);
+		let speed = time / steps;
+		for (var i = steps; i >= 0; i--) {
+			timelinePosition.append(TweenLite.to(this.position, speed, {x: this.position.x + (Math.random() * positionForce - positionForce/2), y: this.position.y + (Math.random() * positionForce - positionForce/2), ease:"easeNoneLinear"}));
+		};
+
+		timelinePosition.append(TweenLite.to(this.position, speed, {x:this.position.x, y:this.position.y, ease:"easeeaseNoneLinear"}));		
 	}
 }

@@ -23,10 +23,11 @@ export default class TetraScreen extends Screen{
         	{label:"CENTER_LEFT", pos:{x:0,y:1}, dir:{x:-1, y:0}}
         ]
 
+        	console.log(	window.location.hash, "HASHHHHHH");
         window.GRID = {
-        	i:5,
+        	i:window.location.hash ? window.location.hash[1] : 5,
         	j:10,
-        	height: config.height * 0.7,
+        	height: config.height * 0.8,
         	width: config.width * 0.7,
         }
 
@@ -50,7 +51,7 @@ export default class TetraScreen extends Screen{
         window.GRID.height = window.GRID.j * CARD.height;
 
         this.grid = new Grid(this);
-        this.board = new Board();
+        this.board = new Board(this);
 	}
 	
 	build(){
@@ -78,6 +79,7 @@ export default class TetraScreen extends Screen{
 		this.grid.createGrid();
 		this.gridContainer.addChild(this.grid);
 		utils.centerObject(this.gridContainer, this.background.background);
+		this.gridContainer.y -= CARD.height;
 
 		this.cardsContainer.x = this.gridContainer.x;
 		this.cardsContainer.y = this.gridContainer.y;
@@ -124,9 +126,9 @@ export default class TetraScreen extends Screen{
 		this.currentCard.type = 0;
 		this.currentCard.x = CARD.width * this.mousePosID;
 		this.currentCard.y = this.gridContainer.height + 100;
-		// this.currentCard.y = this.gridContainer.height + 20;
 		TweenLite.to(this.currentCard, 0.3, {y:this.gridContainer.height + 30, ease:Elastic.easeOut})
 		this.currentCard.updateCard();
+		// this.currentCard.y = 500//this.gridContainer.height + 20;
 		this.cardsContainer.addChild(this.currentCard);
 	}
 
@@ -153,18 +155,24 @@ export default class TetraScreen extends Screen{
 
 		this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
 		this.initGridAcc += 0.05
-		
+
+		// if(this.currentCard)
+		// 		console.log(	this.currentCard.position);
 		//console.log(this.mousePosition);
 	}
 
 	updateMousePosition(){
+		if(!this.currentCard){
+			return;
+		}
 		this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
 		// this.trailMarker.alpha = 0;
 		if(this.mousePosID >= 0 && this.mousePosID < GRID.i){
 			TweenLite.to(this.trailMarker, 0.1, {x:this.mousePosID * CARD.width});
 			this.trailMarker.alpha = 0.15;
 			if(this.currentCard){
-				this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+				if(this.mousePosID * CARD.width > 0)
+						this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
 			}
 		}
 	}
@@ -212,6 +220,9 @@ export default class TetraScreen extends Screen{
 	}
 
 	onTapDown(){
+		if(!this.currentCard){
+			return;
+		}
 		if(renderer.plugins.interaction.activeInteractionData[0]){
 			this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global
 		}

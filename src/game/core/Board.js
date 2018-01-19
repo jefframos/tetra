@@ -84,8 +84,8 @@ export default class Board{
 				cardFound = this.cards[actionPosId.i][actionPosId.j];
 				if(cardFound){		
 					findCards = true;
-					console.log(cardFound.hasZone(this.getOpposit(zones[i].label)));
-					let tempZone = cardFound.hasZone(this.getOpposit(zones[i].label));
+					console.log(cardFound.hasZone(this.getOpposite(zones[i].label)));
+					let tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
 					if(tempZone && !autoDestroyCardData){
 						autoDestroyCardData = {
 							card: card,
@@ -159,8 +159,8 @@ export default class Board{
 			//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
 
 			timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
-				onStartParams:[list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
-				onStart:function(arrow, zone){
+				onStartParams:[list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone, (i + 1)],
+				onStart:function(arrow, zone, id){
 					// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
 
 					TweenLite.to(arrow, 0.05, {x:arrow.x  + 10 * zone.dir.x, y:arrow.y + 10 * zone.dir.y, ease:Back.easeIn})
@@ -170,9 +170,8 @@ export default class Board{
 						x:arrowGlobal.x / config.width,
 						y:arrowGlobal.y / config.height
 					}
-					console.log(arrow.getGlobalPosition ({x:0, y:0}));
-					console.log(screenPos);
 					window.EFFECTS.addShockwave(screenPos.x,screenPos.y,2);
+					this.popLabel(arrowGlobal,10 * id);
 					window.EFFECTS.shakeSplitter(0.2,3,0.5);
 				}.bind(this),
 				onCompleteParams:[list[i].cardFound],
@@ -187,13 +186,32 @@ export default class Board{
 
 		}
 		if(autoDestroyCardData){
-			// this.cards[card.pos.i][card.pos.j] = 0;
+			// console.log(	autoDestroyCardData);
+			// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
 			setTimeout(function() {
+				let arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition ({x:0, y:0});
+				this.popLabel(arrowGlobal,"COUNTER", 0.4, -0.5);
+				// this.popLabel(arrowGlobal,list.length* 10);
 				this.delayedDestroy(card);
 			}.bind(this), list.length * 200);
 		}else{			
 			card.convertCard();
 		}
+	}
+	popLabel(pos, label, delay = 0, dir = 1){
+		let tempLabel = new PIXI.Text(label,{font : '20px', fill : 0xFFFFFF, align : 'right', fontWeight : '800'});
+		this.game.addChild(tempLabel);
+		tempLabel.x = pos.x;
+		tempLabel.y = pos.y;
+		tempLabel.pivot.x = tempLabel.width / 2;
+		tempLabel.pivot.y = tempLabel.height / 2;
+		tempLabel.alpha = 0;
+		TweenLite.to(tempLabel, 1, {delay:delay, y:tempLabel.y - 50 * dir, onStartParams:[tempLabel], onStart:function(temp){
+			temp.alpha = 1;
+		}})
+		TweenLite.to(tempLabel, 0.5, {delay:0.5 + delay, alpha:0, onCompleteParams:[tempLabel], onComplete:function(temp){
+			temp.parent.removeChild(temp);
+		}})
 	}
 	attackCard(card){
 		if(card.attacked()){
@@ -205,7 +223,7 @@ export default class Board{
 	delayedDestroy(card){
 		this.attackCard(card);
 	}
-	getOpposit(zone){
+	getOpposite(zone){
 		let id = 0;
 		for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
 			if(ACTION_ZONES[i].label == zone){
@@ -214,7 +232,6 @@ export default class Board{
 			}
 		}
 		let opposit = ACTION_ZONES[(id + ACTION_ZONES.length/2)%ACTION_ZONES.length].label;
-		console.log(opposit);
 		return opposit;
 	}
 

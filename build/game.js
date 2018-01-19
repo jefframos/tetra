@@ -56361,10 +56361,11 @@
 	
 			window.ACTION_ZONES = [{ label: "TOP_LEFT", pos: { x: 0, y: 0 }, dir: { x: -1, y: -1 } }, { label: "TOP_CENTER", pos: { x: 1, y: 0 }, dir: { x: 0, y: -1 } }, { label: "TOP_RIGHT", pos: { x: 2, y: 0 }, dir: { x: 1, y: -1 } }, { label: "CENTER_RIGHT", pos: { x: 2, y: 1 }, dir: { x: 1, y: 0 } }, { label: "BOTTOM_RIGHT", pos: { x: 2, y: 2 }, dir: { x: 1, y: 1 } }, { label: "BOTTOM_CENTER", pos: { x: 1, y: 2 }, dir: { x: 0, y: 1 } }, { label: "BOTTOM_LEFT", pos: { x: 0, y: 2 }, dir: { x: -1, y: 1 } }, { label: "CENTER_LEFT", pos: { x: 0, y: 1 }, dir: { x: -1, y: 0 } }];
 	
+			console.log(window.location.hash, "HASHHHHHH");
 			window.GRID = {
-				i: 5,
+				i: window.location.hash ? window.location.hash[1] : 5,
 				j: 10,
-				height: _config2.default.height * 0.7,
+				height: _config2.default.height * 0.8,
 				width: _config2.default.width * 0.7
 			};
 	
@@ -56381,7 +56382,7 @@
 			window.GRID.height = window.GRID.j * CARD.height;
 	
 			_this.grid = new _Grid2.default(_this);
-			_this.board = new _Board2.default();
+			_this.board = new _Board2.default(_this);
 			return _this;
 		}
 	
@@ -56411,6 +56412,7 @@
 				this.grid.createGrid();
 				this.gridContainer.addChild(this.grid);
 				_utils2.default.centerObject(this.gridContainer, this.background.background);
+				this.gridContainer.y -= CARD.height;
 	
 				this.cardsContainer.x = this.gridContainer.x;
 				this.cardsContainer.y = this.gridContainer.y;
@@ -56457,9 +56459,9 @@
 				this.currentCard.type = 0;
 				this.currentCard.x = CARD.width * this.mousePosID;
 				this.currentCard.y = this.gridContainer.height + 100;
-				// this.currentCard.y = this.gridContainer.height + 20;
 				_gsap2.default.to(this.currentCard, 0.3, { y: this.gridContainer.height + 30, ease: Elastic.easeOut });
 				this.currentCard.updateCard();
+				// this.currentCard.y = 500//this.gridContainer.height + 20;
 				this.cardsContainer.addChild(this.currentCard);
 			}
 		}, {
@@ -56489,18 +56491,23 @@
 				this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
 				this.initGridAcc += 0.05;
 	
+				// if(this.currentCard)
+				// 		console.log(	this.currentCard.position);
 				//console.log(this.mousePosition);
 			}
 		}, {
 			key: 'updateMousePosition',
 			value: function updateMousePosition() {
+				if (!this.currentCard) {
+					return;
+				}
 				this.mousePosID = Math.floor((this.mousePosition.x - this.gridContainer.x) / CARD.width);
 				// this.trailMarker.alpha = 0;
 				if (this.mousePosID >= 0 && this.mousePosID < GRID.i) {
 					_gsap2.default.to(this.trailMarker, 0.1, { x: this.mousePosID * CARD.width });
 					this.trailMarker.alpha = 0.15;
 					if (this.currentCard) {
-						this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+						if (this.mousePosID * CARD.width > 0) this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
 					}
 				}
 			}
@@ -56552,6 +56559,9 @@
 		}, {
 			key: 'onTapDown',
 			value: function onTapDown() {
+				if (!this.currentCard) {
+					return;
+				}
 				if (renderer.plugins.interaction.activeInteractionData[0]) {
 					this.mousePosition = renderer.plugins.interaction.activeInteractionData[0].global;
 				} else {
@@ -56716,12 +56726,15 @@
 				this.counter = this.MAX_COUNTER;
 				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
 				this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+	
+				this.cardBackground2.scale.set(this.cardBackground2.width / CARD.width * 0.9);
+	
 				var cardContainer = new PIXI.Container();
 				this.cardActions = new PIXI.Container();
 				card.addChild(cardContainer);
 				// cardContainer.addChild(this.cardBackground);
-				cardContainer.addChild(this.cardBackground2);
 				cardContainer.addChild(this.cardActions);
+				cardContainer.addChild(this.cardBackground2);
 	
 				this.lifeContainer = new PIXI.Container();
 				cardContainer.addChild(this.lifeContainer);
@@ -56840,10 +56853,19 @@
 	
 				for (var i = totalSides - 1; i >= 0; i--) {
 	
+					var arrowContainer = new PIXI.Container();
 					var arrow = new PIXI.Graphics().beginFill(0xFFFFFF);
-					arrow.moveTo(-5, 0);
-					arrow.lineTo(5, 0);
-					arrow.lineTo(0, -5);
+					arrow.moveTo(-7, 0);
+					arrow.lineTo(7, 0);
+					arrow.lineTo(0, -7);
+	
+					var arrowLine = new PIXI.Graphics().lineStyle(1, 0xFFFFFF);
+					arrowLine.moveTo(0, 0);
+					arrowLine.lineTo(0, 25);
+	
+					arrowContainer.addChild(arrow);
+					arrowContainer.addChild(arrowLine);
+					// arrow.lineTo(0,-5);
 	
 					var zone = ACTION_ZONES[orderArray[i]];
 	
@@ -56851,20 +56873,20 @@
 	
 					var tempX = zone.pos.x / 2 * this.cardBackground.width;
 					var tempY = zone.pos.y / 2 * this.cardBackground.height;
-					arrow.x = tempX;
-					arrow.y = tempY;
+					arrowContainer.x = tempX;
+					arrowContainer.y = tempY;
 	
-					this.arrows.push({ arrow: arrow, zone: zone.label });
+					this.arrows.push({ arrow: arrowContainer, zone: zone.label });
 	
 					var centerPos = { x: this.cardBackground.width / 2, y: this.cardBackground.height / 2 };
 					var angle = Math.atan2(tempY - centerPos.y, tempX - centerPos.x) + Math.PI / 2;
 	
 					angle = Math.round(angle * 180 / Math.PI / 45) * 45 / 180 * Math.PI;
-					arrow.rotation = angle;
-					this.cardActions.addChild(arrow);
+					arrowContainer.rotation = angle;
+					this.cardActions.addChild(arrowContainer);
 	
-					arrow.x -= Math.sin(angle) * 7;
-					arrow.y += Math.cos(angle) * 7;
+					arrowContainer.x -= Math.sin(angle) * 8;
+					arrowContainer.y += Math.cos(angle) * 8;
 				}
 			}
 		}, {
@@ -56873,6 +56895,7 @@
 				var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.3;
 				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 	
+				// console.log(	pos);
 				TweenLite.to(this, time, { x: pos.x, y: pos.y, delay: delay });
 			}
 		}, {
@@ -56881,14 +56904,33 @@
 				var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.3;
 				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 	
+				// console.log(	'moveX', pos);
 				TweenLite.to(this, time, { x: pos, delay: delay });
 			}
 		}, {
 			key: 'destroy',
 			value: function destroy() {
-				TweenLite.to(this, 0.2, { alpha: 0, onComplete: function () {
+				this.shake(0.2, 6, 0.2);
+				TweenLite.to(this, 0.2, { delay: 0.2, alpha: 0, onComplete: function () {
 						this.parent.removeChild(this);
 					}.bind(this) });
+			}
+		}, {
+			key: 'shake',
+			value: function shake() {
+				var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+				var steps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+				var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.5;
+	
+				var timelinePosition = new TimelineLite();
+				var positionForce = force * 50;
+				var spliterForce = force * 20;
+				var speed = time / steps;
+				for (var i = steps; i >= 0; i--) {
+					timelinePosition.append(TweenLite.to(this.position, speed, { x: this.position.x + (Math.random() * positionForce - positionForce / 2), y: this.position.y + (Math.random() * positionForce - positionForce / 2), ease: "easeNoneLinear" }));
+				};
+	
+				timelinePosition.append(TweenLite.to(this.position, speed, { x: this.position.x, y: this.position.y, ease: "easeeaseNoneLinear" }));
 			}
 		}]);
 	
@@ -57019,8 +57061,8 @@
 						cardFound = this.cards[actionPosId.i][actionPosId.j];
 						if (cardFound) {
 							findCards = true;
-							console.log(cardFound.hasZone(this.getOpposit(zones[i].label)));
-							var tempZone = cardFound.hasZone(this.getOpposit(zones[i].label));
+							console.log(cardFound.hasZone(this.getOpposite(zones[i].label)));
+							var tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
 							if (tempZone && !autoDestroyCardData) {
 								autoDestroyCardData = {
 									card: card,
@@ -57096,8 +57138,8 @@
 					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
 	
 					timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
-						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone],
-						onStart: function (arrow, zone) {
+						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone, i + 1],
+						onStart: function (arrow, zone, id) {
 							// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
 	
 							TweenLite.to(arrow, 0.05, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
@@ -57107,9 +57149,8 @@
 								x: arrowGlobal.x / _config2.default.width,
 								y: arrowGlobal.y / _config2.default.height
 							};
-							console.log(arrow.getGlobalPosition({ x: 0, y: 0 }));
-							console.log(screenPos);
 							window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
+							this.popLabel(arrowGlobal, 10 * id);
 							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
 						}.bind(this),
 						onCompleteParams: [list[i].cardFound],
@@ -57123,13 +57164,37 @@
 						}.bind(this) }));
 				}
 				if (autoDestroyCardData) {
-					// this.cards[card.pos.i][card.pos.j] = 0;
+					// console.log(	autoDestroyCardData);
+					// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
 					setTimeout(function () {
+						var arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition({ x: 0, y: 0 });
+						this.popLabel(arrowGlobal, "COUNTER", 0.4, -0.5);
+						// this.popLabel(arrowGlobal,list.length* 10);
 						this.delayedDestroy(card);
 					}.bind(this), list.length * 200);
 				} else {
 					card.convertCard();
 				}
+			}
+		}, {
+			key: 'popLabel',
+			value: function popLabel(pos, label) {
+				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+				var dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+	
+				var tempLabel = new PIXI.Text(label, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.game.addChild(tempLabel);
+				tempLabel.x = pos.x;
+				tempLabel.y = pos.y;
+				tempLabel.pivot.x = tempLabel.width / 2;
+				tempLabel.pivot.y = tempLabel.height / 2;
+				tempLabel.alpha = 0;
+				TweenLite.to(tempLabel, 1, { delay: delay, y: tempLabel.y - 50 * dir, onStartParams: [tempLabel], onStart: function onStart(temp) {
+						temp.alpha = 1;
+					} });
+				TweenLite.to(tempLabel, 0.5, { delay: 0.5 + delay, alpha: 0, onCompleteParams: [tempLabel], onComplete: function onComplete(temp) {
+						temp.parent.removeChild(temp);
+					} });
 			}
 		}, {
 			key: 'attackCard',
@@ -57146,8 +57211,8 @@
 				this.attackCard(card);
 			}
 		}, {
-			key: 'getOpposit',
-			value: function getOpposit(zone) {
+			key: 'getOpposite',
+			value: function getOpposite(zone) {
 				var id = 0;
 				for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
 					if (ACTION_ZONES[i].label == zone) {
@@ -57156,7 +57221,6 @@
 					}
 				}
 				var opposit = ACTION_ZONES[(id + ACTION_ZONES.length / 2) % ACTION_ZONES.length].label;
-				console.log(opposit);
 				return opposit;
 			}
 		}, {
