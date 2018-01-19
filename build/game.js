@@ -56727,7 +56727,7 @@
 				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
 				this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
 	
-				this.cardBackground2.scale.set(this.cardBackground2.width / CARD.width * 0.9);
+				this.cardBackground2.scale.set(this.cardBackground2.height / CARD.height * 1.1);
 	
 				var cardContainer = new PIXI.Container();
 				this.cardActions = new PIXI.Container();
@@ -56738,10 +56738,10 @@
 	
 				this.lifeContainer = new PIXI.Container();
 				cardContainer.addChild(this.lifeContainer);
-				this.lifeLabel = new PIXI.Text(this.life, { font: '15px', fill: 0x000000, align: 'right' });
+				this.lifeLabel = new PIXI.Text(this.life, { font: '15px', fill: 0x000000, align: 'right', fontWeight: '800' });
 				this.lifeLabel.pivot.x = this.lifeLabel.width / 2;
 				this.lifeLabel.pivot.y = this.lifeLabel.height / 2;
-				this.lifeContainerBackground = new PIXI.Graphics().beginFill(0x00FFFF).drawCircle(0, 0, 10);
+				this.lifeContainerBackground = new PIXI.Graphics().beginFill(0x00FFFF).drawCircle(0, 0, 8);
 				this.lifeContainer.addChild(this.lifeContainerBackground);
 				this.lifeContainer.addChild(this.lifeLabel);
 				this.lifeContainer.x = CARD.width * 0.75;
