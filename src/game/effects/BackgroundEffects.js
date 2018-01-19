@@ -20,7 +20,7 @@ export default class BackgroundEffects extends PIXI.Container{
 		this.bgImageTop.x = config.width / 2;
 		this.bgImageTop.y = this.bgImageTop.height;
 		this.bgImageTop.scale.y = -1;
-		this.addChild(this.bgImageTop);
+		// this.addChild(this.bgImageTop);
 
 		this.particles = [];
 	}

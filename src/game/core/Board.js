@@ -96,6 +96,7 @@ export default class Board{
 				}				
 			}
 		}
+		card.type = 0;
 		if(!findCards){
 			card.type = 0;
 			card.updateCard();
@@ -176,13 +177,17 @@ export default class Board{
 				}.bind(this),
 				onCompleteParams:[list[i].cardFound],
 				onComplete:function(card){
-					card.destroy();
-					card.convertCard();
+					this.attackCard(card);
+					// if(card.attacked()){
+					// 	this.cards[card.pos.i][card.pos.j] = 0;						
+					// 	card.destroy();
+					// 	card.convertCard();
+					// }
 				}.bind(this)}));
-			this.cards[list[i].cardFound.pos.i][list[i].cardFound.pos.j] = 0;
+
 		}
 		if(autoDestroyCardData){
-			this.cards[card.pos.i][card.pos.j] = 0;
+			// this.cards[card.pos.i][card.pos.j] = 0;
 			setTimeout(function() {
 				this.delayedDestroy(card);
 			}.bind(this), list.length * 200);
@@ -190,8 +195,15 @@ export default class Board{
 			card.convertCard();
 		}
 	}
+	attackCard(card){
+		if(card.attacked()){
+			this.cards[card.pos.i][card.pos.j] = 0;						
+			card.destroy();
+			card.convertCard();
+		}
+	}
 	delayedDestroy(card){
-		card.destroy();
+		this.attackCard(card);
 	}
 	getOpposit(zone){
 		let id = 0;

@@ -72,6 +72,7 @@ PIXI.loader
 	.add('./assets/fonts/stylesheet.css')
 	.add('./assets/images/tvlines.png')
 	.add('./assets/images/game_bg.png')
+	.add('./assets/images/enemy.png')
 	.add('./assets/images/glitch1.jpg')
 	.add('./assets/images/glitch2.jpg')
 	.add('./assets/images/screen_displacement.jpg')
