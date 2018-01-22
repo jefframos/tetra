@@ -11,10 +11,8 @@ export default class Card extends PIXI.Container{
 		this.type = 0;
 		this.MAX_COUNTER = 10;
 		this.life = 2;
-	}
-	start(){
-	}
-	createCard(){
+
+
 		let card = new PIXI.Container();
 		this.counter = this.MAX_COUNTER;
 		this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0,0,CARD.width, CARD.height, 0);
@@ -45,16 +43,20 @@ export default class Card extends PIXI.Container{
 		// cardContainer.addChild(this.label);
 		utils.centerObject(this.label, this.cardBackground);
 		utils.centerObject(this.cardBackground2, this.cardBackground);
-		this.addActionZones();
 
 		this.cardContainer = cardContainer;//card;
 		this.addChild(card);
 		cardContainer.pivot.x = CARD.width / 2;
 		cardContainer.x = CARD.width / 2;
-		return this.cardContainer;
 	}
-	attacked(){
-		this.life --;
+	start(){
+	}
+	createCard(){
+		this.alpha = 1;
+		this.addActionZones();		
+	}
+	attacked(hits = 1){
+		this.life -= hits;
 
 		this.updateCard()
 
@@ -95,7 +97,6 @@ export default class Card extends PIXI.Container{
 				this.cardBackground2.tint = ENEMIES.list[i].color;
 			}
 		}
-
 		if(this.life <1){
 			this.lifeContainer.alpha = 0;
 		}else{
@@ -103,12 +104,6 @@ export default class Card extends PIXI.Container{
 			this.lifeContainer.x = CARD.width * 0.75;
 			this.lifeContainer.y = CARD.height * 0.75;
 		}
-		// if(this.type == 0){
-		// 	this.cardBackground.tint = 0x777777;
-		// }else if(this.type == 1){
-		// 	this.cardBackground.tint = 0x202022;
-		// 	this.cardBackground2.tint = 0x888888;
-		// }
 
 	}
 	convertCard(){
@@ -177,9 +172,10 @@ export default class Card extends PIXI.Container{
 		TweenLite.to(this, time, {x:pos, delay: delay});
 	}
 	destroy(){
-			this.shake(0.2, 6, 0.2);
+		this.shake(0.2, 6, 0.2);
 		TweenLite.to(this, 0.2, {delay:0.2, alpha:0, onComplete:function(){			
 			this.parent.removeChild(this);
+			// CARD_POOL.push(this);			
 		}.bind(this)});
 	}
 

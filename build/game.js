@@ -56381,8 +56381,11 @@
 			window.GRID.width = window.GRID.i * CARD.width;
 			window.GRID.height = window.GRID.j * CARD.height;
 	
+			window.CARD_POOL = [];
+	
 			_this.grid = new _Grid2.default(_this);
 			_this.board = new _Board2.default(_this);
+			_this.totalLines = 5;
 			return _this;
 		}
 	
@@ -56430,15 +56433,21 @@
 					tempPosRandom.push(i);
 				}
 				_utils2.default.shuffle(tempPosRandom);
-				for (var i = 0; i < GRID.i; i++) {
-					this.cardsContainer.addChild(this.placeCard(i, 0, 5));
+	
+				for (var i = 0; i < this.totalLines; i++) {
+					for (var j = 0; j < GRID.i; j++) {
+						this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.totalLines - i].life));
+					}
 				}
-				for (var i = 0; i < GRID.i; i++) {
-					this.cardsContainer.addChild(this.placeCard(i, 1, 4));
-				}
-				for (var i = 0; i < GRID.i; i++) {
-					this.cardsContainer.addChild(this.placeCard(i, 2, 3));
-				}
+				// for (var i = 0; i < GRID.i; i++) {		
+				// 	this.cardsContainer.addChild(this.placeCard(i, 0, 5));
+				// }
+				// for (var i = 0; i < GRID.i; i++) {		
+				// 	this.cardsContainer.addChild(this.placeCard(i, 1, 4));
+				// }
+				// for (var i = 0; i < GRID.i; i++) {		
+				// 	this.cardsContainer.addChild(this.placeCard(i, 2, 3));
+				// }
 				// this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 	
 				this.board.debugBoard();
@@ -56453,16 +56462,21 @@
 		}, {
 			key: 'newRound',
 			value: function newRound() {
-				this.currentCard = new _Card2.default(this);
-				this.currentCard.life = Math.random() < 0.75 ? 0 : 1;
+				if (CARD_POOL.length) {
+					this.currentCard = CARD_POOL[0];
+					CARD_POOL.unshift();
+				} else {
+					this.currentCard = new _Card2.default(this);
+				}
+				this.currentCard.life = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 1;
 				this.currentCard.createCard();
 				this.currentCard.type = 0;
 				this.currentCard.x = CARD.width * this.mousePosID;
 				this.currentCard.y = this.gridContainer.height + 100;
 				_gsap2.default.to(this.currentCard, 0.3, { y: this.gridContainer.height + 30, ease: Elastic.easeOut });
 				this.currentCard.updateCard();
-				// this.currentCard.y = 500//this.gridContainer.height + 20;
 				this.cardsContainer.addChild(this.currentCard);
+				// this.CARD_POOL.push(this.currentCard);
 			}
 		}, {
 			key: 'placeCard',
@@ -56478,6 +56492,7 @@
 				card.pos.j = j;
 				card.updateCard();
 				this.board.addCard(card);
+				// this.CARD_POOL.push(card);
 				return card;
 			}
 		}, {
@@ -56490,6 +56505,8 @@
 	
 				this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
 				this.initGridAcc += 0.05;
+	
+				// console.log(window.CARD_POOL);
 	
 				// if(this.currentCard)
 				// 		console.log(	this.currentCard.position);
@@ -56713,6 +56730,41 @@
 			_this.type = 0;
 			_this.MAX_COUNTER = 10;
 			_this.life = 2;
+	
+			var card = new PIXI.Container();
+			_this.counter = _this.MAX_COUNTER;
+			_this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+			_this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+	
+			_this.cardBackground2.scale.set(_this.cardBackground2.height / CARD.height * 1.1);
+	
+			var cardContainer = new PIXI.Container();
+			_this.cardActions = new PIXI.Container();
+			card.addChild(cardContainer);
+			// cardContainer.addChild(this.cardBackground);
+			cardContainer.addChild(_this.cardActions);
+			cardContainer.addChild(_this.cardBackground2);
+	
+			_this.lifeContainer = new PIXI.Container();
+			cardContainer.addChild(_this.lifeContainer);
+			_this.lifeLabel = new PIXI.Text(_this.life, { font: '15px', fill: 0x000000, align: 'right', fontWeight: '800' });
+			_this.lifeLabel.pivot.x = _this.lifeLabel.width / 2;
+			_this.lifeLabel.pivot.y = _this.lifeLabel.height / 2;
+			_this.lifeContainerBackground = new PIXI.Graphics().beginFill(0x00FFFF).drawCircle(0, 0, 8);
+			_this.lifeContainer.addChild(_this.lifeContainerBackground);
+			_this.lifeContainer.addChild(_this.lifeLabel);
+			_this.lifeContainer.x = CARD.width * 0.75;
+			_this.lifeContainer.y = CARD.height * 0.75;
+	
+			_this.label = new PIXI.Text(_this.counter, { font: '20px', fill: 0x000000, align: 'right' });
+			// cardContainer.addChild(this.label);
+			_utils2.default.centerObject(_this.label, _this.cardBackground);
+			_utils2.default.centerObject(_this.cardBackground2, _this.cardBackground);
+	
+			_this.cardContainer = cardContainer; //card;
+			_this.addChild(card);
+			cardContainer.pivot.x = CARD.width / 2;
+			cardContainer.x = CARD.width / 2;
 			return _this;
 		}
 	
@@ -56722,47 +56774,15 @@
 		}, {
 			key: 'createCard',
 			value: function createCard() {
-				var card = new PIXI.Container();
-				this.counter = this.MAX_COUNTER;
-				this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
-				this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
-	
-				this.cardBackground2.scale.set(this.cardBackground2.height / CARD.height * 1.1);
-	
-				var cardContainer = new PIXI.Container();
-				this.cardActions = new PIXI.Container();
-				card.addChild(cardContainer);
-				// cardContainer.addChild(this.cardBackground);
-				cardContainer.addChild(this.cardActions);
-				cardContainer.addChild(this.cardBackground2);
-	
-				this.lifeContainer = new PIXI.Container();
-				cardContainer.addChild(this.lifeContainer);
-				this.lifeLabel = new PIXI.Text(this.life, { font: '15px', fill: 0x000000, align: 'right', fontWeight: '800' });
-				this.lifeLabel.pivot.x = this.lifeLabel.width / 2;
-				this.lifeLabel.pivot.y = this.lifeLabel.height / 2;
-				this.lifeContainerBackground = new PIXI.Graphics().beginFill(0x00FFFF).drawCircle(0, 0, 8);
-				this.lifeContainer.addChild(this.lifeContainerBackground);
-				this.lifeContainer.addChild(this.lifeLabel);
-				this.lifeContainer.x = CARD.width * 0.75;
-				this.lifeContainer.y = CARD.height * 0.75;
-	
-				this.label = new PIXI.Text(this.counter, { font: '20px', fill: 0x000000, align: 'right' });
-				// cardContainer.addChild(this.label);
-				_utils2.default.centerObject(this.label, this.cardBackground);
-				_utils2.default.centerObject(this.cardBackground2, this.cardBackground);
+				this.alpha = 1;
 				this.addActionZones();
-	
-				this.cardContainer = cardContainer; //card;
-				this.addChild(card);
-				cardContainer.pivot.x = CARD.width / 2;
-				cardContainer.x = CARD.width / 2;
-				return this.cardContainer;
 			}
 		}, {
 			key: 'attacked',
 			value: function attacked() {
-				this.life--;
+				var hits = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+				this.life -= hits;
 	
 				this.updateCard();
 	
@@ -56811,7 +56831,6 @@
 						this.cardBackground2.tint = ENEMIES.list[i].color;
 					}
 				}
-	
 				if (this.life < 1) {
 					this.lifeContainer.alpha = 0;
 				} else {
@@ -56819,12 +56838,6 @@
 					this.lifeContainer.x = CARD.width * 0.75;
 					this.lifeContainer.y = CARD.height * 0.75;
 				}
-				// if(this.type == 0){
-				// 	this.cardBackground.tint = 0x777777;
-				// }else if(this.type == 1){
-				// 	this.cardBackground.tint = 0x202022;
-				// 	this.cardBackground2.tint = 0x888888;
-				// }
 			}
 		}, {
 			key: 'convertCard',
@@ -56913,6 +56926,7 @@
 				this.shake(0.2, 6, 0.2);
 				TweenLite.to(this, 0.2, { delay: 0.2, alpha: 0, onComplete: function () {
 						this.parent.removeChild(this);
+						// CARD_POOL.push(this);			
 					}.bind(this) });
 			}
 		}, {
@@ -57052,6 +57066,7 @@
 				var cardFound = null;
 				var cardsToDestroy = [];
 				var autoDestroyCardData = null;
+				var starterLife = card.life;
 				for (var i = 0; i < zones.length; i++) {
 					var actionPosId = {
 						i: card.pos.i + zones[i].dir.x,
@@ -57061,13 +57076,16 @@
 						cardFound = this.cards[actionPosId.i][actionPosId.j];
 						if (cardFound) {
 							findCards = true;
-							console.log(cardFound.hasZone(this.getOpposite(zones[i].label)));
+	
 							var tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
 							if (tempZone && !autoDestroyCardData) {
 								autoDestroyCardData = {
 									card: card,
-									zone: tempZone
+									zone: tempZone,
+									hits: cardFound.life + 1
 								};
+							} else if (autoDestroyCardData) {
+								autoDestroyCardData.hits += cardFound.life + 1;
 							}
 							cardsToDestroy.push({ cardFound: cardFound, currentCard: card, attackZone: zones[i] });
 						}
@@ -57080,7 +57098,7 @@
 				} else {
 					//cardsToDestroy.push(card);
 					setTimeout(function () {
-						this.destroyCards(cardsToDestroy, card, autoDestroyCardData);
+						this.destroyCards(cardsToDestroy, card, autoDestroyCardData, starterLife + 1);
 					}.bind(this), 300);
 					//this.destroyCards(cardsToDestroy);			
 				}
@@ -57132,7 +57150,7 @@
 			}
 		}, {
 			key: 'destroyCards',
-			value: function destroyCards(list, card, autoDestroyCardData) {
+			value: function destroyCards(list, card, autoDestroyCardData, hits) {
 				var timeline = new TimelineLite();
 				for (var i = 0; i < list.length; i++) {
 					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
@@ -57153,9 +57171,10 @@
 							this.popLabel(arrowGlobal, 10 * id);
 							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
 						}.bind(this),
-						onCompleteParams: [list[i].cardFound],
-						onComplete: function (card) {
-							this.attackCard(card);
+						onCompleteParams: [card, list[i].cardFound],
+						onComplete: function (card, cardFound) {
+							console.log(card.life + 1);
+							this.attackCard(cardFound, hits);
 							// if(card.attacked()){
 							// 	this.cards[card.pos.i][card.pos.j] = 0;						
 							// 	card.destroy();
@@ -57170,7 +57189,7 @@
 						var arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition({ x: 0, y: 0 });
 						this.popLabel(arrowGlobal, "COUNTER", 0.4, -0.5);
 						// this.popLabel(arrowGlobal,list.length* 10);
-						this.delayedDestroy(card);
+						this.delayedDestroy(card, autoDestroyCardData.hits);
 					}.bind(this), list.length * 200);
 				} else {
 					card.convertCard();
@@ -57198,8 +57217,8 @@
 			}
 		}, {
 			key: 'attackCard',
-			value: function attackCard(card) {
-				if (card.attacked()) {
+			value: function attackCard(card, hits) {
+				if (card.attacked(hits)) {
 					this.cards[card.pos.i][card.pos.j] = 0;
 					card.destroy();
 					card.convertCard();
@@ -57207,8 +57226,8 @@
 			}
 		}, {
 			key: 'delayedDestroy',
-			value: function delayedDestroy(card) {
-				this.attackCard(card);
+			value: function delayedDestroy(card, hits) {
+				this.attackCard(card, hits);
 			}
 		}, {
 			key: 'getOpposite',

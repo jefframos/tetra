@@ -74,6 +74,7 @@ export default class Board{
 		let cardFound = null;
 		let cardsToDestroy = [];
 		let autoDestroyCardData = null;
+		let starterLife = card.life;
 		for (var i = 0; i < zones.length; i++) {
 			let actionPosId = {
 				i:card.pos.i +zones[i].dir.x,
@@ -84,13 +85,16 @@ export default class Board{
 				cardFound = this.cards[actionPosId.i][actionPosId.j];
 				if(cardFound){		
 					findCards = true;
-					console.log(cardFound.hasZone(this.getOpposite(zones[i].label)));
+
 					let tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
 					if(tempZone && !autoDestroyCardData){
 						autoDestroyCardData = {
 							card: card,
-							zone: tempZone
+							zone: tempZone,
+							hits:(cardFound.life + 1)
 						}
+					}else if(autoDestroyCardData){
+						autoDestroyCardData.hits += (cardFound.life + 1);
 					}
 					cardsToDestroy.push({cardFound:cardFound, currentCard: card, attackZone:zones[i]});
 				}				
@@ -103,7 +107,7 @@ export default class Board{
 		}else{
 			//cardsToDestroy.push(card);
 			setTimeout(function() {
-				this.destroyCards(cardsToDestroy, card, autoDestroyCardData);		
+				this.destroyCards(cardsToDestroy, card, autoDestroyCardData, starterLife + 1);		
 			}.bind(this), 300);
 			//this.destroyCards(cardsToDestroy);			
 		}
@@ -153,7 +157,7 @@ export default class Board{
 		}
 		console.log(moveDownList);
 	}
-	destroyCards(list, card, autoDestroyCardData){
+	destroyCards(list, card, autoDestroyCardData, hits){
 		let timeline = new TimelineLite();
 		for (var i = 0; i < list.length; i++) {
 			//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
@@ -174,9 +178,10 @@ export default class Board{
 					this.popLabel(arrowGlobal,10 * id);
 					window.EFFECTS.shakeSplitter(0.2,3,0.5);
 				}.bind(this),
-				onCompleteParams:[list[i].cardFound],
-				onComplete:function(card){
-					this.attackCard(card);
+				onCompleteParams:[card, list[i].cardFound],
+				onComplete:function(card, cardFound){
+					console.log(card.life + 1);					
+					this.attackCard(cardFound, hits);
 					// if(card.attacked()){
 					// 	this.cards[card.pos.i][card.pos.j] = 0;						
 					// 	card.destroy();
@@ -192,7 +197,7 @@ export default class Board{
 				let arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition ({x:0, y:0});
 				this.popLabel(arrowGlobal,"COUNTER", 0.4, -0.5);
 				// this.popLabel(arrowGlobal,list.length* 10);
-				this.delayedDestroy(card);
+				this.delayedDestroy(card, autoDestroyCardData.hits);
 			}.bind(this), list.length * 200);
 		}else{			
 			card.convertCard();
@@ -213,15 +218,15 @@ export default class Board{
 			temp.parent.removeChild(temp);
 		}})
 	}
-	attackCard(card){
-		if(card.attacked()){
+	attackCard(card, hits){
+		if(card.attacked(hits)){
 			this.cards[card.pos.i][card.pos.j] = 0;						
 			card.destroy();
 			card.convertCard();
 		}
 	}
-	delayedDestroy(card){
-		this.attackCard(card);
+	delayedDestroy(card, hits){
+		this.attackCard(card, hits);
 	}
 	getOpposite(zone){
 		let id = 0;

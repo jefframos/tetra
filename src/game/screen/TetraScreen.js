@@ -50,8 +50,11 @@ export default class TetraScreen extends Screen{
         window.GRID.width = window.GRID.i * CARD.width;
         window.GRID.height = window.GRID.j * CARD.height;
 
+        window.CARD_POOL = [];
+
         this.grid = new Grid(this);
         this.board = new Board(this);
+        this.totalLines = 5;
 	}
 	
 	build(){
@@ -97,15 +100,21 @@ export default class TetraScreen extends Screen{
 			tempPosRandom.push(i);
 		}
 		utils.shuffle(tempPosRandom);
-		for (var i = 0; i < GRID.i; i++) {		
-			this.cardsContainer.addChild(this.placeCard(i, 0, 5));
+
+		for (var i = 0; i < this.totalLines; i++) {
+			for (var j = 0; j < GRID.i; j++) {
+				this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.totalLines - i].life));
+			}
 		}
-		for (var i = 0; i < GRID.i; i++) {		
-			this.cardsContainer.addChild(this.placeCard(i, 1, 4));
-		}
-		for (var i = 0; i < GRID.i; i++) {		
-			this.cardsContainer.addChild(this.placeCard(i, 2, 3));
-		}
+		// for (var i = 0; i < GRID.i; i++) {		
+		// 	this.cardsContainer.addChild(this.placeCard(i, 0, 5));
+		// }
+		// for (var i = 0; i < GRID.i; i++) {		
+		// 	this.cardsContainer.addChild(this.placeCard(i, 1, 4));
+		// }
+		// for (var i = 0; i < GRID.i; i++) {		
+		// 	this.cardsContainer.addChild(this.placeCard(i, 2, 3));
+		// }
 		// this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 
 		this.board.debugBoard();
@@ -120,16 +129,21 @@ export default class TetraScreen extends Screen{
 	}
 
 	newRound(){
-		this.currentCard =  new Card(this);
-		this.currentCard.life = Math.random() < 0.75 ? 0 : 1;
+		if(CARD_POOL.length){
+			this.currentCard = CARD_POOL[0];
+			CARD_POOL.unshift();
+		}else{
+			this.currentCard = new Card(this);
+		}
+		this.currentCard.life = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 1;
 		this.currentCard.createCard();
 		this.currentCard.type = 0;
 		this.currentCard.x = CARD.width * this.mousePosID;
 		this.currentCard.y = this.gridContainer.height + 100;
 		TweenLite.to(this.currentCard, 0.3, {y:this.gridContainer.height + 30, ease:Elastic.easeOut})
 		this.currentCard.updateCard();
-		// this.currentCard.y = 500//this.gridContainer.height + 20;
 		this.cardsContainer.addChild(this.currentCard);
+		// this.CARD_POOL.push(this.currentCard);
 	}
 
 	placeCard(i, j, level = 0){
@@ -142,6 +156,7 @@ export default class TetraScreen extends Screen{
 		card.pos.j = j;
 		card.updateCard();
 		this.board.addCard(card);
+		// this.CARD_POOL.push(card);
 		return card;
 	}
 	
@@ -155,6 +170,8 @@ export default class TetraScreen extends Screen{
 
 		this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
 		this.initGridAcc += 0.05
+
+		// console.log(window.CARD_POOL);
 
 		// if(this.currentCard)
 		// 		console.log(	this.currentCard.position);
