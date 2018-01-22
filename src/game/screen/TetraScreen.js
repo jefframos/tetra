@@ -135,7 +135,7 @@ export default class TetraScreen extends Screen{
 		}else{
 			this.currentCard = new Card(this);
 		}
-		this.currentCard.life = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 1;
+		this.currentCard.life = Math.random() < 0.75 ? 0 : Math.random() < 0.5 ? 2 : 1;
 		this.currentCard.createCard();
 		this.currentCard.type = 0;
 		this.currentCard.x = CARD.width * this.mousePosID;
