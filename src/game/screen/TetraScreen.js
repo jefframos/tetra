@@ -23,11 +23,10 @@ export default class TetraScreen extends Screen{
         	{label:"CENTER_LEFT", pos:{x:0,y:1}, dir:{x:-1, y:0}}
         ]
 
-        	console.log(	window.location.hash, "HASHHHHHH");
         window.GRID = {
         	i:window.location.hash ? window.location.hash[1] : 5,
         	j:10,
-        	height: config.height * 0.8,
+        	height: config.height * 0.7,
         	width: config.width * 0.7,
         }
 
@@ -44,6 +43,7 @@ export default class TetraScreen extends Screen{
         		{color:0x7BCA93,life:3},
         		{color:0x1376B9,life:4},
         		{color:0xDD6290,life:5},
+        		{color:0xFF2320,life:6},
         	]
         }
 
@@ -52,11 +52,66 @@ export default class TetraScreen extends Screen{
 
         window.CARD_POOL = [];
 
+        window.CARD_NUMBER = 0;
+
         this.grid = new Grid(this);
         this.board = new Board(this);
-        this.totalLines = 5;
+        this.totalLines = 6;
+
+        this.currentPoints = 0;
+        this.currentPointsLabel = 0;
+        this.currentRound = 0;
+
+        this.cardQueue = [];
+        this.cardQueueSize = 4;
+
+        this.currentButtonLabel = 'START';
+
 	}
 	
+	buildUI(){
+		this.pointsLabel = new PIXI.Text(this.currentPoints,{font : '20px', fill : 0xFFFFFF, align : 'right', fontWeight : '800'});
+		this.roundsLabel = new PIXI.Text(0,{font : '20px', fill : 0xFFFFFF, align : 'right', fontWeight : '800'});
+		this.UIContainer.addChild(this.pointsLabel)
+		this.UIContainer.addChild(this.roundsLabel)
+
+
+		this.cardQueueContainer = new PIXI.Container();
+		this.UIContainer.addChild(this.cardQueueContainer)
+
+		this.resetLabel = new PIXI.Text(this.shuffleText(this.currentButtonLabel),{font : '20px', fill : 0xFFFFFF, align : 'right', fontWeight : '800'});
+		this.startButton = new PIXI.Container();
+		this.startButtonBackground = new PIXI.Graphics().beginFill(0x61C6CE).drawRect(0,0,100,40);
+		this.startButton.addChild(this.startButtonBackground);
+		this.startButton.addChild(this.resetLabel);
+
+		this.startButton.interactive = true;
+		this.startButton.buttonMode = true;
+
+		this.startButton.on('mouseup', this.resetGame.bind(this)).on('touchend', this.resetGame.bind(this));
+
+		utils.centerObject(this.startButton, this);
+
+		this.resetLabel.style.fill = 0xFFFFFF
+		utils.centerObject(this.resetLabel, this.startButtonBackground);
+
+		this.UIContainer.addChild(this.startButton);
+
+		this.cardQueueContainer.x = this.gridContainer.x + this.gridContainer.width + 5;
+		this.cardQueueContainer.y = this.gridContainer.y + GRID.j * CARD.height - CARD.height * (this.cardQueueSize);
+		this.pointsLabel.x = this.cardQueueContainer.x;
+		this.pointsLabel.y = this.gridContainer.y;
+
+		this.roundsLabel.x = this.cardQueueContainer.x;
+		this.roundsLabel.y = this.pointsLabel.y + 40
+		this.updateUI();
+	}
+
+	updateStartLabel(){
+		this.resetLabel.text = this.shuffleText(this.currentButtonLabel);
+		//this.resetLabel.style.fill = ENEMIES.list[Math.floor(ENEMIES.list.length * Math.random())].color;
+		utils.centerObject(this.resetLabel, this.startButtonBackground);
+	}
 	build(){
 		super.build();
 		this.background = new BackgroundEffects();
@@ -65,14 +120,17 @@ export default class TetraScreen extends Screen{
         this.gameContainer = new PIXI.Container();
         this.gridContainer = new PIXI.Container();
         this.cardsContainer = new PIXI.Container();
+        this.UIContainer = new PIXI.Container();
 
         this.addChild(this.gameContainer);
 
         this.gameContainer.addChild(this.background);
         this.gameContainer.addChild(this.gridContainer);
         this.gameContainer.addChild(this.cardsContainer);
+        this.gameContainer.addChild(this.UIContainer);
 
-        this.mousePosID = 0;
+
+        this.mousePosID = GRID.i / 2;
         // this.currentCard = this.createCard();
         // this.cardsContainer.addChild(this.currentCard)
         // utils.centerObject(this.currentCard, this.background)
@@ -82,7 +140,10 @@ export default class TetraScreen extends Screen{
 		this.grid.createGrid();
 		this.gridContainer.addChild(this.grid);
 		utils.centerObject(this.gridContainer, this.background.background);
-		this.gridContainer.y -= CARD.height;
+		this.gridContainer.x = config.width / 2 - ((GRID.i + 1) * CARD.width)/ 2// - this.gridContainer.width / 2;
+		// this.gridContainer.y -= CARD.height;
+
+        this.buildUI();
 
 		this.cardsContainer.x = this.gridContainer.x;
 		this.cardsContainer.y = this.gridContainer.y;
@@ -101,57 +162,129 @@ export default class TetraScreen extends Screen{
 		}
 		utils.shuffle(tempPosRandom);
 
+
+	}
+
+	resetGame(){
+
+		this.currentPoints = 0;
+        this.currentPointsLabel = 0;
+        this.currentRound = 0;
+
+
+		this.board.destroyBoard();
+		this.board.resetBoard();
+
+		for (var i = this.cardQueue.length - 1; i >= 0; i--) {
+			this.cardQueue[i].forceDestroy();
+		}
+		this.cardQueue = []
+		if(this.currentCard)
+			this.currentCard.forceDestroy();
+		this.currentCard = null;
 		for (var i = 0; i < this.totalLines; i++) {
 			for (var j = 0; j < GRID.i; j++) {
 				this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.totalLines - i].life));
 			}
 		}
-		// for (var i = 0; i < GRID.i; i++) {		
-		// 	this.cardsContainer.addChild(this.placeCard(i, 0, 5));
-		// }
-		// for (var i = 0; i < GRID.i; i++) {		
-		// 	this.cardsContainer.addChild(this.placeCard(i, 1, 4));
-		// }
-		// for (var i = 0; i < GRID.i; i++) {		
-		// 	this.cardsContainer.addChild(this.placeCard(i, 2, 3));
-		// }
-		// this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 
-		this.board.debugBoard();
+		this.currentPoints = 0;
+        this.currentPointsLabel = 0;
+        this.currentRound = 0;
+
+        this.startButton.x = 6;
+        this.startButton.y = 6;
+		// this.board.debugBoard();
 
 		this.addEvents();
 
 		this.newRound();
 
+		this.currentButtonLabel = 'RESET';
+
 	}
 
+	formatPointsLabel(tempPoints){
+		if(tempPoints < 10){
+			return "0000" + tempPoints
+		}else if(tempPoints < 100){
+			return "000" + tempPoints
+		}else if(tempPoints < 1000){
+			return "00" + tempPoints
+		}else if(tempPoints < 10000){
+			return "0" + tempPoints
+		}else{
+			return tempPoints
+		} 
+	}
+	updateUI(){
+		this.pointsLabel.text = this.formatPointsLabel(Math.ceil(this.currentPointsLabel));
+		this.roundsLabel.text = this.formatPointsLabel(Math.ceil(this.currentRound));
+	}
 	addRandomPiece(){
 	}
+	addPoints(points){
+		this.currentPoints += points;
+		TweenLite.to(this, 0.2, {currentPointsLabel: this.currentPoints, onUpdate:function(){
+			this.currentPointsLabel = Math.ceil(this.currentPointsLabel);
+			this.updateUI();
+		}.bind(this)});
 
-	newRound(){
-		if(CARD_POOL.length){
-			this.currentCard = CARD_POOL[0];
-			CARD_POOL.unshift();
-		}else{
-			this.currentCard = new Card(this);
+	}
+
+	updateQueue(){
+		while(this.cardQueue.length < this.cardQueueSize){
+			let card;
+			if(CARD_POOL.length){
+				console.log(CARD_POOL);
+				card = CARD_POOL[0];
+				CARD_POOL.shift();
+			}else{
+				card = new Card(this);
+			}
+			// console.log(1 - (this.currentRound % 3)*0.12);
+			card.life = Math.random() < 1 - (this.currentRound % 3)*0.17 ? 0 : Math.random() < 0.5 ? 2 : 1;
+			card.createCard();
+			card.type = 0;
+			card.x = 0;
+			this.cardQueueContainer.addChild(card);
+			this.cardQueue.push(card);
 		}
-		this.currentCard.life = Math.random() < 0.75 ? 0 : Math.random() < 0.5 ? 2 : 1;
-		this.currentCard.createCard();
-		this.currentCard.type = 0;
+		// for (var i = this.cardQueue.length - 1; i >= 0; i--) {
+		for (var i = 0; i < this.cardQueue.length; i++) {
+			TweenLite.to(this.cardQueue[i], 0.3, {y:CARD.width * (this.cardQueue.length - i), ease:Back.easeOut})
+			// this.cardQueue[i].y = ;
+		}
+
+	}
+	newRound(){		
+		this.updateQueue();
+		this.currentCard = this.cardQueue[0];
+		this.cardQueue.shift();
 		this.currentCard.x = CARD.width * this.mousePosID;
 		this.currentCard.y = this.gridContainer.height + 100;
-		TweenLite.to(this.currentCard, 0.3, {y:this.gridContainer.height + 30, ease:Elastic.easeOut})
+		this.currentCard.alpha = 0;
+		TweenLite.to(this.currentCard, 0.3, {alpha : 1, y:this.gridContainer.height + 30, ease:Elastic.easeOut})
 		this.currentCard.updateCard();
 		this.cardsContainer.addChild(this.currentCard);
-		// this.CARD_POOL.push(this.currentCard);
 	}
 
 	placeCard(i, j, level = 0){
-		let card = new Card(this);
+		let card;
+		if(CARD_POOL.length){
+			console.log(CARD_POOL);
+			card = CARD_POOL[0];
+			CARD_POOL.shift();
+		}else{
+			card = new Card(this);
+		}
 		card.life = level;
 		card.createCard();
 		card.x = i * CARD.width;
-		card.y = j * CARD.height;
+		card.y = j * CARD.height - CARD.height;
+		// card.cardContainer.scale.set(1.2 - j * 0.05)
+		card.alpha = 0;
+		TweenLite.to(card, 0.5, {alpha:1, delay:i*0.05, y:j * CARD.height, ease:Back.easeOut})
 		card.pos.i = i;
 		card.pos.j = j;
 		card.updateCard();
@@ -169,13 +302,13 @@ export default class TetraScreen extends Screen{
 		this.updateMousePosition();
 
 		this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
-		this.initGridAcc += 0.05
+		this.initGridAcc += 0.05;
 
-		// console.log(window.CARD_POOL);
+		this.updateStartLabel();
 
-		// if(this.currentCard)
-		// 		console.log(	this.currentCard.position);
-		//console.log(this.mousePosition);
+		if(this.board){
+			this.board.update(delta);
+		}
 	}
 
 	updateMousePosition(){
@@ -188,8 +321,10 @@ export default class TetraScreen extends Screen{
 			TweenLite.to(this.trailMarker, 0.1, {x:this.mousePosID * CARD.width});
 			this.trailMarker.alpha = 0.15;
 			if(this.currentCard){
-				if(this.mousePosID * CARD.width > 0)
-						this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+				if(this.mousePosID * CARD.width >= 0){
+					// console.log("MOUSE MOVE");
+					this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+				}
 			}
 		}
 	}
@@ -215,12 +350,16 @@ export default class TetraScreen extends Screen{
 		else{
 			this.mousePosition = renderer.plugins.interaction.mouse.global
 		}
+		if(this.mousePosition.y < this.gridContainer.y){
+			return;
+		}
 		this.updateMousePosition();
 		//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 		if(!this.board.isPossibleShot(this.mousePosID)){
 			return;
 		}
 
+		this.currentRound ++;
 		this.board.shootCard(this.mousePosID, this.currentCard);
 		let normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
 		this.currentCard.move({
@@ -229,11 +368,11 @@ export default class TetraScreen extends Screen{
 		}, 0.1 * normalDist);
 		
 		this.currentCard = null;
-
-		console.log(0.1 * normalDist * 100);
+		this.updateUI();
+		// console.log(0.1 * normalDist * 100);
 		setTimeout(function() {
 			this.newRound();			
-		}.bind(this), 0.1 * normalDist * 100 + 200);
+		}.bind(this), 0.1 * normalDist * 100 + 500);
 	}
 
 	onTapDown(){
@@ -250,12 +389,40 @@ export default class TetraScreen extends Screen{
 	}
 
 	removeEvents(){
-		
+		this.gameContainer.interactive = false;
+		this.gameContainer.off('mousedown', this.onTapDown.bind(this)).off('touchstart', this.onTapDown.bind(this));
+		this.gameContainer.off('mouseup', this.onTapUp.bind(this)).off('touchend', this.onTapUp.bind(this));
 	}
 	addEvents(){
+		this.removeEvents();
 		this.gameContainer.interactive = true;
 		this.gameContainer.on('mousedown', this.onTapDown.bind(this)).on('touchstart', this.onTapDown.bind(this));
 		this.gameContainer.on('mouseup', this.onTapUp.bind(this)).on('touchend', this.onTapUp.bind(this));
 
+	}
+
+	shuffleText(label){
+		let rnd1 = String.fromCharCode(Math.floor(Math.random()*20) + 65);
+		let rnd2 = Math.floor(Math.random()* 9);
+		let rnd3 = String.fromCharCode(Math.floor(Math.random()*20) + 65);
+		let tempLabel = label.split('');
+		let rndPause = Math.random();
+		if(rndPause < 0.2){
+			let pos1 = Math.floor(Math.random()*tempLabel.length);
+			let pos2 = Math.floor(Math.random()*tempLabel.length);
+			if(tempLabel[pos1] != '\n')
+				tempLabel[pos1] = rnd2;
+			if(tempLabel[pos2] != '\n')
+				tempLabel[pos2] = rnd3;
+		}else if(rndPause < 0.5){
+			let pos3 = Math.floor(Math.random()*tempLabel.length);
+			if(tempLabel[pos3] != '\n')
+				tempLabel[pos3] = rnd3;
+		}
+		let returnLabel = '';
+		for (var i = 0; i < tempLabel.length; i++) {
+			returnLabel+=tempLabel[i];
+		}
+		return returnLabel
 	}
 }

@@ -817,7 +817,7 @@
 	 * @name VERSION
 	 * @type {string}
 	 */
-	var VERSION = exports.VERSION = '4.6.2';
+	var VERSION = exports.VERSION = '4.7.0';
 	
 	/**
 	 * Two Pi.
@@ -5686,12 +5686,14 @@
 	        {
 	            if (this._mask) {
 	                this._mask.renderable = true;
+	                this._mask.isMask = false;
 	            }
 	
 	            this._mask = value;
 	
 	            if (this._mask) {
 	                this._mask.renderable = false;
+	                this._mask.isMask = true;
 	            }
 	        }
 	
@@ -6272,11 +6274,21 @@
 	   *
 	   * @static
 	   * @constant
-	   * @memberof PIXI
+	   * @memberof PIXI.settings
 	   * @type {boolean}
 	   */
-	  CAN_UPLOAD_SAME_BUFFER: (0, _canUploadSameBuffer2.default)()
+	  CAN_UPLOAD_SAME_BUFFER: (0, _canUploadSameBuffer2.default)(),
 	
+	  /**
+	   * Default Mesh `canvasPadding`.
+	   *
+	   * @see PIXI.mesh.Mesh#canvasPadding
+	   * @static
+	   * @constant
+	   * @memberof PIXI.settings
+	   * @type {number}
+	   */
+	  MESH_CANVAS_PADDING: 0
 	};
 	//# sourceMappingURL=settings.js.map
 
@@ -7748,7 +7760,7 @@
 	/**
 	 * Typedef for decomposeDataUri return object.
 	 *
-	 * @typedef {object} DecomposedDataUri
+	 * @typedef {object} PIXI.utils~DecomposedDataUri
 	 * @property {mediaType} Media type, eg. `image`
 	 * @property {subType} Sub type, eg. `png`
 	 * @property {encoding} Data encoding, eg. `base64`
@@ -7762,7 +7774,7 @@
 	 * @memberof PIXI.utils
 	 * @function decomposeDataUri
 	 * @param {string} dataUri - the data URI to check
-	 * @return {DecomposedDataUri|undefined} The decomposed data uri or undefined
+	 * @return {PIXI.utils~DecomposedDataUri|undefined} The decomposed data uri or undefined
 	 */
 	function decomposeDataUri(dataUri) {
 	    var dataUriMatch = _const.DATA_URI.exec(dataUri);
@@ -7800,7 +7812,7 @@
 	/**
 	 * Typedef for Size object.
 	 *
-	 * @typedef {object} Size
+	 * @typedef {object} PIXI.utils~Size
 	 * @property {width} Width component
 	 * @property {height} Height component
 	 */
@@ -7811,7 +7823,7 @@
 	 * @memberof PIXI.utils
 	 * @function getSvgSize
 	 * @param {string} svgString - a serialized svg element
-	 * @return {Size|undefined} image extension
+	 * @return {PIXI.utils~Size|undefined} image extension
 	 */
 	function getSvgSize(svgString) {
 	    var sizeMatch = _const.SVG_SIZE.exec(svgString);
@@ -7985,6 +7997,7 @@
 	/**
 	 * premultiplies tint
 	 *
+	 * @memberof PIXI.utils
 	 * @param {number} tint integet RGB
 	 * @param {number} alpha floating point alpha (0.0-1.0)
 	 * @returns {number} tint multiplied by alpha
@@ -8010,6 +8023,7 @@
 	/**
 	 * combines rgb and alpha to out array
 	 *
+	 * @memberof PIXI.utils
 	 * @param {Float32Array|number[]} rgb input rgb
 	 * @param {number} alpha alpha param
 	 * @param {Float32Array} [out] output
@@ -8035,6 +8049,7 @@
 	/**
 	 * converts integer tint and float alpha to vec4 form, premultiplies by default
 	 *
+	 * @memberof PIXI.utils
 	 * @param {number} tint input tint
 	 * @param {number} alpha alpha param
 	 * @param {Float32Array} [out] output
@@ -19322,7 +19337,7 @@
 	
 	            return copy;
 	        }
-	    } else if (src.substring(0, 9) !== 'precision') {
+	    } else if (src.trim().substring(0, 9) !== 'precision') {
 	        return 'precision ' + def + ' float;\n' + src;
 	    }
 	
@@ -19346,11 +19361,14 @@
 	     * @param {WebGLRenderingContext} gl - The current WebGL rendering context
 	     * @param {string|string[]} vertexSrc - The vertex shader source as an array of strings.
 	     * @param {string|string[]} fragmentSrc - The fragment shader source as an array of strings.
+	     * @param {object} [attributeLocations] - A key value pair showing which location eact attribute should sit.
+	                       e.g. {position:0, uvs:1}.
+	     * @param {string} [precision] - The float precision of the shader. Options are 'lowp', 'mediump' or 'highp'.
 	     */
-	    function Shader(gl, vertexSrc, fragmentSrc) {
+	    function Shader(gl, vertexSrc, fragmentSrc, attributeLocations, precision) {
 	        _classCallCheck(this, Shader);
 	
-	        return _possibleConstructorReturn(this, _GLShader.call(this, gl, checkPrecision(vertexSrc, _settings2.default.PRECISION_VERTEX), checkPrecision(fragmentSrc, _settings2.default.PRECISION_FRAGMENT)));
+	        return _possibleConstructorReturn(this, _GLShader.call(this, gl, checkPrecision(vertexSrc, precision || _settings2.default.PRECISION_VERTEX), checkPrecision(fragmentSrc, precision || _settings2.default.PRECISION_FRAGMENT), undefined, attributeLocations));
 	    }
 	
 	    return Shader;
@@ -19377,6 +19395,7 @@
 	 * @param filterArea {Rectangle} The filter area
 	 * @param sprite {Sprite} the target sprite
 	 * @param outputMatrix {Matrix} @alvin
+	 * @private
 	 */
 	// TODO playing around here.. this is temporary - (will end up in the shader)
 	// this returns a matrix that will normalise map filter cords in the filter to screen space
@@ -21785,7 +21804,7 @@
 	
 	/**
 	 * Utility function to convert hexadecimal colors to strings, and simply return the color if it's a string.
-	 *
+	 * @private
 	 * @param {number|number[]} color
 	 * @return {string} The color as a string.
 	 */
@@ -21807,7 +21826,7 @@
 	/**
 	 * Utility function to convert hexadecimal colors to strings, and simply return the color if it's a string.
 	 * This version can also convert array of colors
-	 *
+	 * @private
 	 * @param {number|number[]} color
 	 * @return {string} The color as a string.
 	 */
@@ -21826,7 +21845,7 @@
 	/**
 	 * Utility function to convert hexadecimal colors to strings, and simply return the color if it's a string.
 	 * This version can also convert array of colors
-	 *
+	 * @private
 	 * @param {Array} array1 First array to compare
 	 * @param {Array} array2 Second array to compare
 	 * @return {boolean} Do the arrays contain the same values in the same order
@@ -21851,7 +21870,7 @@
 	
 	/**
 	 * Utility function to ensure that object properties are copied by value, and not by reference
-	 *
+	 * @private
 	 * @param {Object} target Target object to copy properties into
 	 * @param {Object} source Source object for the proporties to copy
 	 * @param {string} propertyObj Object containing properties names we want to loop over
@@ -22773,13 +22792,13 @@
 	        }
 	
 	        if (!anticlockwise && endAngle <= startAngle) {
-	            endAngle += Math.PI * 2;
+	            endAngle += _const.PI_2;
 	        } else if (anticlockwise && startAngle <= endAngle) {
-	            startAngle += Math.PI * 2;
+	            startAngle += _const.PI_2;
 	        }
 	
 	        var sweep = endAngle - startAngle;
-	        var segs = Math.ceil(Math.abs(sweep) / (Math.PI * 2)) * 40;
+	        var segs = Math.ceil(Math.abs(sweep) / _const.PI_2) * 40;
 	
 	        if (sweep === 0) {
 	            return this;
@@ -22973,6 +22992,39 @@
 	        this.drawShape(shape);
 	
 	        return this;
+	    };
+	
+	    /**
+	     * Draw a star shape with an abitrary number of points.
+	     *
+	     * @param {number} x - Center X position of the star
+	     * @param {number} y - Center Y position of the star
+	     * @param {number} points - The number of points of the star, must be > 1
+	     * @param {number} radius - The outer radius of the star
+	     * @param {number} [innerRadius] - The inner radius between points, default half `radius`
+	     * @param {number} [rotation=0] - The rotation of the star in radians, where 0 is vertical
+	     * @return {PIXI.Graphics} This Graphics object. Good for chaining method calls
+	     */
+	
+	
+	    Graphics.prototype.drawStar = function drawStar(x, y, points, radius, innerRadius) {
+	        var rotation = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+	
+	        innerRadius = innerRadius || radius / 2;
+	
+	        var startAngle = -1 * Math.PI / 2 + rotation;
+	        var len = points * 2;
+	        var delta = _const.PI_2 / len;
+	        var polygon = [];
+	
+	        for (var i = 0; i < len; i++) {
+	            var r = i % 2 ? innerRadius : radius;
+	            var angle = i * delta + startAngle;
+	
+	            polygon.push(x + r * Math.cos(angle), y + r * Math.sin(angle));
+	        }
+	
+	        return this.drawPolygon(polygon);
 	    };
 	
 	    /**
@@ -23462,58 +23514,72 @@
 	    _classCallCheck(this, GraphicsData);
 	
 	    /**
-	     * @member {number} the width of the line to draw
+	     * the width of the line to draw
+	     * @member {number}
 	     */
 	    this.lineWidth = lineWidth;
+	
 	    /**
-	     * @member {boolean} if true the liens will be draw using LINES instead of TRIANGLE_STRIP
+	     * if true the liens will be draw using LINES instead of TRIANGLE_STRIP
+	     * @member {boolean}
 	     */
 	    this.nativeLines = nativeLines;
 	
 	    /**
-	     * @member {number} the color of the line to draw
+	     * the color of the line to draw
+	     * @member {number}
 	     */
 	    this.lineColor = lineColor;
 	
 	    /**
-	     * @member {number} the alpha of the line to draw
+	     * the alpha of the line to draw
+	     * @member {number}
 	     */
 	    this.lineAlpha = lineAlpha;
 	
 	    /**
-	     * @member {number} cached tint of the line to draw
+	     * cached tint of the line to draw
+	     * @member {number}
+	     * @private
 	     */
 	    this._lineTint = lineColor;
 	
 	    /**
-	     * @member {number} the color of the fill
+	     * the color of the fill
+	     * @member {number}
 	     */
 	    this.fillColor = fillColor;
 	
 	    /**
-	     * @member {number} the alpha of the fill
+	     * the alpha of the fill
+	     * @member {number}
 	     */
 	    this.fillAlpha = fillAlpha;
 	
 	    /**
-	     * @member {number} cached tint of the fill
+	     * cached tint of the fill
+	     * @member {number}
+	     * @private
 	     */
 	    this._fillTint = fillColor;
 	
 	    /**
-	     * @member {boolean} whether or not the shape is filled with a colour
+	     * whether or not the shape is filled with a colour
+	     * @member {boolean}
 	     */
 	    this.fill = fill;
 	
 	    this.holes = [];
 	
 	    /**
-	     * @member {PIXI.Circle|PIXI.Ellipse|PIXI.Polygon|PIXI.Rectangle|PIXI.RoundedRectangle} The shape object to draw.
+	     * The shape object to draw.
+	     * @member {PIXI.Circle|PIXI.Ellipse|PIXI.Polygon|PIXI.Rectangle|PIXI.RoundedRectangle}
 	     */
 	    this.shape = shape;
 	
 	    /**
-	     * @member {number} The type of the shape, see the Const.Shapes file for all the existing types,
+	     * The type of the shape, see the Const.Shapes file for all the existing types,
+	     * @member {number}
 	     */
 	    this.type = shape.type;
 	  }
@@ -25878,25 +25944,28 @@
 	
 	        while (frameIndex - initialFrameIndex < maxFrames && frameIndex < this._frameKeys.length) {
 	            var i = this._frameKeys[frameIndex];
-	            var rect = this._frames[i].frame;
+	            var data = this._frames[i];
+	            var rect = data.frame;
 	
 	            if (rect) {
 	                var frame = null;
 	                var trim = null;
-	                var orig = new _.Rectangle(0, 0, Math.floor(this._frames[i].sourceSize.w * sourceScale) / this.resolution, Math.floor(this._frames[i].sourceSize.h * sourceScale) / this.resolution);
+	                var sourceSize = data.trimmed !== false && data.sourceSize ? data.sourceSize : data.frame;
 	
-	                if (this._frames[i].rotated) {
+	                var orig = new _.Rectangle(0, 0, Math.floor(sourceSize.w * sourceScale) / this.resolution, Math.floor(sourceSize.h * sourceScale) / this.resolution);
+	
+	                if (data.rotated) {
 	                    frame = new _.Rectangle(Math.floor(rect.x * sourceScale) / this.resolution, Math.floor(rect.y * sourceScale) / this.resolution, Math.floor(rect.h * sourceScale) / this.resolution, Math.floor(rect.w * sourceScale) / this.resolution);
 	                } else {
 	                    frame = new _.Rectangle(Math.floor(rect.x * sourceScale) / this.resolution, Math.floor(rect.y * sourceScale) / this.resolution, Math.floor(rect.w * sourceScale) / this.resolution, Math.floor(rect.h * sourceScale) / this.resolution);
 	                }
 	
 	                //  Check to see if the sprite is trimmed
-	                if (this._frames[i].trimmed) {
-	                    trim = new _.Rectangle(Math.floor(this._frames[i].spriteSourceSize.x * sourceScale) / this.resolution, Math.floor(this._frames[i].spriteSourceSize.y * sourceScale) / this.resolution, Math.floor(rect.w * sourceScale) / this.resolution, Math.floor(rect.h * sourceScale) / this.resolution);
+	                if (data.trimmed !== false && data.spriteSourceSize) {
+	                    trim = new _.Rectangle(Math.floor(data.spriteSourceSize.x * sourceScale) / this.resolution, Math.floor(data.spriteSourceSize.y * sourceScale) / this.resolution, Math.floor(rect.w * sourceScale) / this.resolution, Math.floor(rect.h * sourceScale) / this.resolution);
 	                }
 	
-	                this.textures[i] = new _.Texture(this.baseTexture, frame, orig, trim, this._frames[i].rotated ? 2 : 0);
+	                this.textures[i] = new _.Texture(this.baseTexture, frame, orig, trim, data.rotated ? 2 : 0);
 	
 	                // lets also add the frame to pixi's global cache for fromFrame and fromImage functions
 	                _.Texture.addToCache(this.textures[i], i);
@@ -28130,12 +28199,14 @@
 	        var frame = void 0;
 	        var flipY = false;
 	        var renderTexture = void 0;
+	        var generated = false;
 	
 	        if (target) {
 	            if (target instanceof core.RenderTexture) {
 	                renderTexture = target;
 	            } else {
 	                renderTexture = this.renderer.generateTexture(target);
+	                generated = true;
 	            }
 	        }
 	
@@ -28185,7 +28256,11 @@
 	            }
 	        }
 	
+	        if (generated) {
+	            renderTexture.destroy(true);
+	        }
 	        // send the canvas back..
+	
 	        return canvasBuffer.canvas;
 	    };
 	
@@ -28205,12 +28280,14 @@
 	        var resolution = void 0;
 	        var frame = void 0;
 	        var renderTexture = void 0;
+	        var generated = false;
 	
 	        if (target) {
 	            if (target instanceof core.RenderTexture) {
 	                renderTexture = target;
 	            } else {
 	                renderTexture = this.renderer.generateTexture(target);
+	                generated = true;
 	            }
 	        }
 	
@@ -28239,6 +28316,10 @@
 	            var gl = renderer.gl;
 	
 	            gl.readPixels(frame.x * resolution, frame.y * resolution, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webglPixels);
+	        }
+	
+	        if (generated) {
+	            renderTexture.destroy(true);
 	        }
 	
 	        return webglPixels;
@@ -28527,7 +28608,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	/**
-	 * @typedef FrameObject
+	 * @typedef PIXI.extras.AnimatedSprite~FrameObject
 	 * @type {object}
 	 * @property {PIXI.Texture} texture - The {@link PIXI.Texture} of the frame
 	 * @property {number} time - the duration of the frame in ms
@@ -28557,7 +28638,7 @@
 	    _inherits(AnimatedSprite, _core$Sprite);
 	
 	    /**
-	     * @param {PIXI.Texture[]|FrameObject[]} textures - an array of {@link PIXI.Texture} or frame
+	     * @param {PIXI.Texture[]|PIXI.extras.AnimatedSprite~FrameObject[]} textures - an array of {@link PIXI.Texture} or frame
 	     *  objects that make up the animation
 	     * @param {boolean} [autoUpdate=true] - Whether to use PIXI.ticker.shared to auto update animation time.
 	     */
@@ -30552,13 +30633,14 @@
 	 * The instance name of the object.
 	 *
 	 * @memberof PIXI.DisplayObject#
-	 * @member {string}
+	 * @member {string} name
 	 */
 	core.DisplayObject.prototype.name = null;
 	
 	/**
 	 * Returns the display object in the container
 	 *
+	 * @method getChildByName
 	 * @memberof PIXI.Container#
 	 * @param {string} name - instance name
 	 * @return {PIXI.DisplayObject} The child with the specified name.
@@ -30589,6 +30671,7 @@
 	/**
 	 * Returns the global position of the displayObject. Does not depend on object scale, rotation and pivot.
 	 *
+	 * @method getGlobalPosition
 	 * @memberof PIXI.DisplayObject#
 	 * @param {Point} point - the point to write the global value to. If null a new point will be returned
 	 * @param {boolean} skipUpdate - setting to true will stop the transforms of the scene graph from
@@ -30906,7 +30989,7 @@
 	        // vertex shader
 	        'attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\nuniform mat3 filterMatrix;\n\nvarying vec2 vTextureCoord;\nvarying vec2 vFilterCoord;\n\nvoid main(void)\n{\n   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n   vFilterCoord = ( filterMatrix * vec3( aTextureCoord, 1.0)  ).xy;\n   vTextureCoord = aTextureCoord;\n}',
 	        // fragment shader
-	        'varying vec2 vFilterCoord;\nvarying vec2 vTextureCoord;\n\nuniform vec2 scale;\n\nuniform sampler2D uSampler;\nuniform sampler2D mapSampler;\n\nuniform vec4 filterClamp;\n\nvoid main(void)\n{\n   vec4 map =  texture2D(mapSampler, vFilterCoord);\n\n   map -= 0.5;\n   map.xy *= scale;\n\n   gl_FragColor = texture2D(uSampler, clamp(vec2(vTextureCoord.x + map.x, vTextureCoord.y + map.y), filterClamp.xy, filterClamp.zw));\n}\n'));
+	        'varying vec2 vFilterCoord;\nvarying vec2 vTextureCoord;\n\nuniform vec2 scale;\n\nuniform sampler2D uSampler;\nuniform sampler2D mapSampler;\n\nuniform vec4 filterArea;\nuniform vec4 filterClamp;\n\nvoid main(void)\n{\n  vec4 map =  texture2D(mapSampler, vFilterCoord);\n\n  map -= 0.5;\n  map.xy *= scale / filterArea.xy;\n\n  gl_FragColor = texture2D(uSampler, clamp(vec2(vTextureCoord.x + map.x, vTextureCoord.y + map.y), filterClamp.xy, filterClamp.zw));\n}\n'));
 	
 	        _this.maskSprite = sprite;
 	        _this.maskMatrix = maskMatrix;
@@ -30933,11 +31016,9 @@
 	
 	
 	    DisplacementFilter.prototype.apply = function apply(filterManager, input, output) {
-	        var ratio = 1 / output.destinationFrame.width * (output.size.width / input.size.width);
-	
 	        this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.maskMatrix, this.maskSprite);
-	        this.uniforms.scale.x = this.scale.x * ratio;
-	        this.uniforms.scale.y = this.scale.y * ratio;
+	        this.uniforms.scale.x = this.scale.x;
+	        this.uniforms.scale.y = this.scale.y;
 	
 	        // draw the filter...
 	        filterManager.applyFilter(this, input, output);
@@ -32577,7 +32658,7 @@
 	// Mix interactiveTarget into core.DisplayObject.prototype, after deprecation has been handled
 	core.utils.mixins.delayMixin(core.DisplayObject.prototype, _interactiveTarget2.default);
 	
-	var MOUSE_POINTER_ID = 'MOUSE';
+	var MOUSE_POINTER_ID = 1;
 	
 	// helpers for hitTest() - only used inside hitTest()
 	var hitTestEvent = {
@@ -33552,21 +33633,37 @@
 	        var hit = false;
 	        var interactiveParent = interactive;
 	
-	        // if the displayobject has a hitArea, then it does not need to hitTest children.
+	        // Flag here can set to false if the event is outside the parents hitArea or mask
+	        var hitTestChildren = true;
+	
+	        // If there is a hitArea, no need to test against anything else if the pointer is not within the hitArea
+	        // There is also no longer a need to hitTest children.
 	        if (displayObject.hitArea) {
+	            if (hitTest) {
+	                displayObject.worldTransform.applyInverse(point, this._tempPoint);
+	                if (!displayObject.hitArea.contains(this._tempPoint.x, this._tempPoint.y)) {
+	                    hitTest = false;
+	                    hitTestChildren = false;
+	                } else {
+	                    hit = true;
+	                }
+	            }
 	            interactiveParent = false;
 	        }
-	        // it has a mask! Then lets hit test that before continuing
-	        else if (hitTest && displayObject._mask) {
-	                if (!displayObject._mask.containsPoint(point)) {
-	                    hitTest = false;
+	        // If there is a mask, no need to test against anything else if the pointer is not within the mask
+	        else if (displayObject._mask) {
+	                if (hitTest) {
+	                    if (!displayObject._mask.containsPoint(point)) {
+	                        hitTest = false;
+	                        hitTestChildren = false;
+	                    }
 	                }
 	            }
 	
 	        // ** FREE TIP **! If an object is not interactive or has no buttons in it
 	        // (such as a game scene!) set interactiveChildren to false for that displayObject.
 	        // This will allow PixiJS to completely ignore and bypass checking the displayObjects children.
-	        if (displayObject.interactiveChildren && displayObject.children) {
+	        if (hitTestChildren && displayObject.interactiveChildren && displayObject.children) {
 	            var children = displayObject.children;
 	
 	            for (var i = children.length - 1; i >= 0; i--) {
@@ -33608,12 +33705,8 @@
 	            // has already been hit - but only if it was interactive, otherwise we need to keep
 	            // looking for an interactive child, just in case we hit one
 	            if (hitTest && !interactionEvent.target) {
-	                if (displayObject.hitArea) {
-	                    displayObject.worldTransform.applyInverse(point, this._tempPoint);
-	                    if (displayObject.hitArea.contains(this._tempPoint.x, this._tempPoint.y)) {
-	                        hit = true;
-	                    }
-	                } else if (displayObject.containsPoint) {
+	                // already tested against hitArea if it is defined
+	                if (!displayObject.hitArea && displayObject.containsPoint) {
 	                    if (displayObject.containsPoint(point)) {
 	                        hit = true;
 	                    }
@@ -37269,7 +37362,6 @@
 	
 	        var loadOptions = {
 	            crossOrigin: resource.crossOrigin,
-	            loadType: _resourceLoader.Resource.LOAD_TYPE.IMAGE,
 	            metadata: resource.metadata.imageMetadata,
 	            parentResource: resource
 	        };
@@ -37278,6 +37370,12 @@
 	
 	        // load the image for this sheet
 	        this.add(imageResourceName, resourcePath, loadOptions, function onImageLoad(res) {
+	            if (res.error) {
+	                next(res.error);
+	
+	                return;
+	            }
+	
 	            var spritesheet = new _core.Spritesheet(res.texture.baseTexture, resource.data, resource.url);
 	
 	            spritesheet.parse(function () {
@@ -37784,7 +37882,7 @@
 	     *
 	     * @member {number}
 	     */
-	    _this.canvasPadding = 0;
+	    _this.canvasPadding = core.settings.MESH_CANVAS_PADDING;
 	
 	    /**
 	     * The way the Mesh should be drawn, can be any of the {@link PIXI.mesh.Mesh.DRAW_MODES} consts
@@ -38257,6 +38355,7 @@
 	            context.setTransform(transform.a * res, transform.b * res, transform.c * res, transform.d * res, transform.tx * res, transform.ty * res);
 	        }
 	
+	        renderer.context.globalAlpha = mesh.worldAlpha;
 	        renderer.setBlendMode(mesh.blendMode);
 	
 	        if (mesh.drawMode === _Mesh2.default.DRAW_MODES.TRIANGLE_MESH) {
@@ -38367,9 +38466,11 @@
 	        var y1 = vertices[index1 + 1];
 	        var y2 = vertices[index2 + 1];
 	
-	        if (mesh.canvasPadding > 0) {
-	            var paddingX = mesh.canvasPadding / mesh.worldTransform.a;
-	            var paddingY = mesh.canvasPadding / mesh.worldTransform.d;
+	        var canvasPadding = mesh.canvasPadding / this.renderer.resolution;
+	
+	        if (canvasPadding > 0) {
+	            var paddingX = canvasPadding / Math.abs(mesh.worldTransform.a);
+	            var paddingY = canvasPadding / Math.abs(mesh.worldTransform.d);
 	            var centerX = (x0 + x1 + x2) / 3;
 	            var centerY = (y0 + y1 + y2) / 3;
 	
@@ -38802,6 +38903,7 @@
 	        var context = renderer.context;
 	
 	        context.globalAlpha = this.worldAlpha;
+	        renderer.setBlendMode(this.blendMode);
 	
 	        var transform = this.worldTransform;
 	        var res = renderer.resolution;
@@ -39345,13 +39447,14 @@
 	     * @param {number} [maxSize=1500] - The maximum number of particles that can be rendered by the container.
 	     *  Affects size of allocated buffers.
 	     * @param {object} [properties] - The properties of children that should be uploaded to the gpu and applied.
-	     * @param {boolean} [properties.scale=false] - When true, scale be uploaded and applied.
+	     * @param {boolean} [properties.vertices=false] - When true, vertices be uploaded and applied.
+	     *                  if sprite's ` scale/anchor/trim/frame/orig` is dynamic, please set `true`.
 	     * @param {boolean} [properties.position=true] - When true, position be uploaded and applied.
 	     * @param {boolean} [properties.rotation=false] - When true, rotation be uploaded and applied.
 	     * @param {boolean} [properties.uvs=false] - When true, uvs be uploaded and applied.
 	     * @param {boolean} [properties.tint=false] - When true, alpha and tint be uploaded and applied.
 	     * @param {number} [batchSize=16384] - Number of particles per batch. If less than maxSize, it uses maxSize instead.
-	     * @param {boolean} [autoResize=true] If true, container allocates more batches in case
+	     * @param {boolean} [autoResize=false] If true, container allocates more batches in case
 	     *  there are more than `maxSize` particles.
 	     */
 	    function ParticleContainer() {
@@ -39474,11 +39577,11 @@
 	
 	    ParticleContainer.prototype.setProperties = function setProperties(properties) {
 	        if (properties) {
-	            this._properties[0] = 'scale' in properties ? !!properties.scale : this._properties[0];
+	            this._properties[0] = 'vertices' in properties || 'scale' in properties ? !!properties.vertices || !!properties.scale : this._properties[0];
 	            this._properties[1] = 'position' in properties ? !!properties.position : this._properties[1];
 	            this._properties[2] = 'rotation' in properties ? !!properties.rotation : this._properties[2];
 	            this._properties[3] = 'uvs' in properties ? !!properties.uvs : this._properties[3];
-	            this._properties[4] = 'alpha' in properties || 'tint' in properties ? !!properties.alpha || !!properties.tint : this._properties[4];
+	            this._properties[4] = 'tint' in properties || 'alpha' in properties ? !!properties.tint || !!properties.alpha : this._properties[4];
 	        }
 	    };
 	
@@ -40188,7 +40291,7 @@
 	
 	        return _possibleConstructorReturn(this, _Shader.call(this, gl,
 	        // vertex shader
-	        ['attribute vec2 aVertexPosition;', 'attribute vec2 aTextureCoord;', 'attribute vec4 aColor;', 'attribute vec2 aPositionCoord;', 'attribute vec2 aScale;', 'attribute float aRotation;', 'uniform mat3 projectionMatrix;', 'uniform vec4 uColor;', 'varying vec2 vTextureCoord;', 'varying vec4 vColor;', 'void main(void){', '   float x = (aVertexPosition.x) * cos(aRotation) - (aVertexPosition.y) * sin(aRotation);', '   float y = (aVertexPosition.x) * sin(aRotation) + (aVertexPosition.y) * cos(aRotation);', '   vec2 v = vec2(x, y);', '   v = v + aPositionCoord;', '   gl_Position = vec4((projectionMatrix * vec3(v, 1.0)).xy, 0.0, 1.0);', '   vTextureCoord = aTextureCoord;', '   vColor = aColor * uColor;', '}'].join('\n'),
+	        ['attribute vec2 aVertexPosition;', 'attribute vec2 aTextureCoord;', 'attribute vec4 aColor;', 'attribute vec2 aPositionCoord;', 'attribute float aRotation;', 'uniform mat3 projectionMatrix;', 'uniform vec4 uColor;', 'varying vec2 vTextureCoord;', 'varying vec4 vColor;', 'void main(void){', '   float x = (aVertexPosition.x) * cos(aRotation) - (aVertexPosition.y) * sin(aRotation);', '   float y = (aVertexPosition.x) * sin(aRotation) + (aVertexPosition.y) * cos(aRotation);', '   vec2 v = vec2(x, y);', '   v = v + aPositionCoord;', '   gl_Position = vec4((projectionMatrix * vec3(v, 1.0)).xy, 0.0, 1.0);', '   vTextureCoord = aTextureCoord;', '   vColor = aColor * uColor;', '}'].join('\n'),
 	        // hello
 	        ['varying vec2 vTextureCoord;', 'varying vec4 vColor;', 'uniform sampler2D uSampler;', 'void main(void){', '  vec4 color = texture2D(uSampler, vTextureCoord) * vColor;', '  gl_FragColor = color;', '}'].join('\n')));
 	    }
@@ -41501,7 +41604,9 @@
 		return teste;
 	}; //('hided warnings')
 	
-	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/screen_displacement.jpg').add('./assets/images/map.jpg').load(configGame);
+	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/screen_displacement.jpg')
+	// .add('./assets/images/map.jpg')
+	.load(configGame);
 	
 	function configGame() {
 	
@@ -56361,11 +56466,10 @@
 	
 			window.ACTION_ZONES = [{ label: "TOP_LEFT", pos: { x: 0, y: 0 }, dir: { x: -1, y: -1 } }, { label: "TOP_CENTER", pos: { x: 1, y: 0 }, dir: { x: 0, y: -1 } }, { label: "TOP_RIGHT", pos: { x: 2, y: 0 }, dir: { x: 1, y: -1 } }, { label: "CENTER_RIGHT", pos: { x: 2, y: 1 }, dir: { x: 1, y: 0 } }, { label: "BOTTOM_RIGHT", pos: { x: 2, y: 2 }, dir: { x: 1, y: 1 } }, { label: "BOTTOM_CENTER", pos: { x: 1, y: 2 }, dir: { x: 0, y: 1 } }, { label: "BOTTOM_LEFT", pos: { x: 0, y: 2 }, dir: { x: -1, y: 1 } }, { label: "CENTER_LEFT", pos: { x: 0, y: 1 }, dir: { x: -1, y: 0 } }];
 	
-			console.log(window.location.hash, "HASHHHHHH");
 			window.GRID = {
 				i: window.location.hash ? window.location.hash[1] : 5,
 				j: 10,
-				height: _config2.default.height * 0.8,
+				height: _config2.default.height * 0.7,
 				width: _config2.default.width * 0.7
 			};
 	
@@ -56375,7 +56479,7 @@
 			};
 	
 			window.ENEMIES = {
-				list: [{ color: 0x61C6CE, life: 0 }, { color: 0xD81639, life: 1 }, { color: 0xE2C756, life: 2 }, { color: 0x7BCA93, life: 3 }, { color: 0x1376B9, life: 4 }, { color: 0xDD6290, life: 5 }]
+				list: [{ color: 0x61C6CE, life: 0 }, { color: 0xD81639, life: 1 }, { color: 0xE2C756, life: 2 }, { color: 0x7BCA93, life: 3 }, { color: 0x1376B9, life: 4 }, { color: 0xDD6290, life: 5 }, { color: 0xFF2320, life: 6 }]
 			};
 	
 			window.GRID.width = window.GRID.i * CARD.width;
@@ -56383,13 +56487,70 @@
 	
 			window.CARD_POOL = [];
 	
+			window.CARD_NUMBER = 0;
+	
 			_this.grid = new _Grid2.default(_this);
 			_this.board = new _Board2.default(_this);
-			_this.totalLines = 5;
+			_this.totalLines = 6;
+	
+			_this.currentPoints = 0;
+			_this.currentPointsLabel = 0;
+			_this.currentRound = 0;
+	
+			_this.cardQueue = [];
+			_this.cardQueueSize = 4;
+	
+			_this.currentButtonLabel = 'START';
+	
 			return _this;
 		}
 	
 		_createClass(TetraScreen, [{
+			key: 'buildUI',
+			value: function buildUI() {
+				this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.roundsLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.UIContainer.addChild(this.pointsLabel);
+				this.UIContainer.addChild(this.roundsLabel);
+	
+				this.cardQueueContainer = new PIXI.Container();
+				this.UIContainer.addChild(this.cardQueueContainer);
+	
+				this.resetLabel = new PIXI.Text(this.shuffleText(this.currentButtonLabel), { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.startButton = new PIXI.Container();
+				this.startButtonBackground = new PIXI.Graphics().beginFill(0x61C6CE).drawRect(0, 0, 100, 40);
+				this.startButton.addChild(this.startButtonBackground);
+				this.startButton.addChild(this.resetLabel);
+	
+				this.startButton.interactive = true;
+				this.startButton.buttonMode = true;
+	
+				this.startButton.on('mouseup', this.resetGame.bind(this)).on('touchend', this.resetGame.bind(this));
+	
+				_utils2.default.centerObject(this.startButton, this);
+	
+				this.resetLabel.style.fill = 0xFFFFFF;
+				_utils2.default.centerObject(this.resetLabel, this.startButtonBackground);
+	
+				this.UIContainer.addChild(this.startButton);
+	
+				this.cardQueueContainer.x = this.gridContainer.x + this.gridContainer.width + 5;
+				this.cardQueueContainer.y = this.gridContainer.y + GRID.j * CARD.height - CARD.height * this.cardQueueSize;
+				this.pointsLabel.x = this.cardQueueContainer.x;
+				this.pointsLabel.y = this.gridContainer.y;
+	
+				this.roundsLabel.x = this.cardQueueContainer.x;
+				this.roundsLabel.y = this.pointsLabel.y + 40;
+				this.updateUI();
+			}
+		}, {
+			key: 'updateStartLabel',
+			value: function updateStartLabel() {
+				this.resetLabel.text = this.shuffleText(this.currentButtonLabel);
+				//this.resetLabel.style.fill = ENEMIES.list[Math.floor(ENEMIES.list.length * Math.random())].color;
+				_utils2.default.centerObject(this.resetLabel, this.startButtonBackground);
+			}
+		}, {
 			key: 'build',
 			value: function build() {
 				_get(TetraScreen.prototype.__proto__ || Object.getPrototypeOf(TetraScreen.prototype), 'build', this).call(this);
@@ -56399,14 +56560,16 @@
 				this.gameContainer = new PIXI.Container();
 				this.gridContainer = new PIXI.Container();
 				this.cardsContainer = new PIXI.Container();
+				this.UIContainer = new PIXI.Container();
 	
 				this.addChild(this.gameContainer);
 	
 				this.gameContainer.addChild(this.background);
 				this.gameContainer.addChild(this.gridContainer);
 				this.gameContainer.addChild(this.cardsContainer);
+				this.gameContainer.addChild(this.UIContainer);
 	
-				this.mousePosID = 0;
+				this.mousePosID = GRID.i / 2;
 				// this.currentCard = this.createCard();
 				// this.cardsContainer.addChild(this.currentCard)
 				// utils.centerObject(this.currentCard, this.background)
@@ -56415,7 +56578,10 @@
 				this.grid.createGrid();
 				this.gridContainer.addChild(this.grid);
 				_utils2.default.centerObject(this.gridContainer, this.background.background);
-				this.gridContainer.y -= CARD.height;
+				this.gridContainer.x = _config2.default.width / 2 - (GRID.i + 1) * CARD.width / 2; // - this.gridContainer.width / 2;
+				// this.gridContainer.y -= CARD.height;
+	
+				this.buildUI();
 	
 				this.cardsContainer.x = this.gridContainer.x;
 				this.cardsContainer.y = this.gridContainer.y;
@@ -56433,61 +56599,136 @@
 					tempPosRandom.push(i);
 				}
 				_utils2.default.shuffle(tempPosRandom);
+			}
+		}, {
+			key: 'resetGame',
+			value: function resetGame() {
 	
+				this.currentPoints = 0;
+				this.currentPointsLabel = 0;
+				this.currentRound = 0;
+	
+				this.board.destroyBoard();
+				this.board.resetBoard();
+	
+				for (var i = this.cardQueue.length - 1; i >= 0; i--) {
+					this.cardQueue[i].forceDestroy();
+				}
+				this.cardQueue = [];
+				if (this.currentCard) this.currentCard.forceDestroy();
+				this.currentCard = null;
 				for (var i = 0; i < this.totalLines; i++) {
 					for (var j = 0; j < GRID.i; j++) {
 						this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.totalLines - i].life));
 					}
 				}
-				// for (var i = 0; i < GRID.i; i++) {		
-				// 	this.cardsContainer.addChild(this.placeCard(i, 0, 5));
-				// }
-				// for (var i = 0; i < GRID.i; i++) {		
-				// 	this.cardsContainer.addChild(this.placeCard(i, 1, 4));
-				// }
-				// for (var i = 0; i < GRID.i; i++) {		
-				// 	this.cardsContainer.addChild(this.placeCard(i, 2, 3));
-				// }
-				// this.cardsContainer.addChild(this.placeCard(tempPosRandom[1], 0));
 	
-				this.board.debugBoard();
+				this.currentPoints = 0;
+				this.currentPointsLabel = 0;
+				this.currentRound = 0;
+	
+				this.startButton.x = 6;
+				this.startButton.y = 6;
+				// this.board.debugBoard();
 	
 				this.addEvents();
 	
 				this.newRound();
+	
+				this.currentButtonLabel = 'RESET';
+			}
+		}, {
+			key: 'formatPointsLabel',
+			value: function formatPointsLabel(tempPoints) {
+				if (tempPoints < 10) {
+					return "0000" + tempPoints;
+				} else if (tempPoints < 100) {
+					return "000" + tempPoints;
+				} else if (tempPoints < 1000) {
+					return "00" + tempPoints;
+				} else if (tempPoints < 10000) {
+					return "0" + tempPoints;
+				} else {
+					return tempPoints;
+				}
+			}
+		}, {
+			key: 'updateUI',
+			value: function updateUI() {
+				this.pointsLabel.text = this.formatPointsLabel(Math.ceil(this.currentPointsLabel));
+				this.roundsLabel.text = this.formatPointsLabel(Math.ceil(this.currentRound));
 			}
 		}, {
 			key: 'addRandomPiece',
 			value: function addRandomPiece() {}
 		}, {
+			key: 'addPoints',
+			value: function addPoints(points) {
+				this.currentPoints += points;
+				_gsap2.default.to(this, 0.2, { currentPointsLabel: this.currentPoints, onUpdate: function () {
+						this.currentPointsLabel = Math.ceil(this.currentPointsLabel);
+						this.updateUI();
+					}.bind(this) });
+			}
+		}, {
+			key: 'updateQueue',
+			value: function updateQueue() {
+				while (this.cardQueue.length < this.cardQueueSize) {
+					var card = void 0;
+					if (CARD_POOL.length) {
+						console.log(CARD_POOL);
+						card = CARD_POOL[0];
+						CARD_POOL.shift();
+					} else {
+						card = new _Card2.default(this);
+					}
+					// console.log(1 - (this.currentRound % 3)*0.12);
+					card.life = Math.random() < 1 - this.currentRound % 3 * 0.17 ? 0 : Math.random() < 0.5 ? 2 : 1;
+					card.createCard();
+					card.type = 0;
+					card.x = 0;
+					this.cardQueueContainer.addChild(card);
+					this.cardQueue.push(card);
+				}
+				// for (var i = this.cardQueue.length - 1; i >= 0; i--) {
+				for (var i = 0; i < this.cardQueue.length; i++) {
+					_gsap2.default.to(this.cardQueue[i], 0.3, { y: CARD.width * (this.cardQueue.length - i), ease: Back.easeOut });
+					// this.cardQueue[i].y = ;
+				}
+			}
+		}, {
 			key: 'newRound',
 			value: function newRound() {
-				if (CARD_POOL.length) {
-					this.currentCard = CARD_POOL[0];
-					CARD_POOL.unshift();
-				} else {
-					this.currentCard = new _Card2.default(this);
-				}
-				this.currentCard.life = Math.random() < 0.75 ? 0 : Math.random() < 0.5 ? 2 : 1;
-				this.currentCard.createCard();
-				this.currentCard.type = 0;
+				this.updateQueue();
+				this.currentCard = this.cardQueue[0];
+				this.cardQueue.shift();
 				this.currentCard.x = CARD.width * this.mousePosID;
 				this.currentCard.y = this.gridContainer.height + 100;
-				_gsap2.default.to(this.currentCard, 0.3, { y: this.gridContainer.height + 30, ease: Elastic.easeOut });
+				this.currentCard.alpha = 0;
+				_gsap2.default.to(this.currentCard, 0.3, { alpha: 1, y: this.gridContainer.height + 30, ease: Elastic.easeOut });
 				this.currentCard.updateCard();
 				this.cardsContainer.addChild(this.currentCard);
-				// this.CARD_POOL.push(this.currentCard);
 			}
 		}, {
 			key: 'placeCard',
 			value: function placeCard(i, j) {
 				var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 	
-				var card = new _Card2.default(this);
+				var card = void 0;
+				if (CARD_POOL.length) {
+					console.log(CARD_POOL);
+					card = CARD_POOL[0];
+					CARD_POOL.shift();
+				} else {
+					card = new _Card2.default(this);
+				}
 				card.life = level;
 				card.createCard();
 				card.x = i * CARD.width;
-				card.y = j * CARD.height;
+				card.y = j * CARD.height - CARD.height;
+				// card.cardContainer.scale.set(1.2 - j * 0.05)
+				card.alpha = 0;
+				_gsap2.default.to(card, 0.5, { alpha: 1, delay: i * 0.05, y: j * CARD.height, ease: Back.easeOut });
 				card.pos.i = i;
 				card.pos.j = j;
 				card.updateCard();
@@ -56506,11 +56747,11 @@
 				this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
 				this.initGridAcc += 0.05;
 	
-				// console.log(window.CARD_POOL);
+				this.updateStartLabel();
 	
-				// if(this.currentCard)
-				// 		console.log(	this.currentCard.position);
-				//console.log(this.mousePosition);
+				if (this.board) {
+					this.board.update(delta);
+				}
 			}
 		}, {
 			key: 'updateMousePosition',
@@ -56524,7 +56765,10 @@
 					_gsap2.default.to(this.trailMarker, 0.1, { x: this.mousePosID * CARD.width });
 					this.trailMarker.alpha = 0.15;
 					if (this.currentCard) {
-						if (this.mousePosID * CARD.width > 0) this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+						if (this.mousePosID * CARD.width >= 0) {
+							// console.log("MOUSE MOVE");
+							this.currentCard.moveX(this.mousePosID * CARD.width, 0.1);
+						}
 					}
 				}
 			}
@@ -56553,12 +56797,16 @@
 				} else {
 					this.mousePosition = renderer.plugins.interaction.mouse.global;
 				}
+				if (this.mousePosition.y < this.gridContainer.y) {
+					return;
+				}
 				this.updateMousePosition();
 				//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 				if (!this.board.isPossibleShot(this.mousePosID)) {
 					return;
 				}
 	
+				this.currentRound++;
 				this.board.shootCard(this.mousePosID, this.currentCard);
 				var normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
 				this.currentCard.move({
@@ -56567,11 +56815,11 @@
 				}, 0.1 * normalDist);
 	
 				this.currentCard = null;
-	
-				console.log(0.1 * normalDist * 100);
+				this.updateUI();
+				// console.log(0.1 * normalDist * 100);
 				setTimeout(function () {
 					this.newRound();
-				}.bind(this), 0.1 * normalDist * 100 + 200);
+				}.bind(this), 0.1 * normalDist * 100 + 500);
 			}
 		}, {
 			key: 'onTapDown',
@@ -56588,13 +56836,41 @@
 			}
 		}, {
 			key: 'removeEvents',
-			value: function removeEvents() {}
+			value: function removeEvents() {
+				this.gameContainer.interactive = false;
+				this.gameContainer.off('mousedown', this.onTapDown.bind(this)).off('touchstart', this.onTapDown.bind(this));
+				this.gameContainer.off('mouseup', this.onTapUp.bind(this)).off('touchend', this.onTapUp.bind(this));
+			}
 		}, {
 			key: 'addEvents',
 			value: function addEvents() {
+				this.removeEvents();
 				this.gameContainer.interactive = true;
 				this.gameContainer.on('mousedown', this.onTapDown.bind(this)).on('touchstart', this.onTapDown.bind(this));
 				this.gameContainer.on('mouseup', this.onTapUp.bind(this)).on('touchend', this.onTapUp.bind(this));
+			}
+		}, {
+			key: 'shuffleText',
+			value: function shuffleText(label) {
+				var rnd1 = String.fromCharCode(Math.floor(Math.random() * 20) + 65);
+				var rnd2 = Math.floor(Math.random() * 9);
+				var rnd3 = String.fromCharCode(Math.floor(Math.random() * 20) + 65);
+				var tempLabel = label.split('');
+				var rndPause = Math.random();
+				if (rndPause < 0.2) {
+					var pos1 = Math.floor(Math.random() * tempLabel.length);
+					var pos2 = Math.floor(Math.random() * tempLabel.length);
+					if (tempLabel[pos1] != '\n') tempLabel[pos1] = rnd2;
+					if (tempLabel[pos2] != '\n') tempLabel[pos2] = rnd3;
+				} else if (rndPause < 0.5) {
+					var pos3 = Math.floor(Math.random() * tempLabel.length);
+					if (tempLabel[pos3] != '\n') tempLabel[pos3] = rnd3;
+				}
+				var returnLabel = '';
+				for (var i = 0; i < tempLabel.length; i++) {
+					returnLabel += tempLabel[i];
+				}
+				return returnLabel;
 			}
 		}]);
 	
@@ -56723,6 +56999,7 @@
 	
 			var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
 	
+			window.CARD_NUMBER++;
 			_this.game = game;
 			_this.zones = [];
 			_this.arrows = [];
@@ -56730,19 +57007,21 @@
 			_this.type = 0;
 			_this.MAX_COUNTER = 10;
 			_this.life = 2;
+			_this.cardNumber = CARD_NUMBER;
 	
 			var card = new PIXI.Container();
 			_this.counter = _this.MAX_COUNTER;
 			_this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+			_this.cardBackground3 = new PIXI.Graphics().beginFill(0x000000).drawRect(CARD.width / 2 - 10, CARD.height / 2, 19, 10);
 			_this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
 	
-			_this.cardBackground2.scale.set(_this.cardBackground2.height / CARD.height * 1.1);
+			_this.cardBackground2.scale.set(_this.cardBackground2.height / CARD.height * 0.8);
 	
 			var cardContainer = new PIXI.Container();
 			_this.cardActions = new PIXI.Container();
 			card.addChild(cardContainer);
-			// cardContainer.addChild(this.cardBackground);
 			cardContainer.addChild(_this.cardActions);
+			cardContainer.addChild(_this.cardBackground3);
 			cardContainer.addChild(_this.cardBackground2);
 	
 			_this.lifeContainer = new PIXI.Container();
@@ -56765,6 +57044,8 @@
 			_this.addChild(card);
 			cardContainer.pivot.x = CARD.width / 2;
 			cardContainer.x = CARD.width / 2;
+	
+			_this.initGridAcc = Math.random();
 			return _this;
 		}
 	
@@ -56775,6 +57056,17 @@
 			key: 'createCard',
 			value: function createCard() {
 				this.alpha = 1;
+	
+				this.zones = [];
+				this.arrows = [];
+				// this.pos = {i:-1, j:-1};
+				this.type = 0;
+				this.MAX_COUNTER = 10;
+				// this.life = 2;
+				this.cardContainer.scale.set(1);
+	
+				this.updateCard();
+	
 				this.addActionZones();
 			}
 		}, {
@@ -56805,10 +57097,12 @@
 		}, {
 			key: 'removeActionZones',
 			value: function removeActionZones() {
-				this.zones = [];
 				while (this.cardActions.children.length > 0) {
 					this.cardActions.removeChildAt(0);
 				}
+	
+				this.zones = [];
+				this.arrows = [];
 			}
 		}, {
 			key: 'updateCounter',
@@ -56825,7 +57119,7 @@
 		}, {
 			key: 'updateCard',
 			value: function updateCard() {
-				console.log(this.life);
+				// console.log(this.life);
 				for (var i = 0; i < ENEMIES.list.length; i++) {
 					if (ENEMIES.list[i].life == this.life) {
 						this.cardBackground2.tint = ENEMIES.list[i].color;
@@ -56834,6 +57128,7 @@
 				if (this.life < 1) {
 					this.lifeContainer.alpha = 0;
 				} else {
+					this.lifeContainer.alpha = 1;
 					this.lifeLabel.text = this.life;
 					this.lifeContainer.x = CARD.width * 0.75;
 					this.lifeContainer.y = CARD.height * 0.75;
@@ -56848,6 +57143,7 @@
 		}, {
 			key: 'getArrow',
 			value: function getArrow(label) {
+				// console.log("GET ARROWS",this.cardNumber, label, this.arrows);
 				for (var i = 0; i < this.arrows.length; i++) {
 					if (this.arrows[i].zone == label) {
 						return this.arrows[i].arrow;
@@ -56861,9 +57157,7 @@
 				this.removeActionZones();
 				var orderArray = [0, 1, 2, 3, 4, 5, 6, 7];
 				_utils2.default.shuffle(orderArray);
-	
 				var totalSides = Math.floor(Math.random() * ACTION_ZONES.length * 0.4) + 1;
-	
 				for (var i = totalSides - 1; i >= 0; i--) {
 	
 					var arrowContainer = new PIXI.Container();
@@ -56901,6 +57195,7 @@
 					arrowContainer.x -= Math.sin(angle) * 8;
 					arrowContainer.y += Math.cos(angle) * 8;
 				}
+				// console.log("ADD ACTION ZONES", this.zones, this.arrows);
 			}
 		}, {
 			key: 'move',
@@ -56921,12 +57216,29 @@
 				TweenLite.to(this, time, { x: pos, delay: delay });
 			}
 		}, {
+			key: 'forceDestroy',
+			value: function forceDestroy() {
+				this.parent.removeChild(this);
+				this.removeActionZones();
+				window.CARD_POOL.push(this);
+			}
+		}, {
+			key: 'update',
+			value: function update(delta) {
+	
+				this.cardBackground2.y = 5 + Math.sin(this.initGridAcc) * 2;
+				this.cardBackground3.y = this.cardBackground2.y - 10;
+				this.initGridAcc += 0.05;
+			}
+		}, {
 			key: 'destroy',
 			value: function destroy() {
 				this.shake(0.2, 6, 0.2);
-				TweenLite.to(this, 0.2, { delay: 0.2, alpha: 0, onComplete: function () {
+				// TweenLite.to(this.cardContainer.scale, 0.2, {x:this.cardContainer.scale.x + 0.3, y:this.cardContainer.scale.y + 0.3})			
+				TweenLite.to(this, 0.2, { delay: 0.2, alpha: 0.5, onComplete: function () {
 						this.parent.removeChild(this);
-						// CARD_POOL.push(this);			
+						this.removeActionZones();
+						window.CARD_POOL.push(this);
 					}.bind(this) });
 			}
 		}, {
@@ -56988,17 +57300,22 @@
 			_classCallCheck(this, Board);
 	
 			this.game = game;
-			this.cards = [];
-			for (var i = window.GRID.i - 1; i >= 0; i--) {
-				var lane = [];
-				for (var j = window.GRID.j - 1; j >= 0; j--) {
-					lane.push(0);
-				}
-				this.cards.push(lane);
-			}
+			this.resetBoard();
 		}
 	
 		_createClass(Board, [{
+			key: 'resetBoard',
+			value: function resetBoard() {
+				this.cards = [];
+				for (var i = window.GRID.i - 1; i >= 0; i--) {
+					var lane = [];
+					for (var j = window.GRID.j - 1; j >= 0; j--) {
+						lane.push(0);
+					}
+					this.cards.push(lane);
+				}
+			}
+		}, {
 			key: 'addCard',
 			value: function addCard(card) {
 				this.cards[card.pos.i][card.pos.j] = card;
@@ -57038,25 +57355,10 @@
 					card.pos.j = spaceID;
 					this.addCard(card);
 					setTimeout(function () {
+						// console.log(card);
 						this.updateRound(card);
 					}.bind(this), 50);
 				}
-			}
-		}, {
-			key: 'moveCardDown',
-			value: function moveCardDown(card) {
-				this.cards[card.pos.i][card.pos.j] = 0;
-				card.pos.j++;
-				if (card.pos.j >= GRID.j) {
-					card.destroy();
-					//GAME OVER AQUI
-					return;
-				}
-				this.addCard(card);
-				card.move({
-					x: card.pos.i * CARD.width,
-					y: card.pos.j * CARD.height
-				}, 0.2, 0.5);
 			}
 		}, {
 			key: 'updateRound',
@@ -57084,7 +57386,7 @@
 									zone: tempZone,
 									hits: cardFound.life + 1
 								};
-							} else if (autoDestroyCardData) {
+							} else if (tempZone && autoDestroyCardData) {
 								autoDestroyCardData.hits += cardFound.life + 1;
 							}
 							cardsToDestroy.push({ cardFound: cardFound, currentCard: card, attackZone: zones[i] });
@@ -57099,14 +57401,169 @@
 					//cardsToDestroy.push(card);
 					setTimeout(function () {
 						this.destroyCards(cardsToDestroy, card, autoDestroyCardData, starterLife + 1);
-					}.bind(this), 300);
+					}.bind(this), 200);
 					//this.destroyCards(cardsToDestroy);			
 				}
 	
-				setTimeout(function () {
-					this.updateCardsCounter(-1);
-				}.bind(this), 350);
+				// setTimeout(function() {
+				// 	this.updateCardsCounter(-1);
+				// }.bind(this), 350);
 			}
+		}, {
+			key: 'destroyCards',
+			value: function destroyCards(list, card, autoDestroyCardData, hits) {
+				var timeline = new TimelineLite();
+				TweenLite.killTweensOf(card);
+				for (var i = 0; i < list.length; i++) {
+					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
+	
+					timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
+						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone, i + 1],
+						onStart: function (arrow, zone, id) {
+							TweenLite.to(arrow.scale, 0.3, { x: 0, y: 0, ease: Back.easeIn });
+							TweenLite.to(arrow.scale, 0.3, { delay: 0.3, x: 1, y: 1, ease: Back.easeOut });
+	
+							TweenLite.to(arrow, 0.05, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
+							TweenLite.to(arrow, 0.2, { delay: 0.2, x: arrow.x, y: arrow.y, ease: Back.easeIn });
+							var arrowGlobal = arrow.getGlobalPosition({ x: 0, y: 0 });
+							var screenPos = {
+								x: arrowGlobal.x / _config2.default.width,
+								y: arrowGlobal.y / _config2.default.height
+							};
+							window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
+							this.game.addPoints(10 * id);
+							this.popLabel(arrowGlobal, 10 * id, 0, 1, 1 + id * 0.15);
+							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
+						}.bind(this),
+						onCompleteParams: [card, list[i].cardFound],
+						onComplete: function (card, cardFound) {
+							// console.log(card.life + 1);					
+							this.attackCard(cardFound, hits);
+						}.bind(this) }));
+				}
+				if (autoDestroyCardData) {
+					// console.log(	autoDestroyCardData);
+					// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
+					setTimeout(function () {
+						var arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition({ x: 0, y: 0 });
+						this.popLabel(arrowGlobal, "COUNTER", 0.4, -0.5);
+						// this.popLabel(arrowGlobal,list.length* 10);
+						this.delayedDestroy(card, autoDestroyCardData.hits);
+					}.bind(this), list.length * 200);
+				} else {
+					card.convertCard();
+				}
+			}
+		}, {
+			key: 'popLabel',
+			value: function popLabel(pos, label) {
+				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+				var dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+				var scale = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+	
+				var tempLabel = new PIXI.Text(label, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.game.addChild(tempLabel);
+				tempLabel.x = pos.x;
+				tempLabel.y = pos.y;
+				tempLabel.pivot.x = tempLabel.width / 2;
+				tempLabel.pivot.y = tempLabel.height / 2;
+				tempLabel.alpha = 0;
+				tempLabel.scale.set(0);
+				TweenLite.to(tempLabel.scale, 0.3, { x: scale, y: scale, ease: Back.easeOut });
+				TweenLite.to(tempLabel, 1, { delay: delay, y: tempLabel.y - 50 * dir, onStartParams: [tempLabel], onStart: function onStart(temp) {
+						temp.alpha = 1;
+					} });
+				TweenLite.to(tempLabel, 0.5, { delay: 0.5 + delay, alpha: 0, onCompleteParams: [tempLabel], onComplete: function onComplete(temp) {
+						temp.parent.removeChild(temp);
+					} });
+			}
+		}, {
+			key: 'attackCard',
+			value: function attackCard(card, hits) {
+				// console.log(card);
+				if (card.attacked(hits)) {
+					this.cards[card.pos.i][card.pos.j] = 0;
+					card.destroy();
+					card.convertCard();
+				}
+			}
+		}, {
+			key: 'delayedDestroy',
+			value: function delayedDestroy(card, hits) {
+				this.attackCard(card, hits);
+			}
+		}, {
+			key: 'getOpposite',
+			value: function getOpposite(zone) {
+				var id = 0;
+				for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
+					if (ACTION_ZONES[i].label == zone) {
+						id = i;
+						break;
+					}
+				}
+				var opposit = ACTION_ZONES[(id + ACTION_ZONES.length / 2) % ACTION_ZONES.length].label;
+				return opposit;
+			}
+		}, {
+			key: 'update',
+			value: function update(delta) {
+				for (var i = 0; i < this.cards.length; i++) {
+					for (var j = 0; j < this.cards[i].length; j++) {
+						if (this.cards[i][j]) {
+							this.cards[i][j].update(delta);
+						}
+					}
+				}
+			}
+		}, {
+			key: 'destroyBoard',
+			value: function destroyBoard() {
+				for (var i = 0; i < this.cards.length; i++) {
+					for (var j = 0; j < this.cards[i].length; j++) {
+						if (this.cards[i][j]) {
+							this.cards[i][j].forceDestroy();
+						}
+					}
+				}
+			}
+		}, {
+			key: 'debugBoard2',
+			value: function debugBoard2() {
+				for (var i = 0; i < this.cards.length; i++) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+		}, {
+			key: 'debugBoard',
+			value: function debugBoard() {
+				for (var i = this.cards.length - 1; i >= 0; i--) {
+					var str = i + 1 + '---  ';
+					for (var j = 0; j < this.cards[i].length; j++) {
+						str += (this.cards[i][j] || "0") + ' - ';
+					}
+					console.log(str);
+				}
+			}
+			// moveCardDown(card){
+			// 	this.cards[card.pos.i][card.pos.j] = 0;
+			// 	card.pos.j ++;
+			// 	if(card.pos.j >= GRID.j){
+			// 		card.destroy();
+			// 		//GAME OVER AQUI
+			// 		return;
+			// 	}
+			// 	this.addCard(card);
+			// 	card.move({
+			// 		x: card.pos.i * CARD.width,
+			// 		y: card.pos.j * CARD.height
+			// 	}, 0.2, 0.5);
+			// }
+	
 		}, {
 			key: 'updateCardsCounter',
 			value: function updateCardsCounter(value, card) {
@@ -57147,122 +57604,6 @@
 					this.moveCardDown(moveDownList[i]);
 				}
 				console.log(moveDownList);
-			}
-		}, {
-			key: 'destroyCards',
-			value: function destroyCards(list, card, autoDestroyCardData, hits) {
-				var timeline = new TimelineLite();
-				for (var i = 0; i < list.length; i++) {
-					//timeline.append(TweenLite.to(list[i].currentCard.getArrow(list[i].attackZone.label).scale, 0.1, {x:0, y:0}))
-	
-					timeline.append(TweenLite.to(list[i].cardFound, 0.3, {
-						onStartParams: [list[i].currentCard.getArrow(list[i].attackZone.label), list[i].attackZone, i + 1],
-						onStart: function (arrow, zone, id) {
-							// TweenLite.to(arrow.scale, 0.3, {x:0, y:0, ease:Back.easeIn})
-	
-							TweenLite.to(arrow, 0.05, { x: arrow.x + 10 * zone.dir.x, y: arrow.y + 10 * zone.dir.y, ease: Back.easeIn });
-							TweenLite.to(arrow, 0.2, { delay: 0.2, x: arrow.x, y: arrow.y, ease: Back.easeIn });
-							var arrowGlobal = arrow.getGlobalPosition({ x: 0, y: 0 });
-							var screenPos = {
-								x: arrowGlobal.x / _config2.default.width,
-								y: arrowGlobal.y / _config2.default.height
-							};
-							window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
-							this.popLabel(arrowGlobal, 10 * id);
-							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
-						}.bind(this),
-						onCompleteParams: [card, list[i].cardFound],
-						onComplete: function (card, cardFound) {
-							console.log(card.life + 1);
-							this.attackCard(cardFound, hits);
-							// if(card.attacked()){
-							// 	this.cards[card.pos.i][card.pos.j] = 0;						
-							// 	card.destroy();
-							// 	card.convertCard();
-							// }
-						}.bind(this) }));
-				}
-				if (autoDestroyCardData) {
-					// console.log(	autoDestroyCardData);
-					// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
-					setTimeout(function () {
-						var arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition({ x: 0, y: 0 });
-						this.popLabel(arrowGlobal, "COUNTER", 0.4, -0.5);
-						// this.popLabel(arrowGlobal,list.length* 10);
-						this.delayedDestroy(card, autoDestroyCardData.hits);
-					}.bind(this), list.length * 200);
-				} else {
-					card.convertCard();
-				}
-			}
-		}, {
-			key: 'popLabel',
-			value: function popLabel(pos, label) {
-				var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-				var dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-	
-				var tempLabel = new PIXI.Text(label, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
-				this.game.addChild(tempLabel);
-				tempLabel.x = pos.x;
-				tempLabel.y = pos.y;
-				tempLabel.pivot.x = tempLabel.width / 2;
-				tempLabel.pivot.y = tempLabel.height / 2;
-				tempLabel.alpha = 0;
-				TweenLite.to(tempLabel, 1, { delay: delay, y: tempLabel.y - 50 * dir, onStartParams: [tempLabel], onStart: function onStart(temp) {
-						temp.alpha = 1;
-					} });
-				TweenLite.to(tempLabel, 0.5, { delay: 0.5 + delay, alpha: 0, onCompleteParams: [tempLabel], onComplete: function onComplete(temp) {
-						temp.parent.removeChild(temp);
-					} });
-			}
-		}, {
-			key: 'attackCard',
-			value: function attackCard(card, hits) {
-				if (card.attacked(hits)) {
-					this.cards[card.pos.i][card.pos.j] = 0;
-					card.destroy();
-					card.convertCard();
-				}
-			}
-		}, {
-			key: 'delayedDestroy',
-			value: function delayedDestroy(card, hits) {
-				this.attackCard(card, hits);
-			}
-		}, {
-			key: 'getOpposite',
-			value: function getOpposite(zone) {
-				var id = 0;
-				for (var i = ACTION_ZONES.length - 1; i >= 0; i--) {
-					if (ACTION_ZONES[i].label == zone) {
-						id = i;
-						break;
-					}
-				}
-				var opposit = ACTION_ZONES[(id + ACTION_ZONES.length / 2) % ACTION_ZONES.length].label;
-				return opposit;
-			}
-		}, {
-			key: 'debugBoard2',
-			value: function debugBoard2() {
-				for (var i = 0; i < this.cards.length; i++) {
-					var str = i + 1 + '---  ';
-					for (var j = 0; j < this.cards[i].length; j++) {
-						str += (this.cards[i][j] || "0") + ' - ';
-					}
-					console.log(str);
-				}
-			}
-		}, {
-			key: 'debugBoard',
-			value: function debugBoard() {
-				for (var i = this.cards.length - 1; i >= 0; i--) {
-					var str = i + 1 + '---  ';
-					for (var j = 0; j < this.cards[i].length; j++) {
-						str += (this.cards[i][j] || "0") + ' - ';
-					}
-					console.log(str);
-				}
 			}
 		}]);
 	
@@ -57318,7 +57659,7 @@
 					_this.bgImage.anchor.x = 0.5;
 					_this.bgImage.x = _config2.default.width / 2;
 					_this.bgImage.y = _config2.default.height - _this.bgImage.height;
-					_this.addChild(_this.bgImage);
+					// this.addChild(this.bgImage);
 	
 					_this.bgImageTop = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
 					_this.bgImageTop.anchor.x = 0.5;

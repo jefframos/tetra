@@ -13,7 +13,7 @@ export default class BackgroundEffects extends PIXI.Container{
 		this.bgImage.anchor.x = 0.5
 		this.bgImage.x = config.width / 2;
 		this.bgImage.y = config.height - this.bgImage.height;
-		this.addChild(this.bgImage);
+		// this.addChild(this.bgImage);
 
 		this.bgImageTop  = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
 		this.bgImageTop.anchor.x = 0.5

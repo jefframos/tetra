@@ -76,7 +76,7 @@ PIXI.loader
 	.add('./assets/images/glitch1.jpg')
 	.add('./assets/images/glitch2.jpg')
 	.add('./assets/images/screen_displacement.jpg')
-	.add('./assets/images/map.jpg')
+	// .add('./assets/images/map.jpg')
 	.load(configGame);
 
 function configGame(){
