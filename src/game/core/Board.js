@@ -43,7 +43,6 @@ export default class Board{
 		for (var i = this.cards[laneID].length-1; i >= 0; i--) {
 			if(!this.cards[laneID][i]){
 				spaceID = i;
-				//break;
 			}else{
 				break;
 			}
@@ -52,14 +51,15 @@ export default class Board{
 			card.pos.i = laneID;
 			card.pos.j = spaceID;
 			this.addCard(card);
-			setTimeout(function() {
+			// setTimeout(function() {
 				// console.log(card);
-				this.updateRound(card);				
-			}.bind(this), 50);
+			return	this.updateRound(card);				
+			// }.bind(this), 50);
 		}
 	}
 
-	updateRound(card){
+	updateRound(card, crazyMood = false){
+		// crazyMood = false
 		let zones = card.zones;
 		let findCards = false;
 		let cardFound = null;
@@ -74,11 +74,11 @@ export default class Board{
 			if((actionPosId.i >= 0 && actionPosId.i < window.GRID.i)&&
 				(actionPosId.j >= 0 && actionPosId.j < window.GRID.j)){
 				cardFound = this.cards[actionPosId.i][actionPosId.j];
-				if(cardFound){		
+				if(cardFound && cardFound.isCard){		
 					findCards = true;
 
 					let tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
-					if(tempZone && !autoDestroyCardData){
+					if(tempZone && !autoDestroyCardData && !crazyMood){
 						autoDestroyCardData = {
 							card: card,
 							zone: tempZone,
@@ -91,24 +91,72 @@ export default class Board{
 				}				
 			}
 		}
+		if(crazyMood){
+			autoDestroyCardData = null;
+		}
 		card.type = 0;
 		if(!findCards){
 			card.type = 0;
 			card.updateCard();
+			return 100;
 		}else{
-			//cardsToDestroy.push(card);
 			setTimeout(function() {
 				this.destroyCards(cardsToDestroy, card, autoDestroyCardData, starterLife + 1);		
 			}.bind(this), 200);
-			//this.destroyCards(cardsToDestroy);			
+			return 200 + 300 * (cardsToDestroy.length + 1)
 		}
-
-		// setTimeout(function() {
-		// 	this.updateCardsCounter(-1);
-		// }.bind(this), 350);
 		
 	}
 	
+	areaAttack(card, cardToIgnore){
+		let zones = card.zones;
+		let cardFound = null;
+		console.log("AREA ATTACK", zones);
+		for (var i = 0; i < zones.length; i++) {
+			let actionPosId = {
+				i:card.pos.i +zones[i].dir.x,
+				j:card.pos.j +zones[i].dir.y
+			}
+			if(//(cardToIgnore.pos.i != card.pos.i && cardToIgnore.pos.j != card.pos.j )&&
+				(actionPosId.i >= 0 && actionPosId.i < window.GRID.i)&&
+				(actionPosId.j >= 0 && actionPosId.j < window.GRID.j)){
+				cardFound = this.cards[actionPosId.i][actionPosId.j];
+				if(cardFound && !cardFound.dead){		
+					// findCards = true;					
+					//this.cards[actionPosId.i][actionPosId.j] = 0
+
+					let cardGlobal = cardFound.getGlobalPosition ({x:0, y:0});
+					cardGlobal.x += CARD.width / 2;
+					cardGlobal.y += CARD.height / 2;
+					this.game.addPoints(30);
+					this.popLabel(cardGlobal,"+"+10 * 3, 0, 0.1, 1.25);
+					//cardsToDestroy.push({cardFound:cardFound, currentCard: card, attackZone:zones[i]});
+					this.attackCard(cardFound, 1);
+					cardFound = null;
+				}				
+			}
+		}
+	}
+
+	addCrazyCards(numCards, cardToIgnore){
+		let tempCardList = [];
+		for (var i = 0; i < this.cards.length; i++) {
+			for (var j = 0; j < this.cards[i].length; j++) {
+				if(this.cards[i][j] && !this.cards[i][j].crazyMood && cardToIgnore != this.cards[i][j]){
+					tempCardList.push(this.cards[i][j]);
+				}
+			}
+		}
+		utils.shuffle(tempCardList);
+		for (var i = 0; i < tempCardList.length; i++) {
+			tempCardList[i].startCrazyMood();
+			numCards --;
+			if(numCards <= 0){
+				return
+			}
+		}
+	}
+
 	destroyCards(list, card, autoDestroyCardData, hits){
 		let timeline = new TimelineLite();
 		TweenLite.killTweensOf(card);
@@ -130,31 +178,47 @@ export default class Board{
 					}
 					window.EFFECTS.addShockwave(screenPos.x,screenPos.y,2);
 					this.game.addPoints(10 * id);
-					this.popLabel(arrowGlobal,10 * id , 0, 1, 1 + id * 0.15);
+					this.popLabel(arrowGlobal,"+"+10 * id , 0, 1, 1 + id * 0.15);
 					window.EFFECTS.shakeSplitter(0.2,3,0.5);
 				}.bind(this),
 				onCompleteParams:[card, list[i].cardFound],
-				onComplete:function(card, cardFound){
-					// console.log(card.life + 1);					
-					this.attackCard(cardFound, hits);
+				onComplete:function(card, cardFound){		
+					if(this.attackCard(cardFound, hits)){	
+						if(cardFound.crazyMood){
+							this.areaAttack(cardFound, card);
+						}
+					}
 				}.bind(this)}));
 
 		}
-		if(autoDestroyCardData){
-			// console.log(	autoDestroyCardData);
-			// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
+		let totalHits = list.length + (autoDestroyCardData ? 1 : 0);
+		if(totalHits > 2){
 			setTimeout(function() {
-				let arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition ({x:0, y:0});
-				this.popLabel(arrowGlobal,"COUNTER", 0.4, -0.5);
-				// this.popLabel(arrowGlobal,list.length* 10);
+				this.addCrazyCards(totalHits - 2, card);
+			}.bind(this), list.length*310);
+		}
+		if(autoDestroyCardData){
+			setTimeout(function() {
+				let arrow = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label));
+				if(!arrow){
+					return;
+				}
+				let arrowGlobal = arrow.getGlobalPosition ({x:0, y:0});
 				this.delayedDestroy(card, autoDestroyCardData.hits);
+
+				let counterHits = (list.length + 1);
+				this.game.addPoints(10 * counterHits);
+
+				this.popLabel(arrowGlobal,"+"+10 * counterHits + "\nCOUNTER", 0.4, -0.5, 1 + counterHits * 0.15);
+				// this.popLabel(arrowGlobal,10 * counterHits , 0.1, -0.5, 1 + counterHits * 0.15);
+
 			}.bind(this), list.length * 200);
 		}else{			
 			card.convertCard();
 		}
 	}
 	popLabel(pos, label, delay = 0, dir = 1, scale = 1){
-		let tempLabel = new PIXI.Text(label,{font : '20px', fill : 0xFFFFFF, align : 'right', fontWeight : '800'});
+		let tempLabel = new PIXI.Text(label,{font : '20px', fill : 0xFFFFFF, align : 'center', fontWeight : '800'});
 		this.game.addChild(tempLabel);
 		tempLabel.x = pos.x;
 		tempLabel.y = pos.y;
@@ -176,6 +240,7 @@ export default class Board{
 			this.cards[card.pos.i][card.pos.j] = 0;						
 			card.destroy();
 			card.convertCard();
+			return true;
 		}
 	}
 	delayedDestroy(card, hits){
@@ -196,7 +261,7 @@ export default class Board{
 	update(delta){
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = 0; j < this.cards[i].length; j++) {
-				if(this.cards[i][j]){
+				if(this.cards[i][j] && this.cards[i][j].update){
 					this.cards[i][j].update(delta);
 				}
 			}

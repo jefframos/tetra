@@ -41604,7 +41604,7 @@
 		return teste;
 	}; //('hided warnings')
 	
-	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/screen_displacement.jpg')
+	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/particle1.png').add('./assets/images/screen_displacement.jpg').add('./assets/images/block.jpg')
 	// .add('./assets/images/map.jpg')
 	.load(configGame);
 	
@@ -56438,6 +56438,10 @@
 	
 	var _Card2 = _interopRequireDefault(_Card);
 	
+	var _Block = __webpack_require__(261);
+	
+	var _Block2 = _interopRequireDefault(_Block);
+	
 	var _Board = __webpack_require__(254);
 	
 	var _Board2 = _interopRequireDefault(_Board);
@@ -56464,22 +56468,32 @@
 	
 			var _this = _possibleConstructorReturn(this, (TetraScreen.__proto__ || Object.getPrototypeOf(TetraScreen)).call(this, label));
 	
+			window.ENEMIES = {
+				list: [{ color: 0x61C6CE, life: 0 }, { color: 0xD81639, life: 1 }, { color: 0xE2C756, life: 2 }, { color: 0x7BCA93, life: 3 }, { color: 0x1376B9, life: 4 }, { color: 0xDD6290, life: 5 }, { color: 0xFF2320, life: 6 }]
+			};
 			window.ACTION_ZONES = [{ label: "TOP_LEFT", pos: { x: 0, y: 0 }, dir: { x: -1, y: -1 } }, { label: "TOP_CENTER", pos: { x: 1, y: 0 }, dir: { x: 0, y: -1 } }, { label: "TOP_RIGHT", pos: { x: 2, y: 0 }, dir: { x: 1, y: -1 } }, { label: "CENTER_RIGHT", pos: { x: 2, y: 1 }, dir: { x: 1, y: 0 } }, { label: "BOTTOM_RIGHT", pos: { x: 2, y: 2 }, dir: { x: 1, y: 1 } }, { label: "BOTTOM_CENTER", pos: { x: 1, y: 2 }, dir: { x: 0, y: 1 } }, { label: "BOTTOM_LEFT", pos: { x: 0, y: 2 }, dir: { x: -1, y: 1 } }, { label: "CENTER_LEFT", pos: { x: 0, y: 1 }, dir: { x: -1, y: 0 } }];
+			var a = -1;
+			var b = -2;
+	
+			_this.levels = [[[6, 6, 6, 6, 6], [5, 5, 5, 5, 5], [4, 4, 4, 4, 4], [3, 3, 3, 3, 3], [2, 2, 2, 2, 2], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a]], [[a, 6, 6, 6, a], [6, 6, 6, 6, 6], [6, b, 6, b, 6], [6, 6, 6, 6, 6], [a, 6, b, 6, a], [a, 6, 6, 6, a], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a]]];
+			_this.currentLevelID = 0;
+			if (window.location.hash) {
+				var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+				if (hash < _this.levels.length) {
+					_this.currentLevelID = hash;
+				}
+			}
 	
 			window.GRID = {
-				i: window.location.hash ? window.location.hash[1] : 5,
-				j: 10,
-				height: _config2.default.height * 0.7,
+				i: _this.levels[_this.currentLevelID][0].length,
+				j: _this.levels[_this.currentLevelID].length,
+				height: _config2.default.height * 0.8,
 				width: _config2.default.width * 0.7
 			};
 	
 			window.CARD = {
 				width: GRID.height / GRID.j,
 				height: GRID.height / GRID.j //GRID.height / GRID.j
-			};
-	
-			window.ENEMIES = {
-				list: [{ color: 0x61C6CE, life: 0 }, { color: 0xD81639, life: 1 }, { color: 0xE2C756, life: 2 }, { color: 0x7BCA93, life: 3 }, { color: 0x1376B9, life: 4 }, { color: 0xDD6290, life: 5 }, { color: 0xFF2320, life: 6 }]
 			};
 	
 			window.GRID.width = window.GRID.i * CARD.width;
@@ -56506,10 +56520,53 @@
 		}
 	
 		_createClass(TetraScreen, [{
+			key: 'getRect',
+			value: function getRect() {
+				var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+				var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0xFFFFFF;
+	
+				return new PIXI.Graphics().beginFill(color).drawRect(0, 0, size, size);
+			}
+		}, {
+			key: 'generateImage',
+			value: function generateImage(level) {
+				var container = new PIXI.Container();
+				var tempRect = null;
+				var size = 16;
+				for (var i = 0; i < this.level.length; i++) {
+					for (var j = 0; j < this.level[i].length; j++) {
+						if (this.level[i][j] >= 0) {
+							// this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.level[i][j]].life));
+							tempRect = this.getRect(size, ENEMIES.list[this.level[i][j]].color);
+							container.addChild(tempRect);
+							tempRect.x = j * size;
+							tempRect.y = i * size;
+						} else if (this.level[i][j] == -2) {
+							tempRect = this.getRect(size, 0x333333);
+							container.addChild(tempRect);
+							tempRect.x = j * size;
+							tempRect.y = i * size;
+						} else {
+							tempRect = this.getRect(size, 0x000000);
+							container.addChild(tempRect);
+							tempRect.x = j * size;
+							tempRect.y = i * size;
+						}
+					}
+				}
+				return container;
+			}
+		}, {
 			key: 'buildUI',
 			value: function buildUI() {
 				this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
 				this.roundsLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+	
+				this.pointsLabelStatic = new PIXI.Text("POINTS", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.roundsLabelStatic = new PIXI.Text("MOVES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+	
+				this.UIContainer.addChild(this.pointsLabelStatic);
+				this.UIContainer.addChild(this.roundsLabelStatic);
 				this.UIContainer.addChild(this.pointsLabel);
 				this.UIContainer.addChild(this.roundsLabel);
 	
@@ -56536,11 +56593,22 @@
 	
 				this.cardQueueContainer.x = this.gridContainer.x + this.gridContainer.width + 5;
 				this.cardQueueContainer.y = this.gridContainer.y + GRID.j * CARD.height - CARD.height * this.cardQueueSize;
-				this.pointsLabel.x = this.cardQueueContainer.x;
-				this.pointsLabel.y = this.gridContainer.y;
 	
-				this.roundsLabel.x = this.cardQueueContainer.x;
-				this.roundsLabel.y = this.pointsLabel.y + 40;
+				this.pointsLabelStatic.x = 10;
+				this.pointsLabelStatic.y = 10;
+	
+				this.pointsLabel.x = this.pointsLabelStatic.x;
+				this.pointsLabel.y = this.pointsLabelStatic.y + 20;
+	
+				this.roundsLabelStatic.x = _config2.default.width / 2;
+				this.roundsLabelStatic.y = 10;
+	
+				this.roundsLabel.x = this.roundsLabelStatic.x;
+				this.roundsLabel.y = this.roundsLabelStatic.y + 20;
+	
+				// this.addChild(this.generateImage(this.level1))
+	
+				this.gridContainer.alpha = 0;
 				this.updateUI();
 			}
 		}, {
@@ -56617,9 +56685,14 @@
 				this.cardQueue = [];
 				if (this.currentCard) this.currentCard.forceDestroy();
 				this.currentCard = null;
-				for (var i = 0; i < this.totalLines; i++) {
-					for (var j = 0; j < GRID.i; j++) {
-						this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.totalLines - i].life));
+	
+				for (var i = 0; i < this.levels[this.currentLevelID].length; i++) {
+					for (var j = 0; j < this.levels[this.currentLevelID][i].length; j++) {
+						if (this.levels[this.currentLevelID][i][j] >= 0) {
+							this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.levels[this.currentLevelID][i][j]].life));
+						} else if (this.levels[this.currentLevelID][i][j] == -2) {
+							this.cardsContainer.addChild(this.placeBlock(j, i));
+						}
 					}
 				}
 	
@@ -56627,7 +56700,7 @@
 				this.currentPointsLabel = 0;
 				this.currentRound = 0;
 	
-				this.startButton.x = 6;
+				this.startButton.x = _config2.default.width - this.startButton.width - 6;
 				this.startButton.y = 6;
 				// this.board.debugBoard();
 	
@@ -56635,6 +56708,7 @@
 	
 				this.newRound();
 	
+				_gsap2.default.to(this.gridContainer, 0.5, { alpha: .3 });
 				this.currentButtonLabel = 'RESET';
 			}
 		}, {
@@ -56676,7 +56750,7 @@
 				while (this.cardQueue.length < this.cardQueueSize) {
 					var card = void 0;
 					if (CARD_POOL.length) {
-						console.log(CARD_POOL);
+						// console.log(CARD_POOL);
 						card = CARD_POOL[0];
 						CARD_POOL.shift();
 					} else {
@@ -56705,7 +56779,7 @@
 				this.currentCard.x = CARD.width * this.mousePosID;
 				this.currentCard.y = this.gridContainer.height + 100;
 				this.currentCard.alpha = 0;
-				_gsap2.default.to(this.currentCard, 0.3, { alpha: 1, y: this.gridContainer.height + 30, ease: Elastic.easeOut });
+				_gsap2.default.to(this.currentCard, 0.3, { alpha: 1, y: this.gridContainer.height, ease: Elastic.easeOut });
 				this.currentCard.updateCard();
 				this.cardsContainer.addChild(this.currentCard);
 			}
@@ -56716,7 +56790,7 @@
 	
 				var card = void 0;
 				if (CARD_POOL.length) {
-					console.log(CARD_POOL);
+					// console.log(CARD_POOL);
 					card = CARD_POOL[0];
 					CARD_POOL.shift();
 				} else {
@@ -56735,6 +56809,30 @@
 				this.board.addCard(card);
 				// this.CARD_POOL.push(card);
 				return card;
+			}
+		}, {
+			key: 'placeBlock',
+			value: function placeBlock(i, j) {
+				var block = void 0;
+				// if(CARD_POOL.length){
+				// 	// console.log(CARD_POOL);
+				// 	block = CARD_POOL[0];
+				// 	CARD_POOL.shift();
+				// }else{
+				// }
+				block = new _Block2.default(this);
+				// block.createCard();
+				block.x = i * CARD.width;
+				block.y = j * CARD.height - CARD.height;
+				// card.cardContainer.scale.set(1.2 - j * 0.05)
+				block.alpha = 0;
+				_gsap2.default.to(block, 0.5, { alpha: 1, delay: i * 0.05, y: j * CARD.height, ease: Back.easeOut });
+				block.pos.i = i;
+				block.pos.j = j;
+				// block.updateCard();
+				this.board.addCard(block);
+				// this.CARD_POOL.push(card);
+				return block;
 			}
 		}, {
 			key: 'update',
@@ -56807,7 +56905,7 @@
 				}
 	
 				this.currentRound++;
-				this.board.shootCard(this.mousePosID, this.currentCard);
+				var nextRoundTimer = this.board.shootCard(this.mousePosID, this.currentCard);
 				var normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
 				this.currentCard.move({
 					x: this.currentCard.pos.i * CARD.width,
@@ -56819,7 +56917,9 @@
 				// console.log(0.1 * normalDist * 100);
 				setTimeout(function () {
 					this.newRound();
-				}.bind(this), 0.1 * normalDist * 100 + 500);
+				}.bind(this), 0.1 * normalDist + nextRoundTimer);
+	
+				// console.log(nextRoundTimer);
 			}
 		}, {
 			key: 'onTapDown',
@@ -56981,6 +57081,10 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
+	var _ParticleSystem = __webpack_require__(260);
+	
+	var _ParticleSystem2 = _interopRequireDefault(_ParticleSystem);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -57000,6 +57104,7 @@
 			var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
 	
 			window.CARD_NUMBER++;
+			_this.isCard = true;
 			_this.game = game;
 			_this.zones = [];
 			_this.arrows = [];
@@ -57012,17 +57117,30 @@
 			var card = new PIXI.Container();
 			_this.counter = _this.MAX_COUNTER;
 			_this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+			_this.circleBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawCircle(0, 0, CARD.width / 2);
 			_this.cardBackground3 = new PIXI.Graphics().beginFill(0x000000).drawRect(CARD.width / 2 - 10, CARD.height / 2, 19, 10);
-			_this.cardBackground2 = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+			_this.enemySprite = PIXI.Sprite.fromImage('./assets/images/enemy.png');
 	
-			_this.cardBackground2.scale.set(_this.cardBackground2.height / CARD.height * 0.8);
+			_this.enemySprite.scale.set(_this.enemySprite.height / CARD.height * 1);
+			_this.enemySprite.anchor.set(0.5);
+	
+			_this.cardBackground.alpha = 0;
+			_this.circleBackground.alpha = 0;
+	
+			_this.enemySprite.x = CARD.width / 2;
+			_this.enemySprite.y = CARD.height / 2;
+	
+			_this.circleBackground.x = CARD.width / 2;
+			_this.circleBackground.y = CARD.height / 2;
 	
 			var cardContainer = new PIXI.Container();
 			_this.cardActions = new PIXI.Container();
 			card.addChild(cardContainer);
+			// cardContainer.addChild(this.cardBackground);
+			cardContainer.addChild(_this.circleBackground);
 			cardContainer.addChild(_this.cardActions);
-			cardContainer.addChild(_this.cardBackground3);
-			cardContainer.addChild(_this.cardBackground2);
+			// cardContainer.addChild(this.cardBackground3);
+			cardContainer.addChild(_this.enemySprite);
 	
 			_this.lifeContainer = new PIXI.Container();
 			cardContainer.addChild(_this.lifeContainer);
@@ -57038,7 +57156,8 @@
 			_this.label = new PIXI.Text(_this.counter, { font: '20px', fill: 0x000000, align: 'right' });
 			// cardContainer.addChild(this.label);
 			_utils2.default.centerObject(_this.label, _this.cardBackground);
-			_utils2.default.centerObject(_this.cardBackground2, _this.cardBackground);
+			// utils.centerObject(this.enemySprite, this.cardBackground);
+	
 	
 			_this.cardContainer = cardContainer; //card;
 			_this.addChild(card);
@@ -57046,16 +57165,39 @@
 			cardContainer.x = CARD.width / 2;
 	
 			_this.initGridAcc = Math.random();
+	
+			// this.crazyMood = Math.random() < 0.5;
+	
+			_this.starterScale = _this.enemySprite.scale.x;
+	
+			// this.particleSystem = new ParticleSystem();
+			// this.particleSystem.createParticles({x:0, y:0},4, './assets/images/particle1.png')
+			// this.addChild(this.particleSystem)
 			return _this;
 		}
 	
 		_createClass(Card, [{
-			key: 'start',
-			value: function start() {}
+			key: 'startCrazyMood',
+			value: function startCrazyMood() {
+				this.crazyMood = true;
+				this.circleBackground.alpha = 0.2;
+				this.circleBackground.scale.set(0);
+				TweenLite.to(this.circleBackground.scale, 0.5, { x: 1, y: 1, ease: Elastic.easeOut });
+			}
+		}, {
+			key: 'removeCrazyMood',
+			value: function removeCrazyMood() {
+				this.crazyMood = false;
+				this.circleBackground.alpha = 0.0;
+			}
 		}, {
 			key: 'createCard',
 			value: function createCard() {
 				this.alpha = 1;
+				this.crazyMood = false;
+				this.removeCrazyMood();
+	
+				this.dead = false;
 	
 				this.zones = [];
 				this.arrows = [];
@@ -57122,7 +57264,7 @@
 				// console.log(this.life);
 				for (var i = 0; i < ENEMIES.list.length; i++) {
 					if (ENEMIES.list[i].life == this.life) {
-						this.cardBackground2.tint = ENEMIES.list[i].color;
+						this.enemySprite.tint = ENEMIES.list[i].color;
 					}
 				}
 				if (this.life < 1) {
@@ -57225,20 +57367,47 @@
 		}, {
 			key: 'update',
 			value: function update(delta) {
-	
-				this.cardBackground2.y = 5 + Math.sin(this.initGridAcc) * 2;
-				this.cardBackground3.y = this.cardBackground2.y - 10;
+				// this.particleSystem.update(delta);
+				this.enemySprite.y = CARD.height / 2 + Math.sin(this.initGridAcc) * 2;
+				this.cardBackground3.y = this.enemySprite.y - 10;
 				this.initGridAcc += 0.05;
+				if (this.crazyMood) {
+	
+					this.initGridAcc += 0.25;
+	
+					this.enemySprite.y = CARD.height / 2 + Math.sin(this.initGridAcc) * 5;
+					this.enemySprite.scale.x = this.starterScale + Math.cos(this.initGridAcc) * 0.1;
+					this.enemySprite.scale.y = this.starterScale + Math.sin(this.initGridAcc) * 0.1;
+	
+					this.circleBackground.alpha = 0.2 + 0.1 * Math.cos(this.initGridAcc);
+				} else if (this.enemySprite.scale.x != this.starterScale || this.enemySprite.scale.y != this.starterScale) {
+					this.enemySprite.scale.set(this.starterScale);
+				}
 			}
 		}, {
 			key: 'destroy',
 			value: function destroy() {
+				// if(!this.parent){
+				// 	return
+				// }
+				if (this.dead) {
+					TweenLite.killTweensOf(this);
+					console.log("FORCE THIS CARD TO DIE");
+					return false;
+					this.forceDestroy();
+				}
+				// this.removeCrazyMood();
 				this.shake(0.2, 6, 0.2);
+				TweenLite.killTweensOf(this);
+	
+				this.dead = true;
+	
+				if (this.crazyMood) {
+					TweenLite.to(this.circleBackground.scale, 0.5, { x: 2, y: 2, ease: Elastic.easeOut });
+				}
 				// TweenLite.to(this.cardContainer.scale, 0.2, {x:this.cardContainer.scale.x + 0.3, y:this.cardContainer.scale.y + 0.3})			
 				TweenLite.to(this, 0.2, { delay: 0.2, alpha: 0.5, onComplete: function () {
-						this.parent.removeChild(this);
-						this.removeActionZones();
-						window.CARD_POOL.push(this);
+						this.forceDestroy();
 					}.bind(this) });
 			}
 		}, {
@@ -57345,7 +57514,6 @@
 				for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
 					if (!this.cards[laneID][i]) {
 						spaceID = i;
-						//break;
 					} else {
 						break;
 					}
@@ -57354,15 +57522,18 @@
 					card.pos.i = laneID;
 					card.pos.j = spaceID;
 					this.addCard(card);
-					setTimeout(function () {
-						// console.log(card);
-						this.updateRound(card);
-					}.bind(this), 50);
+					// setTimeout(function() {
+					// console.log(card);
+					return this.updateRound(card);
+					// }.bind(this), 50);
 				}
 			}
 		}, {
 			key: 'updateRound',
 			value: function updateRound(card) {
+				var crazyMood = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+	
+				// crazyMood = false
 				var zones = card.zones;
 				var findCards = false;
 				var cardFound = null;
@@ -57376,11 +57547,11 @@
 					};
 					if (actionPosId.i >= 0 && actionPosId.i < window.GRID.i && actionPosId.j >= 0 && actionPosId.j < window.GRID.j) {
 						cardFound = this.cards[actionPosId.i][actionPosId.j];
-						if (cardFound) {
+						if (cardFound && cardFound.isCard) {
 							findCards = true;
 	
 							var tempZone = cardFound.hasZone(this.getOpposite(zones[i].label));
-							if (tempZone && !autoDestroyCardData) {
+							if (tempZone && !autoDestroyCardData && !crazyMood) {
 								autoDestroyCardData = {
 									card: card,
 									zone: tempZone,
@@ -57393,21 +57564,70 @@
 						}
 					}
 				}
+				if (crazyMood) {
+					autoDestroyCardData = null;
+				}
 				card.type = 0;
 				if (!findCards) {
 					card.type = 0;
 					card.updateCard();
+					return 100;
 				} else {
-					//cardsToDestroy.push(card);
 					setTimeout(function () {
 						this.destroyCards(cardsToDestroy, card, autoDestroyCardData, starterLife + 1);
 					}.bind(this), 200);
-					//this.destroyCards(cardsToDestroy);			
+					return 200 + 300 * (cardsToDestroy.length + 1);
 				}
+			}
+		}, {
+			key: 'areaAttack',
+			value: function areaAttack(card, cardToIgnore) {
+				var zones = card.zones;
+				var cardFound = null;
+				console.log("AREA ATTACK", zones);
+				for (var i = 0; i < zones.length; i++) {
+					var actionPosId = {
+						i: card.pos.i + zones[i].dir.x,
+						j: card.pos.j + zones[i].dir.y
+					};
+					if ( //(cardToIgnore.pos.i != card.pos.i && cardToIgnore.pos.j != card.pos.j )&&
+					actionPosId.i >= 0 && actionPosId.i < window.GRID.i && actionPosId.j >= 0 && actionPosId.j < window.GRID.j) {
+						cardFound = this.cards[actionPosId.i][actionPosId.j];
+						if (cardFound && !cardFound.dead) {
+							// findCards = true;					
+							//this.cards[actionPosId.i][actionPosId.j] = 0
 	
-				// setTimeout(function() {
-				// 	this.updateCardsCounter(-1);
-				// }.bind(this), 350);
+							var cardGlobal = cardFound.getGlobalPosition({ x: 0, y: 0 });
+							cardGlobal.x += CARD.width / 2;
+							cardGlobal.y += CARD.height / 2;
+							this.game.addPoints(30);
+							this.popLabel(cardGlobal, "+" + 10 * 3, 0, 0.1, 1.25);
+							//cardsToDestroy.push({cardFound:cardFound, currentCard: card, attackZone:zones[i]});
+							this.attackCard(cardFound, 1);
+							cardFound = null;
+						}
+					}
+				}
+			}
+		}, {
+			key: 'addCrazyCards',
+			value: function addCrazyCards(numCards, cardToIgnore) {
+				var tempCardList = [];
+				for (var i = 0; i < this.cards.length; i++) {
+					for (var j = 0; j < this.cards[i].length; j++) {
+						if (this.cards[i][j] && !this.cards[i][j].crazyMood && cardToIgnore != this.cards[i][j]) {
+							tempCardList.push(this.cards[i][j]);
+						}
+					}
+				}
+				_utils2.default.shuffle(tempCardList);
+				for (var i = 0; i < tempCardList.length; i++) {
+					tempCardList[i].startCrazyMood();
+					numCards--;
+					if (numCards <= 0) {
+						return;
+					}
+				}
 			}
 		}, {
 			key: 'destroyCards',
@@ -57432,23 +57652,38 @@
 							};
 							window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
 							this.game.addPoints(10 * id);
-							this.popLabel(arrowGlobal, 10 * id, 0, 1, 1 + id * 0.15);
+							this.popLabel(arrowGlobal, "+" + 10 * id, 0, 1, 1 + id * 0.15);
 							window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
 						}.bind(this),
 						onCompleteParams: [card, list[i].cardFound],
 						onComplete: function (card, cardFound) {
-							// console.log(card.life + 1);					
-							this.attackCard(cardFound, hits);
+							if (this.attackCard(cardFound, hits)) {
+								if (cardFound.crazyMood) {
+									this.areaAttack(cardFound, card);
+								}
+							}
 						}.bind(this) }));
 				}
-				if (autoDestroyCardData) {
-					// console.log(	autoDestroyCardData);
-					// console.log(	 autoDestroyCardData.card, autoDestroyCardData.zone.label);
+				var totalHits = list.length + (autoDestroyCardData ? 1 : 0);
+				if (totalHits > 2) {
 					setTimeout(function () {
-						var arrowGlobal = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label)).getGlobalPosition({ x: 0, y: 0 });
-						this.popLabel(arrowGlobal, "COUNTER", 0.4, -0.5);
-						// this.popLabel(arrowGlobal,list.length* 10);
+						this.addCrazyCards(totalHits - 2, card);
+					}.bind(this), list.length * 310);
+				}
+				if (autoDestroyCardData) {
+					setTimeout(function () {
+						var arrow = autoDestroyCardData.card.getArrow(this.getOpposite(autoDestroyCardData.zone.label));
+						if (!arrow) {
+							return;
+						}
+						var arrowGlobal = arrow.getGlobalPosition({ x: 0, y: 0 });
 						this.delayedDestroy(card, autoDestroyCardData.hits);
+	
+						var counterHits = list.length + 1;
+						this.game.addPoints(10 * counterHits);
+	
+						this.popLabel(arrowGlobal, "+" + 10 * counterHits + "\nCOUNTER", 0.4, -0.5, 1 + counterHits * 0.15);
+						// this.popLabel(arrowGlobal,10 * counterHits , 0.1, -0.5, 1 + counterHits * 0.15);
 					}.bind(this), list.length * 200);
 				} else {
 					card.convertCard();
@@ -57461,7 +57696,7 @@
 				var dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
 				var scale = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
 	
-				var tempLabel = new PIXI.Text(label, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				var tempLabel = new PIXI.Text(label, { font: '20px', fill: 0xFFFFFF, align: 'center', fontWeight: '800' });
 				this.game.addChild(tempLabel);
 				tempLabel.x = pos.x;
 				tempLabel.y = pos.y;
@@ -57485,6 +57720,7 @@
 					this.cards[card.pos.i][card.pos.j] = 0;
 					card.destroy();
 					card.convertCard();
+					return true;
 				}
 			}
 		}, {
@@ -57510,7 +57746,7 @@
 			value: function update(delta) {
 				for (var i = 0; i < this.cards.length; i++) {
 					for (var j = 0; j < this.cards[i].length; j++) {
-						if (this.cards[i][j]) {
+						if (this.cards[i][j] && this.cards[i][j].update) {
 							this.cards[i][j].update(delta);
 						}
 					}
@@ -58965,6 +59201,280 @@
 	}(PIXI.Container);
 	
 	exports.default = Ball;
+
+/***/ }),
+/* 260 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(222);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _gsap = __webpack_require__(225);
+	
+	var _gsap2 = _interopRequireDefault(_gsap);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ParticleSystem = function (_PIXI$Container) {
+		_inherits(ParticleSystem, _PIXI$Container);
+	
+		function ParticleSystem() {
+			_classCallCheck(this, ParticleSystem);
+	
+			var _this = _possibleConstructorReturn(this, (ParticleSystem.__proto__ || Object.getPrototypeOf(ParticleSystem)).call(this));
+	
+			_this.particles = [];
+			_this.particlesContainer = new PIXI.Container();
+	
+			_this.addChild(_this.particlesContainer);
+	
+			return _this;
+		}
+	
+		_createClass(ParticleSystem, [{
+			key: 'removeAll',
+			value: function removeAll() {
+				for (var i = this.particles.length - 1; i >= 0; i--) {
+					if (this.particles[i].parent) {
+						this.particles[i].parent.removeChild(this.particles[i]);
+					}
+					this.particles.splice(i, 1);
+				}
+			}
+		}, {
+			key: 'getParticle',
+			value: function getParticle() {
+				var src = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	
+				var source = src ? src : 'coin/coin_0000' + Math.ceil(Math.random() * 8) + '.png';
+				var sprite = PIXI.Sprite.fromImage(source);
+				sprite.anchor.set(0.5);
+				return sprite;
+			}
+		}, {
+			key: 'createParticles',
+			value: function createParticles() {
+				var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { x: 0, y: 0 };
+				var quant = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+				var src = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+	
+				// return
+	
+				this.hasParticles = true;
+				this.particleUpdater = 0;
+	
+				var yMultiplyer = 1;
+				var xMultiplyer = 1;
+				var scaleMultiplyer = 1;
+				var maxLife = Math.random() * 1.5;
+				var gravity = 0;
+	
+				for (var i = 0; i < quant; i++) {
+					var particle = this.getParticle(src);
+					// particle.tint = 0xFF0000
+					particle.anchor.set(1, 0.5);
+					// particle.scale.set(0.05 * Math.random() + 0.025);
+					particle.scale.set((0.1 * Math.random() + 0.3) * scaleMultiplyer);
+					var angle = Math.random() * (3.14 * 2); //- Math.atan2(this.velocity.y, this.velocity.x);
+					particle.x = pos.x + Math.random() * quant - quant / 2 + 25;
+					particle.y = pos.y + Math.random() * quant - quant / 2;
+					particle.alpha = 1;
+					particle.direction = angle;
+					particle.turningSpeed = Math.random() < 0.5 ? 1 : -1;
+					particle.lifetime = maxLife;
+					particle.life = maxLife;
+					particle.gravity = gravity;
+					particle.speed = {
+						x: Math.random() * 50 - 25 + quant * quant / 2 * Math.random() * xMultiplyer,
+						y: -200 - quant * quant / 2 * Math.random() * yMultiplyer
+					};
+					this.particles.push(particle);
+					this.particlesContainer.addChild(particle);
+	
+					//    if(quant >= 50){
+					// 	console.log('WHAT');
+					// 	console.log(particle);
+					// }
+				}
+				// console.log(quant);
+				// if(quant >= 50){
+				// 	console.log('WHAT');
+				// 	console.log(particle);
+				// }
+			}
+		}, {
+			key: 'update',
+			value: function update(delta) {
+				// return
+				// console.log(this.particles.length);
+				for (var i = this.particles.length - 1; i >= 0; i--) {
+					var particle = this.particles[i];
+					particle.direction += particle.turningSpeed * 0.1;
+					particle.position.x += particle.speed.x * particle.turningSpeed * delta; // (Math.sin(particle.direction) * (particle.speed)) * delta;
+					particle.position.y += particle.speed.y * delta; //(Math.cos(particle.direction) * (particle.speed) + particle.gravity) * delta;
+					particle.speed.y += particle.gravity * delta;
+					//particle.rotation = -particle.direction + Math.PI;
+					// console.log(particle.lifetime / particle.life);
+					// particle.alpha = particle.lifetime / particle.life + 0.1;
+					// particle.scale.x -= delta*0.15
+					// particle.scale.y -= delta*0.15
+	
+					particle.lifetime -= delta;
+					if (particle.lifetime <= 0) {
+						particle.position.y = 0;
+						particle.lifetime = 1;
+						// particle.parent.removeChild(particle)
+						// this.particles.splice(i, 1);
+					}
+				}
+			}
+		}]);
+	
+		return ParticleSystem;
+	}(PIXI.Container);
+	
+	exports.default = ParticleSystem;
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+			value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(222);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(230);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _ParticleSystem = __webpack_require__(260);
+	
+	var _ParticleSystem2 = _interopRequireDefault(_ParticleSystem);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Card = function (_PIXI$Container) {
+			_inherits(Card, _PIXI$Container);
+	
+			function Card(game) {
+					_classCallCheck(this, Card);
+	
+					var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
+	
+					_this.game = game;
+					_this.pos = { i: -1, j: -1 };
+	
+					var card = new PIXI.Container();
+					_this.counter = _this.MAX_COUNTER;
+					_this.cardBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawRoundedRect(0, 0, CARD.width, CARD.height, 0);
+					_this.circleBackground = new PIXI.Graphics().beginFill(0xFFFFFF).drawCircle(0, 0, CARD.width / 2);
+					_this.cardBackground3 = new PIXI.Graphics().beginFill(0x000000).drawRect(CARD.width / 2 - 10, CARD.height / 2, 19, 10);
+					// this.sprite = PIXI.Sprite.fromImage('./assets/images/block.jpg');
+	
+					// this.sprite.width = CARD.width;
+					// this.sprite.height = CARD.height;
+	
+					_this.sprite = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+	
+					_this.sprite.scale.set(_this.sprite.height / CARD.height * 1);
+					_this.sprite.tint = 0x333333;
+					_this.sprite.anchor.set(0.5);
+	
+					_this.cardBackground.alpha = 0;
+					_this.circleBackground.alpha = 0;
+	
+					_this.sprite.x = CARD.width / 2;
+					_this.sprite.y = CARD.height / 2;
+	
+					_this.circleBackground.x = CARD.width / 2;
+					_this.circleBackground.y = CARD.height / 2;
+	
+					var cardContainer = new PIXI.Container();
+					_this.cardActions = new PIXI.Container();
+					card.addChild(cardContainer);
+					// cardContainer.addChild(this.cardBackground);
+					cardContainer.addChild(_this.circleBackground);
+					cardContainer.addChild(_this.sprite);
+	
+					_this.cardContainer = cardContainer; //card;
+					_this.addChild(card);
+					cardContainer.pivot.x = CARD.width / 2;
+					cardContainer.x = CARD.width / 2;
+	
+					return _this;
+			}
+	
+			_createClass(Card, [{
+					key: 'forceDestroy',
+					value: function forceDestroy() {
+							this.parent.removeChild(this);
+							this.removeActionZones();
+							window.CARD_POOL.push(this);
+					}
+			}, {
+					key: 'shake',
+					value: function shake() {
+							var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+							var steps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+							var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.5;
+	
+							var timelinePosition = new TimelineLite();
+							var positionForce = force * 50;
+							var spliterForce = force * 20;
+							var speed = time / steps;
+							for (var i = steps; i >= 0; i--) {
+									timelinePosition.append(TweenLite.to(this.position, speed, { x: this.position.x + (Math.random() * positionForce - positionForce / 2), y: this.position.y + (Math.random() * positionForce - positionForce / 2), ease: "easeNoneLinear" }));
+							};
+	
+							timelinePosition.append(TweenLite.to(this.position, speed, { x: this.position.x, y: this.position.y, ease: "easeeaseNoneLinear" }));
+					}
+			}]);
+	
+			return Card;
+	}(PIXI.Container);
+	
+	exports.default = Card;
 
 /***/ })
 /******/ ]);
