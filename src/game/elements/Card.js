@@ -235,6 +235,8 @@ export default class Card extends PIXI.Container{
 		this.enemySprite.y =  CARD.height / 2 + Math.sin(this.initGridAcc) * 2;
 		this.cardBackground3.y = this.enemySprite.y - 10;
 		this.initGridAcc += 0.05
+			this.enemySprite.scale.x = this.starterScale + Math.cos(this.initGridAcc) * 0.05
+			this.enemySprite.scale.y = this.starterScale + Math.sin(this.initGridAcc) * 0.05
 		if(this.crazyMood){
 			
 			this.initGridAcc += 0.25
@@ -246,7 +248,9 @@ export default class Card extends PIXI.Container{
 			this.circleBackground.alpha = 0.2 + 0.1 *  Math.cos(this.initGridAcc);
 
 		}else if((this.enemySprite.scale.x != this.starterScale) || (this.enemySprite.scale.y != this.starterScale)){
-			this.enemySprite.scale.set(this.starterScale);
+
+
+			// this.enemySprite.scale.set(this.starterScale);
 
 		}
 
