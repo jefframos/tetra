@@ -57665,9 +57665,9 @@
 						}.bind(this) }));
 				}
 				var totalHits = list.length + (autoDestroyCardData ? 1 : 0);
-				if (totalHits > 2) {
+				if (totalHits > 3) {
 					setTimeout(function () {
-						this.addCrazyCards(totalHits - 2, card);
+						this.addCrazyCards(totalHits - 3, card);
 					}.bind(this), list.length * 310);
 				}
 				if (autoDestroyCardData) {
