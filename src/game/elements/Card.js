@@ -263,6 +263,8 @@ export default class Card extends PIXI.Container{
 		{
 			TweenLite.killTweensOf(this);
 			console.log("FORCE THIS CARD TO DIE");
+			this.alpha = 0.1;
+			this.forceDestroy();
 			return false;
 			this.forceDestroy();
 		}

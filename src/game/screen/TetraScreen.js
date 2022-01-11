@@ -8,6 +8,7 @@ import Card from '../elements/Card'
 import Block from '../elements/Block'
 import Board from '../core/Board'
 import BackgroundEffects from '../effects/BackgroundEffects'
+import { debug } from 'webpack';
 
 export default class TetraScreen extends Screen{
 	constructor(label){
@@ -22,6 +23,7 @@ export default class TetraScreen extends Screen{
         		{color:0x1376B9,life:4},
         		{color:0xDD6290,life:5},
         		{color:0xFF2320,life:6},
+        		{color:0x333333,life:9},
         	]
         }
         window.ACTION_ZONES = [
@@ -53,14 +55,26 @@ export default class TetraScreen extends Screen{
         [
         	[a,6,6,6,a],
         	[6,6,6,6,6],
-        	[6,b,6,b,6],
+        	[6,7,6,7,6],
         	[6,6,6,6,6],
-        	[a,6,b,6,a],
+        	[a,6,7,6,a],
         	[a,6,6,6,a],
         	[a,a,a,a,a],
         	[a,a,a,a,a],
         	[a,a,a,a,a],
         	[a,a,a,a,a],
+        ],
+		[
+        	[a,6,6,6,a,1],
+        	[6,6,6,6,6,1],
+        	[6,7,6,7,6,1],
+        	[6,6,6,6,6,1],
+        	[a,6,7,6,a,1],
+        	[a,6,6,6,a,1],
+        	[a,a,a,a,a,1],
+        	[a,a,a,a,a,1],
+        	[a,a,a,a,a,a],
+        	[a,a,a,a,a,a],
         ]
         ]
         this.currentLevelID = 0;
@@ -111,17 +125,17 @@ export default class TetraScreen extends Screen{
 	generateImage(level){
 		let container = new PIXI.Container();
 		let tempRect = null;
-		let size = 16;
-		for (var i = 0; i < this.level.length; i++) {			
-			for (var j = 0; j < this.level[i].length; j++) {
-				if(this.level[i][j] >= 0){
-					// this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.level[i][j]].life));
-					tempRect = this.getRect(size, ENEMIES.list[this.level[i][j]].color)
+		let size = 8;
+		for (var i = 0; i < level.length; i++) {			
+			for (var j = 0; j < level[i].length; j++) {
+				if(level[i][j] >= 0){
+					// this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[level[i][j]].life));
+					tempRect = this.getRect(size, ENEMIES.list[level[i][j]].color)
 					container.addChild(tempRect)
 					tempRect.x = j * size;
 					tempRect.y = i * size;
-				}else if(this.level[i][j] == -2){
-					tempRect = this.getRect(size, 0x333333)
+				}else if(level[i][j] == -2){
+					tempRect = this.getRect(size, 0x111111)
 					container.addChild(tempRect)
 					tempRect.x = j * size;
 					tempRect.y = i * size;
@@ -184,10 +198,11 @@ export default class TetraScreen extends Screen{
 		this.roundsLabel.x = this.roundsLabelStatic.x;
 		this.roundsLabel.y = this.roundsLabelStatic.y + 20;
 
-		// this.addChild(this.generateImage(this.level1))
+		//this.addChild(this.generateImage(this.levels[2]))
 
 		this.gridContainer.alpha = 0;
 		this.updateUI();
+
 	}
 
 	updateStartLabel(){
@@ -199,6 +214,7 @@ export default class TetraScreen extends Screen{
 		super.build();
 		this.background = new BackgroundEffects();
         this.addChild(this.background)
+
 
         this.gameContainer = new PIXI.Container();
         this.gridContainer = new PIXI.Container();
@@ -248,6 +264,7 @@ export default class TetraScreen extends Screen{
 
 	resetGame(){
 
+		console.log("lll");
 		this.currentPoints = 0;
         this.currentPointsLabel = 0;
         this.currentRound = 0;

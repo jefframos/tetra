@@ -22,7 +22,8 @@
     "pixi.js": "^4.3.3",
     "transform-loader": "^0.2.3",
     "webpack": "^1.12.9",
-    "gsap": "^1.18.4"
+    "gsap": "^1.18.4",
+    "http-server": "^14.1.0"
   },
   "dependencies": {
     "pixi-filters": "^2.5.1"

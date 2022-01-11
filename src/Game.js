@@ -35,6 +35,7 @@ export default class Game {
 	}
 	resize() {
 		if (window.innerWidth / window.innerHeight >= this.ratio) {
+			//var w = window.innerHeight * this.ratio;
 			var w = window.innerHeight * this.ratio;
 			var h = window.innerHeight;
 		} else {

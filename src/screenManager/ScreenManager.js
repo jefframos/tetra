@@ -42,6 +42,7 @@ export default class ScreenManager extends PIXI.Container{
 	}
 	//update manager
 	update(delta){
+
 		if(this.screenList != null){
 			this.currentScreen.update(delta);
 		}

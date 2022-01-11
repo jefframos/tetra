@@ -106,4 +106,5 @@ function configGame(){
 	game.start();
 
 
+
 }

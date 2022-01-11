@@ -1,6 +1,6 @@
 export default {
 	// width: window.innerWidth/2,
-	width: 414,
+	width: 500,
 	height: 736,
 	// height: window.innerHeight/2,
 	webgl: true,

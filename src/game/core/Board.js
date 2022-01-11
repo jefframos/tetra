@@ -6,6 +6,8 @@ export default class Board{
 
 		this.game = game;
 		this.resetBoard();
+
+		window.board = this;
 	}
 	resetBoard(){
 		this.cards = [];
@@ -138,6 +140,25 @@ export default class Board{
 		}
 	}
 
+	addCrazyCards2(numCards, cardToIgnore){
+		let tempCardList = [];
+		for (var i = 0; i < this.cards.length; i++) {
+			for (var j = 0; j < this.cards[i].length; j++) {
+				if(this.cards[i][j] && !this.cards[i][j].crazyMood && cardToIgnore != this.cards[i][j]){
+					tempCardList.push(this.cards[i][j]);
+				}
+			}
+		}
+		//utils.shuffle(tempCardList);
+		for (var i = 0; i < tempCardList.length; i++) {
+			tempCardList[i].startCrazyMood();
+			numCards --;
+			if(numCards <= 0){
+				return
+			}
+		}
+	}
+
 	addCrazyCards(numCards, cardToIgnore){
 		let tempCardList = [];
 		for (var i = 0; i < this.cards.length; i++) {
@@ -184,8 +205,13 @@ export default class Board{
 				onCompleteParams:[card, list[i].cardFound],
 				onComplete:function(card, cardFound){		
 					if(this.attackCard(cardFound, hits)){	
+						let arrowGlobal2 = cardFound.getGlobalPosition ({x:0, y:0});
+						arrowGlobal2.x += 20;
+						arrowGlobal2.y += 30;
 						if(cardFound.crazyMood){
-							this.areaAttack(cardFound, card);
+							this.game.addPoints(100);
+							this.popLabel(arrowGlobal2,"+"+100 , 0.45, 0, 2,0xE2C756, Elastic.easeOut);
+							//this.areaAttack(cardFound, card);
 						}
 					}
 				}.bind(this)}));
@@ -209,7 +235,7 @@ export default class Board{
 				let counterHits = (list.length + 1);
 				this.game.addPoints(10 * counterHits);
 
-				this.popLabel(arrowGlobal,"+"+10 * counterHits + "\nCOUNTER", 0.4, -0.5, 1 + counterHits * 0.15);
+				this.popLabel(arrowGlobal,"+"+10 * counterHits + "\nCOUNTER", 0.2, 0, 1 + counterHits * 0.1, 0xD81639);
 				// this.popLabel(arrowGlobal,10 * counterHits , 0.1, -0.5, 1 + counterHits * 0.15);
 
 			}.bind(this), list.length * 200);
@@ -217,8 +243,9 @@ export default class Board{
 			card.convertCard();
 		}
 	}
-	popLabel(pos, label, delay = 0, dir = 1, scale = 1){
-		let tempLabel = new PIXI.Text(label,{font : '20px', fill : 0xFFFFFF, align : 'center', fontWeight : '800'});
+	popLabel(pos, label, delay = 0, dir = 1, scale = 1, color = 0xFFFFFF, ease = Back.easeOut){
+		console.log(pos.x, pos.y);
+		let tempLabel = new PIXI.Text(label,{font : '20px', fill : color, align : 'center', fontWeight : '800'});
 		this.game.addChild(tempLabel);
 		tempLabel.x = pos.x;
 		tempLabel.y = pos.y;
@@ -226,7 +253,7 @@ export default class Board{
 		tempLabel.pivot.y = tempLabel.height / 2;
 		tempLabel.alpha = 0;
 		tempLabel.scale.set(0);
-		TweenLite.to(tempLabel.scale, 0.3, {x:scale, y:scale, ease:Back.easeOut})
+		TweenLite.to(tempLabel.scale, 0.5, {delay:delay,x:scale, y:scale, ease:ease})
 		TweenLite.to(tempLabel, 1, {delay:delay, y:tempLabel.y - 50 * dir, onStartParams:[tempLabel], onStart:function(temp){
 			temp.alpha = 1;
 		}})
