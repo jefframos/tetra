@@ -49,8 +49,8 @@ export default class Card extends PIXI.Container{
 	}
 	forceDestroy(){
 		this.parent.removeChild(this);
-		this.removeActionZones();
-		window.CARD_POOL.push(this);
+		//this.removeActionZones();
+		//window.CARD_POOL.push(this);
 	}
 	
 	shake(force = 1, steps = 4, time = 0.5){

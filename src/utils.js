@@ -23,6 +23,11 @@ export default {
         target.y = parent.height / 2 - target.height * 0.5;
     },
 
+    centerObject2(target, parent){
+        target.x = parent.width / 2;
+        target.y = parent.height / 2;
+    },
+
     alphabetCompare(a,b) {
         var yA = a.type;
         var yB = b.type;

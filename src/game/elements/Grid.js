@@ -24,7 +24,7 @@ export default class Grid extends PIXI.Container{
 			line.y = j * CARD.height;
 			gridContainer.addChild(line)
 		}
-		gridContainer.alpha = 0.3;
+		gridContainer.alpha = 0.7;
 
 		this.addChild(gridContainer);
 	}

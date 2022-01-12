@@ -62,11 +62,40 @@ import Pool from './game/core/Pool';
 // window.GAME_DATA = new GameData();
 
 
-
+window.config = config;
 window.POOL = new Pool();
 
 window.console.warn= function(){}
 window.console.groupCollapsed = function(teste){return teste}//('hided warnings')
+
+
+window.shuffleText = function shuffleText(label, keepfirstandlast = false){
+	let rnd1 = String.fromCharCode(Math.floor(Math.random()*20) + 65);
+	let rnd2 = Math.floor(Math.random()* 9);
+	let rnd3 = String.fromCharCode(Math.floor(Math.random()*20) + 65);
+	let tempLabel = label.split('');
+	let rndPause = Math.random();
+
+	let rand = keepfirstandlast ? tempLabel.length - 2 : tempLabel.length;
+
+	if(rndPause < 0.2){
+		let pos1 = Math.floor(Math.random()*rand) + (keepfirstandlast ? 1 : 0);
+		let pos2 = Math.floor(Math.random()*rand) + (keepfirstandlast ? 1 : 0);
+		if(tempLabel[pos1] != '\n')
+			tempLabel[pos1] = rnd2;
+		if(tempLabel[pos2] != '\n')
+			tempLabel[pos2] = rnd3;
+	}else if(rndPause < 0.5){
+		let pos3 = Math.floor(Math.random()*rand) + (keepfirstandlast ? 1 : 0);
+		if(tempLabel[pos3] != '\n')
+			tempLabel[pos3] = rnd3;
+	}
+	let returnLabel = '';
+	for (var i = 0; i < tempLabel.length; i++) {
+		returnLabel+=tempLabel[i];
+	}
+	return returnLabel
+}
 
 PIXI.loader
 	.add('./assets/fonts/stylesheet.css')

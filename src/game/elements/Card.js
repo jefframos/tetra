@@ -227,7 +227,8 @@ export default class Card extends PIXI.Container{
 	}
 	forceDestroy(){
 		this.parent.removeChild(this);
-		this.removeActionZones();
+		if(this.isCard)
+			this.removeActionZones();
 		window.CARD_POOL.push(this);
 	}
 	update(delta){
