@@ -43069,14 +43069,16 @@
 		return returnLabel;
 	};
 	
-	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/particle1.png').add('./assets/images/screen_displacement.jpg').add('./assets/images/block.jpg')
+	PIXI.loader.add('./assets/fonts/stylesheet.css').add('./assets/images/tvlines.png').add('./assets/levels.json').add('./assets/images/cancel.png').add('./assets/images/cycle.png').add('./assets/images/previous-button.png').add('./assets/images/game_bg.png').add('./assets/images/enemy.png').add('./assets/images/glitch1.jpg').add('./assets/images/glitch2.jpg').add('./assets/images/particle1.png').add('./assets/images/screen_displacement.jpg').add('./assets/images/block.jpg')
 	// .add('./assets/images/map.jpg')
 	.load(configGame);
+	
+	window.levelsJson = "";
 	
 	function configGame() {
 	
 		window.game = new _Game2.default(_config2.default);
-	
+		window.levelsJson = PIXI.loader.resources["./assets/levels.json"].data;
 		//create screen manager
 		var screenManager = new _ScreenManager2.default();
 		//add screens
@@ -43612,8 +43614,8 @@
 	});
 	exports.default = {
 		// width: window.innerWidth/2,
-		width: 500,
-		height: 736,
+		width: 500 * 1.2,
+		height: 736 * 1.2,
 		// height: window.innerHeight/2,
 		webgl: true,
 		effectsLayer: null,
@@ -58021,6 +58023,8 @@
 		function TetraScreen(label) {
 			_classCallCheck(this, TetraScreen);
 	
+			//console.log(levels)
+	
 			var _this = _possibleConstructorReturn(this, (TetraScreen.__proto__ || Object.getPrototypeOf(TetraScreen)).call(this, label));
 	
 			window.ENEMIES = {
@@ -58030,18 +58034,80 @@
 			var a = -1;
 			var b = -2;
 	
-			_this.levels = [[[6, 6, 6, 6, 6], [5, 5, 5, 5, 5], [4, 4, 4, 4, 4], [3, 3, 3, 3, 3], [2, 2, 2, 2, 2], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a]], [[a, 6, 6, 6, a], [6, 6, 6, 6, 6], [6, 7, 6, 7, 6], [6, 6, 6, 6, 6], [a, 6, 7, 6, a], [a, 6, 6, 6, a], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a], [a, a, a, a, a]], [[a, 6, 6, 6, a, 1], [6, 6, 6, 6, 6, 1], [6, 7, 6, 7, 6, 1], [6, 6, 6, 6, 6, 1], [a, 6, 7, 6, a, 1], [a, 6, 6, 6, a, 1], [a, a, a, a, a, 1], [a, a, a, a, a, 1], [a, a, a, a, a, a], [a, a, a, a, a, a]], [[a, a, 0, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, b], [a, a, a, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, a], [a, a, a, a, a, a]]];
+			_this.levels = window.levelsJson.levels;
+			// this.levels = [
+			// 	[
+			// 		[6, 6, 6, 6, 6],
+			// 		[5, 5, 5, 5, 5],
+			// 		[4, 4, 4, 4, 4],
+			// 		[3, 3, 3, 3, 3],
+			// 		[2, 2, 2, 2, 2],
+			// 		[1, 1, 1, 1, 1],
+			// 		[0, 0, 0, 0, 0],
+			// 		[a, a, 7, a, a],
+			// 		[a, a, a, a, a],
+			// 		[a, a, a, a, a],
+			// 	],
+			// 	[
+			// 		[a, 6, 6, 6, a],
+			// 		[6, 6, 6, 6, 6],
+			// 		[6, 7, 6, 7, 6],
+			// 		[6, 6, 6, 6, 6],
+			// 		[a, 6, 7, 6, a],
+			// 		[a, 6, 6, 6, a],
+			// 		[a, a, a, a, a],
+			// 		[a, a, a, a, a],
+			// 		[a, a, a, a, a],
+			// 		[a, a, a, a, a],
+			// 	],
+			// 	[
+			// 		[a, 6, 6, 6, a, 1],
+			// 		[6, 6, 6, 6, 6, 1],
+			// 		[6, 7, 6, 7, 6, 1],
+			// 		[6, 6, 6, 6, 6, 1],
+			// 		[a, 6, 7, 6, a, 1],
+			// 		[a, 6, 6, 6, a, 1],
+			// 		[a, a, a, a, a, 1],
+			// 		[a, a, a, a, a, 1],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 	],
+			// 	[
+			// 		[a, a, 0, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, b],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 		[a, a, a, a, a, a],
+			// 	]
+			// ]
+	
+			console.log(_this.levels);
+			_this.hasHash = false;
 			_this.currentLevelID = 0;
 			if (window.location.hash) {
 				var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
-				if (hash < _this.levels.length) {
-					_this.currentLevelID = hash;
+				console.log(hash);
+				_this.hasHash = true;
+				if (hash == "a") {
+	
+					_this.currentLevelID = -1;
+				} else {
+					if (hash < _this.levels.length) {
+	
+						_this.currentLevelID = hash;
+					}
 				}
 			}
 	
+			var tempid = _this.currentLevelID >= 0 ? _this.currentLevelID : 0;
 			window.GRID = {
-				i: _this.levels[_this.currentLevelID][0].length,
-				j: _this.levels[_this.currentLevelID].length,
+				i: _this.levels[tempid].pieces[0].length,
+				j: _this.levels[tempid].pieces.length,
 				height: _config2.default.height * 0.8,
 				width: _config2.default.width * 0.7
 			};
@@ -58085,26 +58151,48 @@
 				return new PIXI.Graphics().beginFill(color).drawRect(0, 0, size, size);
 			}
 		}, {
+			key: 'getRect2',
+			value: function getRect2() {
+				var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+				var h = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+				var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0xFFFFFF;
+	
+				return new PIXI.Graphics().beginFill(color).drawRect(0, 0, w, h);
+			}
+		}, {
+			key: 'getCircle',
+			value: function getCircle() {
+				var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+				var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0xFFFFFF;
+	
+				return new PIXI.Graphics().beginFill(color).drawCircle(0, 0, size * 0.5);
+			}
+		}, {
 			key: 'generateImage',
 			value: function generateImage(level) {
 				var container = new PIXI.Container();
 				var tempRect = null;
-				var size = 8;
+				var size = 24;
+	
+				var background = this.getRect2(level[0].length * size + size, level.length * size + size, 0);
+				background.x -= size;
+				background.y -= size;
+				container.addChild(background);
 				for (var i = 0; i < level.length; i++) {
 					for (var j = 0; j < level[i].length; j++) {
 						if (level[i][j] >= 0) {
 							// this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[level[i][j]].life));
-							tempRect = this.getRect(size, ENEMIES.list[level[i][j]].color);
+							tempRect = this.getCircle(size, ENEMIES.list[level[i][j]].color);
 							container.addChild(tempRect);
 							tempRect.x = j * size;
 							tempRect.y = i * size;
 						} else if (level[i][j] == -2) {
-							tempRect = this.getRect(size, 0x111111);
+							tempRect = this.getCircle(size, 0x111111);
 							container.addChild(tempRect);
 							tempRect.x = j * size;
 							tempRect.y = i * size;
 						} else {
-							tempRect = this.getRect(size, 0x000000);
+							tempRect = this.getCircle(size, 0x000000);
 							container.addChild(tempRect);
 							tempRect.x = j * size;
 							tempRect.y = i * size;
@@ -58116,13 +58204,13 @@
 		}, {
 			key: 'buildUI',
 			value: function buildUI() {
-				this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
-				this.roundsLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
-				this.entitiesLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+				this.roundsLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+				this.entitiesLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
 	
-				this.pointsLabelStatic = new PIXI.Text("POINTS", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
-				this.roundsLabelStatic = new PIXI.Text("MOVES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
-				this.entitiesLabelStatic = new PIXI.Text("ENTITIES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '800' });
+				this.pointsLabelStatic = new PIXI.Text("POINTS", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+				this.roundsLabelStatic = new PIXI.Text("MOVES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+				this.entitiesLabelStatic = new PIXI.Text("ENTITIES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
 	
 				//this.UIContainer.addChild(this.resetLabelBack)
 	
@@ -58137,7 +58225,23 @@
 				this.mainMenuContainer.addChild(this.endGameScreenContainer);
 	
 				this.backButton = new PIXI.Graphics().beginFill(_config2.default.colors.pink).drawRect(0, 0, 50, 40);
+				var backIcon = PIXI.Sprite.fromImage('./assets/images/cancel.png');
+				backIcon.tint = 0x000000;
+				var sclb = this.backButton.height / backIcon.height;
+				sclb *= 0.9;
+				backIcon.scale = { x: sclb, y: sclb };
+				_utils2.default.centerObject(backIcon, this.backButton);
+				this.backButton.addChild(backIcon);
+	
 				this.restartButton = new PIXI.Graphics().beginFill(_config2.default.colors.yellow).drawRect(0, 0, 50, 40);
+	
+				var restartIcon = PIXI.Sprite.fromImage('./assets/images/cycle.png');
+				restartIcon.tint = 0x000000;
+				var scl = this.restartButton.height / restartIcon.height;
+				scl *= 0.9;
+				restartIcon.scale = { x: scl, y: scl };
+				_utils2.default.centerObject(restartIcon, this.restartButton);
+				this.restartButton.addChild(restartIcon);
 	
 				this.UIContainer.addChild(this.UIInGame);
 				this.UIInGame.addChild(this.backButton);
@@ -58211,8 +58315,16 @@
 	
 				this.endGameScreenContainer.hide(true);
 	
-				this.mainmenuState();
-				//this.endGameState();
+				if (this.hasHash) {
+					if (this.currentLevelID < 0) {
+						this.endGameState();
+					} else {
+						console.log(this.currentLevelID);
+						this.resetGame();
+					}
+				} else {
+					this.mainmenuState();
+				}
 			}
 		}, {
 			key: 'hideInGameElements',
@@ -58239,12 +58351,13 @@
 				_gsap2.default.killTweensOf(this.cardsContainer);
 				_gsap2.default.killTweensOf(this.gridContainer);
 				_gsap2.default.killTweensOf(this.cardQueueContainer);
-				_gsap2.default.killTweensOf(this.currentCard);
 				_gsap2.default.to(this.cardQueueContainer, 0.1, { alpha: 1 });
 				_gsap2.default.to(this.cardsContainer, 0.1, { alpha: 1 });
 				_gsap2.default.to(this.gridContainer, 0.1, { alpha: 0.5 });
-				_gsap2.default.to(this.currentCard, 0.1, { alpha: 1 });
-	
+				if (this.currentCard) {
+					_gsap2.default.killTweensOf(this.currentCard);
+					_gsap2.default.to(this.currentCard, 0.1, { alpha: 1 });
+				}
 				_gsap2.default.killTweensOf(this.UIInGame);
 				_gsap2.default.to(this.UIInGame, 0.5, { y: 0, ease: Back.easeOut });
 			}
@@ -58258,15 +58371,20 @@
 				this.hideInGameElements();
 	
 				this.removeEvents();
+				console.log("mainmenuState");
 			}
 		}, {
 			key: 'endGameState',
 			value: function endGameState() {
 				this.gameRunning = false;
 				this.startScreenContainer.hide(true);
+				var tempid = this.currentLevelID >= 0 ? this.currentLevelID : 0;
+				this.endGameScreenContainer.setStats(this.currentPoints, this.currentRound, this.generateImage(this.levels[tempid].pieces));
 				this.endGameScreenContainer.show(false, 0.5);
 				this.hideInGameElements();
 				this.removeEvents();
+				console.trace();
+				console.log("endGameState");
 			}
 		}, {
 			key: 'gameState',
@@ -58274,7 +58392,10 @@
 				this.gameRunning = true;
 				this.showInGameElements();
 				this.addEvents();
+				this.endGameScreenContainer.hide();
 				this.board.startNewGame();
+	
+				console.log("gameState");
 			}
 		}, {
 			key: 'build',
@@ -58333,6 +58454,10 @@
 			value: function resetGame() {
 				var _this2 = this;
 	
+				this.gameState();
+				if (this.currentLevelID < 0) {
+					this.currentLevelID = 0;
+				}
 				this.currentPoints = 0;
 				this.currentPointsLabel = 0;
 				this.currentRound = 0;
@@ -58348,11 +58473,11 @@
 				if (this.currentCard) this.currentCard.forceDestroy();
 				this.currentCard = null;
 	
-				for (var i = 0; i < this.levels[this.currentLevelID].length; i++) {
-					for (var j = 0; j < this.levels[this.currentLevelID][i].length; j++) {
-						if (this.levels[this.currentLevelID][i][j] >= 0) {
-							this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.levels[this.currentLevelID][i][j]].life));
-						} else if (this.levels[this.currentLevelID][i][j] == -2) {
+				for (var i = 0; i < this.levels[this.currentLevelID].pieces.length; i++) {
+					for (var j = 0; j < this.levels[this.currentLevelID].pieces[i].length; j++) {
+						if (this.levels[this.currentLevelID].pieces[i][j] >= 0) {
+							this.cardsContainer.addChild(this.placeCard(j, i, ENEMIES.list[this.levels[this.currentLevelID].pieces[i][j]].life));
+						} else if (this.levels[this.currentLevelID].pieces[i][j] == -2) {
 							this.cardsContainer.addChild(this.placeBlock(j, i));
 						}
 					}
@@ -59486,7 +59611,7 @@
 			key: 'addCard',
 			value: function addCard(card) {
 				this.cards[card.pos.i][card.pos.j] = card;
-				console.log(card);
+				//console.log(card)
 			}
 		}, {
 			key: 'isPossibleShot',
@@ -59584,10 +59709,15 @@
 				var zones = card.zones;
 				var cardFound = null;
 				console.log("AREA ATTACK", zones);
-				for (var i = 0; i < zones.length; i++) {
+	
+				var allZones = [];
+				ACTION_ZONES.forEach(function (element) {
+					allZones.push(element);
+				});
+				for (var i = 0; i < allZones.length; i++) {
 					var actionPosId = {
-						i: card.pos.i + zones[i].dir.x,
-						j: card.pos.j + zones[i].dir.y
+						i: card.pos.i + allZones[i].dir.x,
+						j: card.pos.j + allZones[i].dir.y
 					};
 					if ( //(cardToIgnore.pos.i != card.pos.i && cardToIgnore.pos.j != card.pos.j )&&
 					actionPosId.i >= 0 && actionPosId.i < window.GRID.i && actionPosId.j >= 0 && actionPosId.j < window.GRID.j) {
@@ -59683,7 +59813,7 @@
 								if (cardFound.crazyMood) {
 									this.game.addPoints(100);
 									this.popLabel(arrowGlobal2, "+" + 100, 0.45, 0, 2, 0xE2C756, Elastic.easeOut);
-									//this.areaAttack(cardFound, card);
+									this.areaAttack(cardFound, card);
 								}
 							}
 						}.bind(this)
@@ -59725,7 +59855,7 @@
 				var color = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0xFFFFFF;
 				var ease = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : Back.easeOut;
 	
-				console.log(pos.x, pos.y);
+				//console.log(pos.x, pos.y);
 				var tempLabel = new PIXI.Text(label, { font: '20px', fill: color, align: 'center', fontWeight: '800' });
 				this.game.addChild(tempLabel);
 				tempLabel.x = pos.x;
@@ -102307,40 +102437,41 @@
 					var _this = _possibleConstructorReturn(this, (StartScreenContainer.__proto__ || Object.getPrototypeOf(StartScreenContainer)).call(this));
 	
 					_this.gameScreen = screen;
-					_this.currentButtonLabel = 'START';
+					_this.currentButtonLabel = 'SPADERS';
 	
+					_this.levelSelectionContainer = new PIXI.Container();
 					_this.screenContainer = new PIXI.Container();
 					_this.stripsContainer = new PIXI.Container();
 					_this.changeLabelTimer = 0;
 	
-					_this.resetLabelBack = new PIXI.Text(window.shuffleText(_this.currentButtonLabel, true), { font: '110px', fill: 0xFFFFFF, align: 'center', fontWeight: '800' });
-					_this.resetLabel = new PIXI.Text(_this.resetLabelBack.text, { font: '110px', fill: 0x000000, align: 'center', fontWeight: '800' });
+					_this.resetLabelBack = new PIXI.Text(window.shuffleText(_this.currentButtonLabel, true), { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
+					_this.resetLabel = new PIXI.Text(_this.resetLabelBack.text, { font: '90px', fill: 0x000000, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
 	
+					_this.addChild(_this.levelSelectionContainer);
 					_this.addChild(_this.screenContainer);
 					_this.screenContainer.addChild(_this.resetLabelBack);
 					_this.screenContainer.addChild(_this.stripsContainer);
 					_this.screenContainer.addChild(_this.resetLabel);
 					var height = 50;
-					var line1 = new PIXI.Graphics().beginFill(window.config.colors.blue2).drawRect(0, 0, 1000, height);
+					var line1 = new PIXI.Graphics().beginFill(window.config.colors.blue2).drawRect(0, 0, 2000, height);
 					_this.stripsContainer.addChild(line1);
 	
-					var line2 = new PIXI.Graphics().beginFill(window.config.colors.red).drawRect(0, 0, 1000, height);
+					var line2 = new PIXI.Graphics().beginFill(window.config.colors.red).drawRect(0, 0, 2000, height);
 					_this.stripsContainer.addChild(line2);
 					line2.y = height;
 	
-					var line3 = new PIXI.Graphics().beginFill(window.config.colors.yellow).drawRect(0, 0, 1000, height);
+					var line3 = new PIXI.Graphics().beginFill(window.config.colors.yellow).drawRect(0, 0, 2000, height);
 					_this.stripsContainer.addChild(line3);
 					line3.y = height * 2;
 	
-					var line4 = new PIXI.Graphics().beginFill(window.config.colors.green).drawRect(0, 0, 1000, height);
-					_this.stripsContainer.addChild(line4);
-					line4.y = height * 3;
+					_this.playLine = new PIXI.Graphics().beginFill(window.config.colors.green).drawRect(0, 0, 2000, height * 3);
+					_this.stripsContainer.addChild(_this.playLine);
+					_this.playLine.y = height * 3;
 	
 					var center = new PIXI.Graphics().beginFill(0xff0000).drawCircle(0, 0, 10);
 					//this.addChild(center);
 					_this.stripsContainer.pivot.x = _this.stripsContainer.width / 2;
 					_this.stripsContainer.pivot.y = _this.stripsContainer.height / 2;
-					_this.stripsContainer.rotation = Math.PI * 0.5;
 	
 					_this.resetLabelBack.pivot.x = _this.resetLabelBack.width / 2;
 					_this.resetLabelBack.pivot.y = _this.resetLabelBack.height / 2;
@@ -102348,17 +102479,49 @@
 					_this.resetLabel.pivot.x = _this.resetLabel.width / 2;
 					_this.resetLabel.pivot.y = _this.resetLabel.height / 2;
 	
-					_this.interactive = true;
-					_this.buttonMode = true;
+					_this.playLine.buttonMode = true;
+					_this.playLine.interactive = true;
 	
-					_this.stripsContainer.rotation = Math.PI * 0.25;
+					_this.stripsContainer.rotation = Math.PI * -0.25;
 	
 					_this.getMask();
 					_this.screenContainer.addChild(_this.currentMask);
 					_this.resetLabel.mask = _this.currentMask;
 	
-					_this.on('mousedown', _this.resetGame.bind(_this)).on('touchstart', _this.resetGame.bind(_this));
+					_this.resetLabel.rotation = -Math.PI * 0.25;
 	
+					_this.resetLabel.x = -80;
+					_this.resetLabel.y = -240;
+	
+					_this.playLabel = new PIXI.Text("PLAY", { font: '60px', fill: 0x000000, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
+					_this.screenContainer.addChild(_this.playLabel);
+					_this.playLabel.rotation = Math.PI * -0.25;
+					_this.playLabel.x = -_config2.default.width / 2 + 80;
+					_this.playLabel.y = _config2.default.height / 2 - 170;
+	
+					_this.playLine.on('mousedown', _this.resetGame.bind(_this)).on('touchstart', _this.resetGame.bind(_this));
+	
+					_this.backButton = new PIXI.Graphics().beginFill(window.config.colors.red).drawCircle(0, 0, 50);
+					_this.levelSelectionContainer.addChild(_this.backButton);
+	
+					_this.backButton.x = -_config2.default.width / 2 + 50 + 40;
+					_this.backButton.y = _config2.default.height / 2 - 75 - 40;
+					_this.backButton.buttonMode = true;
+					_this.backButton.interactive = true;
+	
+					_this.backButton.on('mousedown', _this.startState.bind(_this)).on('touchstart', _this.startState.bind(_this));
+	
+					_this.playButton = new PIXI.Graphics().beginFill(window.config.colors.blue).drawCircle(0, 0, 50);
+					_this.levelSelectionContainer.addChild(_this.playButton);
+	
+					_this.playButton.x = _config2.default.width / 2 - 90;
+					_this.playButton.y = _config2.default.height / 2 - 75 - 40;
+					_this.playButton.buttonMode = true;
+					_this.playButton.interactive = true;
+	
+					_this.playButton.on('mousedown', _this.goToLevel.bind(_this)).on('touchstart', _this.goToLevel.bind(_this));
+	
+					_this.levelSelectionContainer.x = _config2.default.width;
 					return _this;
 			}
 	
@@ -102393,11 +102556,38 @@
 							}
 	
 							this.resetLabelBack.text = this.resetLabel.text;
+							this.resetLabelBack.rotation = this.resetLabel.rotation;
+							this.resetLabelBack.position = this.resetLabel.position;
 	
 							// this.stripsContainer.rotation += delta * 0.1
 							// this.currentMask.rotation = this.stripsContainer.rotation;
 							//this.resetLabel.mask = this.currentMask;
+					}
+			}, {
+					key: 'startMenuState',
+					value: function startMenuState() {
+							var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 	
+							_gsap2.default.killTweensOf(this.screenContainer);
+							_gsap2.default.killTweensOf(this.levelSelectionContainer);
+	
+							_gsap2.default.to(this.screenContainer, 0.75, { delay: delay, alpha: 1, y: -_config2.default.height / 2 - 20, x: 100, rotation: Math.PI * 0.25, ease: Back.easeOut.config(1.2) });
+							_gsap2.default.to(this.levelSelectionContainer, 1, { delay: delay, alpha: 1, y: 0, x: 0, ease: Back.easeOut.config(1.2) });
+							this.playLine.interactive = false;
+							this.backButton.interactive = true;
+					}
+			}, {
+					key: 'startState',
+					value: function startState() {
+							var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+							_gsap2.default.killTweensOf(this.screenContainer);
+							_gsap2.default.killTweensOf(this.levelSelectionContainer);
+							this.playLine.interactive = true;
+							this.backButton.interactive = false;
+	
+							_gsap2.default.to(this.screenContainer, 0.75, { delay: delay, alpha: 1, y: 0, x: 0, rotation: 0, ease: Cubic.easeOut });
+							_gsap2.default.to(this.levelSelectionContainer, 0.5, { delay: delay, alpha: 1, y: 0, x: _config2.default.width, rotation: 0, ease: Cubic.easeOut });
 					}
 			}, {
 					key: 'updateStartLabel',
@@ -102414,21 +102604,44 @@
 							var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 							var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	
-							_gsap2.default.to(this.screenContainer, 0.5, { delay: delay, alpha: 1, ease: Cubic.easeOut });
-							this.interactive = true;
+							_gsap2.default.killTweensOf(this.screenContainer);
+	
+							this.startState();
+	
+							this.playLine.interactive = true;
+							this.playButton.interactive = true;
+							this.backButton.interactive = true;
+	
+							this.playLine.visible = true;
+							this.playButton.visible = true;
+							this.backButton.visible = true;
 					}
 			}, {
 					key: 'hide',
 					value: function hide() {
 							var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	
-							this.interactive = false;
+							_gsap2.default.killTweensOf(this.screenContainer);
+							this.playLine.interactive = false;
+							this.playButton.interactive = false;
+							this.backButton.interactive = false;
+	
+							this.playLine.visible = false;
+							this.playButton.visible = false;
+							this.backButton.visible = false;
+	
 							_gsap2.default.to(this.screenContainer, force ? 0 : 0.5, { alpha: 0 });
+					}
+			}, {
+					key: 'goToLevel',
+					value: function goToLevel() {
+							this.gameScreen.resetGame();
 					}
 			}, {
 					key: 'resetGame',
 					value: function resetGame() {
-							this.gameScreen.resetGame();
+							this.startMenuState();
+							//this.gameScreen.resetGame()
 					}
 			}, {
 					key: 'removeEvents',
@@ -102596,30 +102809,30 @@
 	                _this.changeLabelTimer = 0;
 	
 	                _this.currentButtonLabel = "YOU WIN";
-	                _this.resetLabelBack = new PIXI.Text(_this.currentButtonLabel, { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800' });
-	                _this.resetLabel = new PIXI.Text(_this.resetLabelBack.text, { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800' });
+	                _this.resetLabelBack = new PIXI.Text(_this.currentButtonLabel, { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
+	                _this.resetLabel = new PIXI.Text(_this.resetLabelBack.text, { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
 	
 	                _this.addChild(_this.screenContainer);
 	                _this.screenContainer.addChild(_this.resetLabelBack);
 	                _this.screenContainer.addChild(_this.stripsContainer);
 	                _this.screenContainer.addChild(_this.resetLabel);
 	                var height = 50;
-	                var line1 = new PIXI.Graphics().beginFill(window.config.colors.blue2).drawRect(0, -height * 4, 1000, height * 5);
+	                var line1 = new PIXI.Graphics().beginFill(window.config.colors.blue2).drawRect(0, -height * 4, 2000, height * 5);
 	                _this.stripsContainer.addChild(line1);
 	
-	                var line2 = new PIXI.Graphics().beginFill(window.config.colors.red).drawRect(0, 0, 1000, height);
+	                var line2 = new PIXI.Graphics().beginFill(window.config.colors.red).drawRect(0, 0, 2000, height);
 	                _this.stripsContainer.addChild(line2);
 	                line2.y = height;
 	
-	                var line3 = new PIXI.Graphics().beginFill(window.config.colors.yellow).drawRect(0, 0, 1000, height);
+	                var line3 = new PIXI.Graphics().beginFill(window.config.colors.yellow).drawRect(0, 0, 2000, height);
 	                _this.stripsContainer.addChild(line3);
 	                line3.y = height * 2;
 	
-	                var line4 = new PIXI.Graphics().beginFill(window.config.colors.green).drawRect(0, 0, 1000, height);
+	                var line4 = new PIXI.Graphics().beginFill(window.config.colors.green).drawRect(0, 0, 2000, height);
 	                _this.stripsContainer.addChild(line4);
 	                line4.y = height * 3;
 	
-	                var line5 = new PIXI.Graphics().beginFill(window.config.colors.pink).drawRect(0, 0, 1000, height);
+	                var line5 = new PIXI.Graphics().beginFill(window.config.colors.pink).drawRect(0, 0, 2000, height);
 	                _this.stripsContainer.addChild(line5);
 	                line5.y = height * 4;
 	
@@ -102649,7 +102862,10 @@
 	                _this.screenContainer.addChild(_this.currentMask);
 	                _this.resetLabel.mask = _this.currentMask;
 	
-	                _this.pointsLabel = new PIXI.Text("POINTS: 3450", { font: '30px', fill: 0xFFFFFF, align: 'left', fontWeight: '800' });
+	                _this.levelName = new PIXI.Text("Level 1", { font: '64px', fill: 0x000, align: 'left', fontWeight: '300', fontFamily: 'round_popregular' });
+	                _this.screenContainer.addChild(_this.levelName);
+	
+	                _this.pointsLabel = new PIXI.Text("POINTS: 3450", { font: '30px', fill: 0xFFFFFF, align: 'left', fontWeight: '300', fontFamily: 'round_popregular' });
 	                _this.pointsLabel.pivot.x = _this.pointsLabel.width / 2;
 	                _this.pointsLabel.pivot.y = _this.pointsLabel.height / 2;
 	                _this.pointsLabel.rotation = -Math.PI * 0.25;
@@ -102658,7 +102874,7 @@
 	                _this.pointsLabel.y += Math.sin(_this.pointsLabel.rotation) * 100;
 	                _this.screenContainer.addChild(_this.pointsLabel);
 	
-	                _this.movesLabel = new PIXI.Text("MOVES: 34", { font: '30px', fill: 0xFFFFFF, align: 'left', fontWeight: '800' });
+	                _this.movesLabel = new PIXI.Text("MOVES: 34", { font: '30px', fill: 0xFFFFFF, align: 'left', fontWeight: '300', fontface: 'round_popregular', fontFamily: 'round_popregular' });
 	                _this.movesLabel.pivot.x = _this.movesLabel.width / 2;
 	                _this.movesLabel.pivot.y = _this.movesLabel.height / 2;
 	                _this.movesLabel.rotation = -Math.PI * 0.25;
@@ -102667,13 +102883,39 @@
 	                _this.movesLabel.y += 50;
 	                _this.screenContainer.addChild(_this.movesLabel);
 	
-	                _this.backButton = new PIXI.Graphics().beginFill(window.config.colors.blue).drawRect(0, 0, 330, 330);
-	                _this.backButton.pivot.x = _this.backButton.width / 2;
-	                _this.backButton.pivot.y = _this.backButton.height / 2;
+	                _this.backButton = new PIXI.Graphics().beginFill(window.config.colors.red).drawCircle(0, 0, 50);
+	                _this.backButton.x = 90;
+	                _this.backButton.y = _config2.default.height - 90;
 	
-	                _this.backButton.rotation = Math.PI * 0.25;
+	                //this.backButton.rotation = Math.PI * 0.25
+	
+	                var backIcon = PIXI.Sprite.fromImage('./assets/images/previous-button.png');
+	                var sclb = _this.backButton.height / backIcon.height;
+	                sclb *= 0.5;
+	                backIcon.tint = 0;
+	                backIcon.anchor = { x: 0.5, y: 0.5 };
+	                backIcon.scale = { x: sclb, y: sclb };
+	                backIcon.rotation = -_this.backButton.rotation;
+	                _this.backButton.addChild(backIcon);
 	
 	                _this.backButton.on('mousedown', _this.goBack.bind(_this)).on('touchstart', _this.goBack.bind(_this));
+	
+	                _this.replayButton = new PIXI.Graphics().beginFill(window.config.colors.blue).drawCircle(0, 0, 50);
+	                _this.replayButton.x = _config2.default.width - 90;
+	                _this.replayButton.y = _config2.default.height - 90;
+	
+	                //this.replayButton.rotation = Math.PI * 0.25
+	
+	                var replayIcon = PIXI.Sprite.fromImage('./assets/images/cycle.png');
+	                replayIcon.tint = 0;
+	                var sclr = _this.replayButton.height / replayIcon.height;
+	                sclr *= 0.5;
+	                replayIcon.anchor = { x: 0.5, y: 0.5 };
+	                replayIcon.scale = { x: sclr, y: sclr };
+	                replayIcon.rotation = -_this.replayButton.rotation;
+	                _this.replayButton.addChild(replayIcon);
+	
+	                _this.replayButton.on('mousedown', _this.restart.bind(_this)).on('touchstart', _this.restart.bind(_this));
 	
 	                return _this;
 	        }
@@ -102692,29 +102934,64 @@
 	                        var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	                        var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	
+	
+	                        _gsap2.default.killTweensOf(this.screenContainer);
+	                        _gsap2.default.killTweensOf(this.backButton);
+	                        _gsap2.default.killTweensOf(this.replayButton);
+	
 	                        _gsap2.default.to(this.screenContainer, 0.5, { delay: delay, alpha: 1, ease: Cubic.easeOut });
+	
 	                        this.backButton.alpha = 0;
 	                        _gsap2.default.to(this.backButton, 0.5, { delay: delay, alpha: 1, ease: Cubic.easeOut });
-	                        this.backButton.x = _config2.default.width;
-	                        this.backButton.y = _config2.default.height;
 	                        this.backButton.interactive = true;
 	                        this.backButton.buttonMode = true;
 	                        this.parent.addChild(this.backButton);
-	
 	                        this.backButton.visible = true;
 	
-	                        console.log("SHOE");
+	                        this.replayButton.alpha = 0;
+	                        _gsap2.default.to(this.replayButton, 0.5, { delay: delay, alpha: 1, ease: Cubic.easeOut });
+	                        this.replayButton.interactive = true;
+	                        this.replayButton.buttonMode = true;
+	                        this.parent.addChild(this.replayButton);
+	                        this.replayButton.visible = true;
 	                }
 	        }, {
 	                key: 'hide',
 	                value: function hide() {
 	                        var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	
+	                        _gsap2.default.killTweensOf(this.screenContainer);
+	                        _gsap2.default.killTweensOf(this.backButton);
+	                        _gsap2.default.killTweensOf(this.replayButton);
 	                        _gsap2.default.to(this.screenContainer, force ? 0 : 0.5, { alpha: 0, ease: Cubic.easeIn });
 	                        _gsap2.default.to(this.backButton, force ? 0 : 0.5, { alpha: 0, ease: Cubic.easeIn });
+	                        _gsap2.default.to(this.replayButton, force ? 0 : 0.5, { alpha: 0, ease: Cubic.easeIn });
 	                        this.backButton.interactive = false;
+	                        this.replayButton.interactive = false;
 	                        console.log("hide");
-	                        console.trace();
+	                        //console.trace()
+	                }
+	        }, {
+	                key: 'setStats',
+	                value: function setStats(points, rounds, image) {
+	
+	                        this.currentLevelImage = image;
+	                        this.movesLabel.text = "MOVES: " + rounds;
+	                        this.pointsLabel.text = "POINTS: " + points;
+	                        this.screenContainer.addChild(this.currentLevelImage);
+	                        image.pivot.x = image.width * 0.5;
+	                        image.pivot.y = image.height;
+	                        image.rotation = Math.PI * -0.25;
+	
+	                        this.levelName.x = image.width;
+	                        this.levelName.y = -30;
+	                        this.currentLevelImage.addChild(this.levelName);
+	                        this.currentLevelImage.x = 0;
+	                        this.currentLevelImage.y = 0;
+	                        // this.currentLevelImage.x -= 150;
+	                        // this.currentLevelImage.y -= 300;
+	                        var s = new PIXI.Graphics().beginFill(window.config.colors.blue).drawRect(0, 0, 50, 50);
+	                        //this.screenContainer.addChild(s);
 	                }
 	        }, {
 	                key: 'getMask',
@@ -102757,6 +103034,12 @@
 	                        //this.resetLabel.style.fill = ENEMIES.list[Math.floor(ENEMIES.list.length * Math.random())].color;
 	
 	                        this.changeLabelTimer = 0.5;
+	                }
+	        }, {
+	                key: 'restart',
+	                value: function restart() {
+	
+	                        this.gameScreen.resetGame();
 	                }
 	        }, {
 	                key: 'goBack',

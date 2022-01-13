@@ -100,6 +100,10 @@ window.shuffleText = function shuffleText(label, keepfirstandlast = false){
 PIXI.loader
 	.add('./assets/fonts/stylesheet.css')
 	.add('./assets/images/tvlines.png')
+	.add('./assets/levels.json')
+	.add('./assets/images/cancel.png')
+	.add('./assets/images/cycle.png')
+	.add('./assets/images/previous-button.png')
 	.add('./assets/images/game_bg.png')
 	.add('./assets/images/enemy.png')
 	.add('./assets/images/glitch1.jpg')
@@ -110,11 +114,12 @@ PIXI.loader
 	// .add('./assets/images/map.jpg')
 	.load(configGame);
 
+window.levelsJson = ""
+
 function configGame(){
 
 	window.game = new Game(config);
-
-	
+	window.levelsJson = PIXI.loader.resources["./assets/levels.json"].data
 	//create screen manager
 	let screenManager = new ScreenManager();
 	//add screens

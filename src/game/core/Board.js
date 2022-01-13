@@ -42,8 +42,7 @@ export default class Board {
 	}
 	addCard(card) {
 		this.cards[card.pos.i][card.pos.j] = card;
-		console.log(card)
-		
+		//console.log(card)
 	}
 
 	isPossibleShot(laneID) {
@@ -137,10 +136,15 @@ export default class Board {
 		let zones = card.zones;
 		let cardFound = null;
 		console.log("AREA ATTACK", zones);
-		for (var i = 0; i < zones.length; i++) {
+
+		let allZones = [];
+		ACTION_ZONES.forEach(element => {
+			allZones.push(element);
+		});
+		for (var i = 0; i < allZones.length; i++) {
 			let actionPosId = {
-				i: card.pos.i + zones[i].dir.x,
-				j: card.pos.j + zones[i].dir.y
+				i: card.pos.i + allZones[i].dir.x,
+				j: card.pos.j + allZones[i].dir.y
 			}
 			if (//(cardToIgnore.pos.i != card.pos.i && cardToIgnore.pos.j != card.pos.j )&&
 				(actionPosId.i >= 0 && actionPosId.i < window.GRID.i) &&
@@ -234,7 +238,7 @@ export default class Board {
 						if (cardFound.crazyMood) {
 							this.game.addPoints(100);
 							this.popLabel(arrowGlobal2, "+" + 100, 0.45, 0, 2, 0xE2C756, Elastic.easeOut);
-							//this.areaAttack(cardFound, card);
+							this.areaAttack(cardFound, card);
 						}
 						
 					}
@@ -277,7 +281,7 @@ export default class Board {
 		
 	}
 	popLabel(pos, label, delay = 0, dir = 1, scale = 1, color = 0xFFFFFF, ease = Back.easeOut) {
-		console.log(pos.x, pos.y);
+		//console.log(pos.x, pos.y);
 		let tempLabel = new PIXI.Text(label, { font: '20px', fill: color, align: 'center', fontWeight: '800' });
 		this.game.addChild(tempLabel);
 		tempLabel.x = pos.x;
