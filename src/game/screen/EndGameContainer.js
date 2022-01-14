@@ -144,7 +144,7 @@ export default class EndGameContainer extends PIXI.Container {
         TweenLite.killTweensOf(this.backButton)
         TweenLite.killTweensOf(this.replayButton)
         
-        TweenLite.to(this.screenContainer, 0.5, {delay:delay, alpha:1, ease: Cubic.easeOut })
+        TweenLite.to(this.screenContainer, 0.25, {delay:delay, alpha:1, ease: Cubic.easeOut })
 
         this.backButton.alpha = 0;
         TweenLite.to(this.backButton, 0.5, {delay:delay, alpha:1, ease: Cubic.easeOut })
@@ -173,18 +173,24 @@ export default class EndGameContainer extends PIXI.Container {
         console.log("hide")
         //console.trace()
     }
-    setStats(points, rounds, image) {
+    setStats(points, rounds, image, data) {
 
         this.currentLevelImage = image;
         this.movesLabel.text = "MOVES: "+ rounds;
         this.pointsLabel.text = "POINTS: "+ points;
+        this.levelName.text = data.levelName;
+
+        if(this.levelName.width > 300){
+
+            this.levelName.scale.set(300 / this.levelName.width )
+        }
         this.screenContainer.addChild(this.currentLevelImage);
         image.pivot.x = image.width * 0.5;
         image.pivot.y = image.height;
         image.rotation = Math.PI * -0.25
 
         this.levelName.x = image.width;
-        this.levelName.y = -30;
+        this.levelName.y = 120 - this.levelName.height;
         this.currentLevelImage.addChild(this.levelName)
         this.currentLevelImage.x = 0
         this.currentLevelImage.y = 0
@@ -232,11 +238,11 @@ export default class EndGameContainer extends PIXI.Container {
         this.changeLabelTimer = 0.5;
     }
     restart(){
-
+        this.hide(true);
         this.gameScreen.resetGame()
     }
     goBack() {
-        this.gameScreen.mainmenuState()
+        this.gameScreen.mainmenuStateFromGame(true)
     }
     removeEvents() {
         console.log("removeEvents")

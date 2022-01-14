@@ -15,6 +15,9 @@ export default {
 		pink: 0xDD6290,
 		red2: 0xFF2320,
 		dark: 0x333333,
+		purple: 0x8957c7,
+		white: 0xDDDDDD,
+		block: 0x111111,
 	},
 	rendererOptions: {
 		//pixi rendererOptions

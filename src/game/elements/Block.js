@@ -20,7 +20,7 @@ export default class Card extends PIXI.Container{
 
 		this.sprite = PIXI.Sprite.fromImage('./assets/images/enemy.png');
 
-		this.sprite.scale.set(this.sprite.height / CARD.height * 1)
+		this.sprite.scale.set(CARD.width / this.sprite.width * 0.6)
 		this.sprite.tint = 0x333333;
 		this.sprite.anchor.set(0.5);
 

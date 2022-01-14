@@ -49,6 +49,9 @@ export default class Board {
 		if (laneID >= this.cards.length || laneID < 0) {
 			return false;
 		}
+		if(!this.cards[laneID]){
+			return false;
+		}
 		for (var i = this.cards[laneID].length - 1; i >= 0; i--) {
 			if (!this.cards[laneID][i]) {
 				return true;
@@ -178,8 +181,11 @@ export default class Board {
 		}
 		//utils.shuffle(tempCardList);
 		for (var i = 0; i < tempCardList.length; i++) {
-			tempCardList[i].startCrazyMood();
-			numCards--;
+			if(tempCardList[i] && tempCardList[i].startCrazyMood){
+
+				tempCardList[i].startCrazyMood();
+				numCards--;
+			}
 			if (numCards <= 0) {
 				return
 			}
@@ -197,8 +203,10 @@ export default class Board {
 		}
 		utils.shuffle(tempCardList);
 		for (var i = 0; i < tempCardList.length; i++) {
+			if(tempCardList[i] && tempCardList[i].startCrazyMood){
 			tempCardList[i].startCrazyMood();
 			numCards--;
+			}
 			if (numCards <= 0) {
 				return
 			}
@@ -304,7 +312,7 @@ export default class Board {
 	}
 	attackCard(card, hits) {
 		// console.log(card);
-		if (card.attacked(hits)) {
+		if (card.attacked && card.attacked(hits)) {
 			this.cards[card.pos.i][card.pos.j] = 0;
 			card.destroy();
 			card.convertCard();

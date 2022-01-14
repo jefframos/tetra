@@ -6,6 +6,7 @@ import Screen from '../../screenManager/Screen'
 import Grid from '../elements/Grid'
 import Card from '../elements/Card'
 import Block from '../elements/Block'
+import LevelSelectContainer from './LevelSelectContainer'
 import Board from '../core/Board'
 import BackgroundEffects from '../effects/BackgroundEffects'
 import { debug } from 'webpack';
@@ -20,13 +21,18 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.levelSelectionContainer = new PIXI.Container();
 		this.screenContainer = new PIXI.Container();
 		this.stripsContainer = new PIXI.Container();
+		this.chooseLevelPanel = new LevelSelectContainer(this.gameScreen);
 		this.changeLabelTimer = 0;
 
+		this.levelSelectionContainer.addChild(this.chooseLevelPanel);
+
+		this.chooseLevelPanel.x = 0;
+		this.chooseLevelPanel.y = 150;
 		this.resetLabelBack = new PIXI.Text(window.shuffleText(this.currentButtonLabel, true), { font: '90px', fill: 0xFFFFFF, align: 'center', fontWeight: '800', fontFamily:'round_popregular' });
 		this.resetLabel = new PIXI.Text(this.resetLabelBack.text, { font: '90px', fill: 0x000000, align: 'center', fontWeight: '800', fontFamily:'round_popregular'  });
 
-		this.addChild(this.levelSelectionContainer);
 		this.addChild(this.screenContainer);
+		this.addChild(this.levelSelectionContainer);
 		this.screenContainer.addChild(this.resetLabelBack);
 		this.screenContainer.addChild(this.stripsContainer);
 		this.screenContainer.addChild(this.resetLabel);
@@ -82,12 +88,12 @@ export default class StartScreenContainer extends PIXI.Container{
 
 
 
-		this.backButton = new PIXI.Graphics().beginFill(window.config.colors.red).drawCircle(0,0,50);
+		this.backButton = new PIXI.Graphics().beginFill(window.config.colors.red).drawCircle(0,0,40);
 		this.levelSelectionContainer.addChild(this.backButton);
 
 		
-		this.backButton.x = - config.width / 2 + 50 + 40
-		this.backButton.y = config.height / 2 - 75 - 40
+		this.backButton.x =  config.width -80
+		this.backButton.y = 70
 		this.backButton.buttonMode = true;
 		this.backButton.interactive = true;
 
@@ -95,17 +101,18 @@ export default class StartScreenContainer extends PIXI.Container{
 
 
 		this.playButton = new PIXI.Graphics().beginFill(window.config.colors.blue).drawCircle(0,0,50);
-		this.levelSelectionContainer.addChild(this.playButton);
+		//this.levelSelectionContainer.addChild(this.playButton);
 
 		
-		this.playButton.x =  config.width / 2 -90
-		this.playButton.y = config.height / 2 - 75 - 40
+		this.playButton.x =  config.width -80
+		this.playButton.y = this.backButton.y
 		this.playButton.buttonMode = true;
 		this.playButton.interactive = true;
 
 		this.playButton.on('mousedown', this.goToLevel.bind(this)).on('touchstart', this.goToLevel.bind(this));
 
 		this.levelSelectionContainer.x = config.width;
+		this.levelSelectionContainer.y = -this.y;
 	}
 	getRect(size = 4, color = 0xFFFFFF){
 		return new PIXI.Graphics().beginFill(color).drawRect(0,0,size,size);
@@ -135,6 +142,7 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.resetLabelBack.rotation = this.resetLabel.rotation;
 		this.resetLabelBack.position = this.resetLabel.position;
 
+
 		// this.stripsContainer.rotation += delta * 0.1
 		// this.currentMask.rotation = this.stripsContainer.rotation;
 		//this.resetLabel.mask = this.currentMask;
@@ -144,19 +152,24 @@ export default class StartScreenContainer extends PIXI.Container{
 		TweenLite.killTweensOf(this.screenContainer)
 		TweenLite.killTweensOf(this.levelSelectionContainer)
 		
-		TweenLite.to(this.screenContainer, 0.75, {delay:delay, alpha: 1,y: -config.height / 2 - 20, x:100,rotation: Math.PI * 0.25, ease: Back.easeOut.config(1.2) })
-		TweenLite.to(this.levelSelectionContainer, 1, {delay:delay, alpha: 1,y: 0, x:0, ease: Back.easeOut.config(1.2) })
+		TweenLite.to(this.screenContainer, 0.75, {delay:delay, alpha: 1,y: -config.height / 2 - 130, x:80,rotation: Math.PI * 0.25, ease: Back.easeOut.config(1.2) })
+		TweenLite.to(this.levelSelectionContainer, 1, {delay:delay, alpha: 1, x:-this.x, ease: Back.easeOut.config(1.2) })
 		this.playLine.interactive = false;
 		this.backButton.interactive = true;
+
+		this.chooseLevelPanel.visible = true;
+		this.levelSelectionContainer.y = -this.y;
 	}
-	startState(delay = 1){
+	startState(delay = 1, force = false){
 		TweenLite.killTweensOf(this.screenContainer)
 		TweenLite.killTweensOf(this.levelSelectionContainer)
 		this.playLine.interactive = true;
 		this.backButton.interactive = false;
 		
-		TweenLite.to(this.screenContainer, 0.75, {delay:delay, alpha: 1,y: 0, x:0,rotation:0, ease: Cubic.easeOut })
-		TweenLite.to(this.levelSelectionContainer, 0.5, {delay:delay, alpha: 1,y: 0, x:config.width,rotation:0, ease: Cubic.easeOut })
+		TweenLite.to(this.screenContainer,force?0: 0.75, {delay:delay, alpha: 1,y: 0, x:0,rotation:0, ease: Cubic.easeOut })
+		TweenLite.to(this.levelSelectionContainer, force?0:0.5, {delay:delay, alpha: 1, x:config.width,rotation:0, ease: Cubic.easeOut })
+
+		this.levelSelectionContainer.y = -this.y;
 	}
 	updateStartLabel() {
 		if (Math.random() < 0.2) return;
@@ -168,7 +181,7 @@ export default class StartScreenContainer extends PIXI.Container{
 	show(force = false, delay = 0){
 		TweenLite.killTweensOf(this.screenContainer)
 
-		this.startState();
+		this.startState(delay, force);
 
 		this.playLine.interactive = true;
 		this.playButton.interactive = true;
@@ -177,6 +190,20 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.playLine.visible = true;
 		this.playButton.visible = true;
 		this.backButton.visible = true;
+	}
+	showFromGame(force = false, delay = 0){
+		TweenLite.killTweensOf(this.screenContainer)
+
+		this.startMenuState(delay, force);
+
+		this.playLine.interactive = true;
+		this.playButton.interactive = true;
+		this.backButton.interactive = true;
+
+		this.playLine.visible = true;
+		this.playButton.visible = true;
+		this.backButton.visible = true;
+
 	}
 	hide(force = false){
 		TweenLite.killTweensOf(this.screenContainer)
@@ -188,11 +215,14 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.playButton.visible = false;
 		this.backButton.visible = false;
 
-		TweenLite.to(this.screenContainer, force?0:0.5, { alpha: 0 })
+		this.chooseLevelPanel.visible = false;
+
+		TweenLite.to(this.screenContainer, force?0:0.2, { alpha: 0 })
 
 
 	}
 	goToLevel(){
+		this.hide(true);
 		this.gameScreen.resetGame()
 	}
 	resetGame(){

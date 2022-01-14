@@ -8,7 +8,11 @@ export default class Grid extends PIXI.Container{
 	}
 	start(){
 	}
+
 	createGrid(){
+		for (let index = this.children.length - 1; index >= 0 ; index--) {
+			this.removeChildAt(index);
+		}
 		let gridContainer = new PIXI.Container();
 		let gridBackground = new PIXI.Graphics().beginFill(0).drawRect(0,0,GRID.width, GRID.height);
 		gridContainer.addChild(gridBackground)
