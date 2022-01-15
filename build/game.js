@@ -58006,15 +58006,21 @@
 					i: this.currentLevelData.pieces[0].length,
 					j: this.currentLevelData.pieces.length,
 					height: _config2.default.height * 0.7,
-					width: _config2.default.width * 0.7
+					width: _config2.default.width * 0.9
 				};
 	
 				window.CARD = {
 					width: GRID.height / GRID.j,
 					height: GRID.height / GRID.j //GRID.height / GRID.j
-				};
 	
-				window.GRID.width = window.GRID.i * CARD.width;
+	
+					// window.CARD = {
+					// 	width: GRID.width / GRID.i,
+					// 	height: GRID.width / GRID.i,//GRID.height / GRID.j
+					// }
+	
+	
+				};window.GRID.width = window.GRID.i * CARD.width;
 				window.GRID.height = window.GRID.j * CARD.height;
 	
 				if (this.gridContainer) {
@@ -58678,6 +58684,7 @@
 				this.currentRound++;
 				var nextRoundTimer = this.board.shootCard(this.mousePosID, this.currentCard);
 				var normalDist = (this.currentCard.y - this.currentCard.pos.j * CARD.height) / GRID.height;
+				this.currentCard.x = this.currentCard.pos.i * CARD.width;
 				this.currentCard.move({
 					x: this.currentCard.pos.i * CARD.width,
 					y: this.currentCard.pos.j * CARD.height
@@ -103753,7 +103760,7 @@
 	
 			_this.filtersList = [_this.rgpSplit, _this.pixelate, _this.displacementFilterGlitch1, _this.bloom, _this.shockwave, _this.crossHatch, _this.invertFilter, _this.ascii, _this.gray, _this.displacementFilterscreenDisplacement, _this.blur];
 	
-			_this.filtersActives = [false, true, false, false, false, false, false, false, false, true, false];
+			_this.filtersActives = [false, false, false, false, false, false, false, false, false, true, false];
 	
 			_this.updateFilters();
 	

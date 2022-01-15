@@ -112,7 +112,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.displacementFilterscreenDisplacement,
 		this.blur];
 
-		this.filtersActives = [false, true,false,false, false, false, false, false, false, true, false];
+		this.filtersActives = [false, false,false,false, false, false, false, false, false, true, false];
 
 		this.updateFilters();
 		
