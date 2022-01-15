@@ -42973,15 +42973,19 @@
 	
 	var _TetraScreen2 = _interopRequireDefault(_TetraScreen);
 	
-	var _EffectLayer = __webpack_require__(623);
+	var _EffectLayer = __webpack_require__(624);
 	
 	var _EffectLayer2 = _interopRequireDefault(_EffectLayer);
 	
-	var _ChooseMatchScreen = __webpack_require__(624);
+	var _BackgroundEffects = __webpack_require__(621);
+	
+	var _BackgroundEffects2 = _interopRequireDefault(_BackgroundEffects);
+	
+	var _ChooseMatchScreen = __webpack_require__(625);
 	
 	var _ChooseMatchScreen2 = _interopRequireDefault(_ChooseMatchScreen);
 	
-	var _Pool = __webpack_require__(625);
+	var _Pool = __webpack_require__(626);
 	
 	var _Pool2 = _interopRequireDefault(_Pool);
 	
@@ -43083,6 +43087,9 @@
 		});
 		console.log(window.levelTiersData);
 		//create screen manager
+	
+	
+		//window.BACKGROUND_EFFECTS = new BackgroundEffects()
 		var screenManager = new _ScreenManager2.default();
 		//add screens
 		var gameScreen = new _TetraScreen2.default('GameScreen');
@@ -57905,7 +57912,7 @@
 	
 	var _StartScreenContainer2 = _interopRequireDefault(_StartScreenContainer);
 	
-	var _EndGameContainer = __webpack_require__(622);
+	var _EndGameContainer = __webpack_require__(623);
 	
 	var _EndGameContainer2 = _interopRequireDefault(_EndGameContainer);
 	
@@ -102903,8 +102910,10 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-			value: true
+	    value: true
 	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _pixi = __webpack_require__(1);
 	
@@ -102913,6 +102922,14 @@
 	var _config = __webpack_require__(225);
 	
 	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(233);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _StarParticle = __webpack_require__(622);
+	
+	var _StarParticle2 = _interopRequireDefault(_StarParticle);
 	
 	var _gsap = __webpack_require__(228);
 	
@@ -102929,40 +102946,336 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var BackgroundEffects = function (_PIXI$Container) {
-			_inherits(BackgroundEffects, _PIXI$Container);
+	    _inherits(BackgroundEffects, _PIXI$Container);
 	
-			function BackgroundEffects() {
-					_classCallCheck(this, BackgroundEffects);
+	    function BackgroundEffects() {
+	        _classCallCheck(this, BackgroundEffects);
 	
-					var _this = _possibleConstructorReturn(this, (BackgroundEffects.__proto__ || Object.getPrototypeOf(BackgroundEffects)).call(this));
+	        // 0x3B61A0, 0x313984
+	        var _this = _possibleConstructorReturn(this, (BackgroundEffects.__proto__ || Object.getPrototypeOf(BackgroundEffects)).call(this));
 	
-					_this.background = new PIXI.Graphics().beginFill(0).drawRect(0, 0, _config2.default.width, _config2.default.height);
-					_this.addChild(_this.background);
+	        window.SKYCOLOR = {
+	            morningOld: {
+	                top: 0x4373d4,
+	                // top: 0x4e72c4,
+	                // bottom: 0x313984,
+	                bottom: 0x75a2fb,
+	                front1: 0xf5ddff,
+	                blur: 0xf5ddff,
+	                additiveSky: 0xf5ddff,
+	                slot: 0xFFFFFF
+	            },
+	            night: {
+	                top: 0x9900ff,
+	                bottom: 0x3300FF, //0x313984,
+	                // bottom: 0x3B61A0,
+	                front1: 0x8985ff,
+	                blur: 0x00FF00,
+	                additiveSky: 0xFF00FF,
+	                slot: 0xFFFFFF
+	            },
+	            day: {
+	                top: 0x003399,
+	                bottom: 0x663399,
+	                front1: 0x8985ff,
+	                blur: 0x00FF00,
+	                additiveSky: 0xFF00FF,
+	                slot: 0xFFFFFF
+	            },
+	            morning: {
+	                top: 0x313984,
+	                // top: 0x4e72c4,
+	                // bottom: 0x313984,
+	                bottom: 0xFF00FF,
+	                front1: 0x8985ff,
+	                blur: 0x00FF00,
+	                additiveSky: 0xFF00FF,
+	                slot: 0xFFFFFF
+	            }
+	        };
 	
-					_this.bgImage = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
-					_this.bgImage.anchor.x = 0.5;
-					_this.bgImage.x = _config2.default.width / 2;
-					_this.bgImage.y = _config2.default.height - _this.bgImage.height;
-					// this.addChild(this.bgImage);
+	        window.CURRENT_SKYCOLOR = null;
 	
-					_this.bgImageTop = new PIXI.Sprite(PIXI.Texture.fromImage('./assets/images/game_bg.png'));
-					_this.bgImageTop.anchor.x = 0.5;
-					_this.bgImageTop.x = _config2.default.width / 2;
-					_this.bgImageTop.y = _this.bgImageTop.height;
-					_this.bgImageTop.scale.y = -1;
-					// this.addChild(this.bgImageTop);
+	        _this.background = new PIXI.Graphics().beginFill(0).drawRect(0, 0, _config2.default.width, _config2.default.height);
+	        _this.addChild(_this.background);
 	
-					_this.particles = [];
-					return _this;
-			}
+	        // this.topGradient = new PIXI.Sprite(PIXI.Texture.from('sky-gradient'));
+	        // this.topGradient.width = config.width + 50;
+	        // this.topGradient.height = config.height + 50;
+	        // this.topGradient.x = -25;
+	        // this.topGradient.y = -25;
+	        // this.addChild(this.topGradient);
 	
-			return BackgroundEffects;
+	        // this.bottomGradient = new PIXI.Sprite(PIXI.Texture.from('sky-gradient'));
+	        // this.bottomGradient.scale.y = -1;
+	        // this.bottomGradient.width = config.width + 50;
+	        // this.bottomGradient.height = config.height + 50;
+	        // this.bottomGradient.x = -25;
+	        // this.bottomGradient.y = this.bottomGradient.height + 25;
+	        // this.addChild(this.bottomGradient);
+	
+	        // this.bigblur = new PIXI.Sprite(PIXI.Texture.from('bigblur'));
+	        // this.bigblur.width = config.width + 50;
+	        // this.bigblur.height = config.height + 50;
+	        // this.bigblur.x = -25;
+	        // this.bigblur.y = -25;
+	        // this.bigblur.blendMode = PIXI.BLEND_MODES.ADD;
+	        // this.bigblur.tint = 0
+	        // this.bigblur.alpha = 0.5
+	        // this.addChild(this.bigblur);
+	
+	        // // new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/glitch1.jpg', config.width, config.height))
+	        // this.additiveSky = new PIXI.extras.TilingSprite(PIXI.Texture.from('testefx1'), 1080, 1800);
+	        // this.additiveSky.width = config.width * 2;
+	        // this.additiveSky.height = config.height * 2;
+	        // this.additiveSky.blendMode = PIXI.BLEND_MODES.ADD;
+	        // this.additiveSky.tint = 0
+	        // this.additiveSky.alpha = 0.3
+	        // this.additiveSky.scale.set(0.75, 0.5)
+	        // // this.addChild(this.additiveSky);
+	
+	        _this.starsContainer = new PIXI.Container();
+	        _this.addChild(_this.starsContainer);
+	
+	        //this.addStars();
+	        // this.groundContainer = new PIXI.Container();
+	        // // this.addChild(this.groundContainer);
+	
+	        // this.fogGradient = new PIXI.Sprite(PIXI.Texture.from('sky-gradient'));
+	        // this.fogGradient.scale.y = -1;
+	        // this.fogGradient.width = config.width + 50;
+	        // this.fogGradient.height = config.height * 0.35;
+	        // this.fogGradient.x = -25;
+	        // this.fogGradient.y = config.height // - 200;
+	        //     // this.fogGradient.blendMode = PIXI.BLEND_MODES.ADD;
+	        // this.fogGradient.tint = 0xfed7ff;
+	        // this.groundContainer.addChild(this.fogGradient);
+	
+	        // this.topGradient.tint = 0x000000;
+	        // this.bottomGradient.tint = 0x000000;
+	
+	
+	        // if (window.location.hash) {
+	        //     var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+	        //     if (hash == 'd') {
+	        //         //this.changeColors('day');
+	        //     } else {
+	        //         this.changeColors();
+	        //     }
+	        // } else {
+	        //     this.changeColors();
+	        // }
+	
+	        _this.starsMoveTimer = 0;
+	
+	        _this.starsDeacc = 0.9;
+	
+	        _this.currentSpeed = {
+	            x: 0,
+	            y: 0
+	        };
+	        return _this;
+	    }
+	
+	    _createClass(BackgroundEffects, [{
+	        key: 'changeStates',
+	        value: function changeStates() {
+	            var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'start';
+	
+	            return;
+	            if (type == 'start') {
+	                _gsap2.default.to(this.groundContainer, 2, {
+	                    y: 0
+	                });
+	                // this.groundContainer
+	            }
+	            if (type == 'load') {
+	                _gsap2.default.to(this.groundContainer, 2, {
+	                    y: 400
+	                });
+	                // this.groundContainer
+	            }
+	        }
+	    }, {
+	        key: 'update',
+	        value: function update(delta) {
+	            // console.log(delta);
+	            // console.log(this.starsDeacc);
+	            // if (this.starsMoveTimer > 0) {
+	
+	            this.additiveSky.tilePosition.y += this.currentSpeed.y * delta;
+	            // this.additiveSky.tilePosition.y %= this.additiveSky.tilePosition.height;
+	            for (var i = 0; i < this.stars.length; i++) {
+	                // this.stars[i].velocity.x *= this.starsDeacc;
+	                // this.stars[i].velocity.y *= this.starsDeacc;
+	                this.stars[i].update(delta);
+	            }
+	            // this.starsMoveTimer -= delta;
+	            // }
+	        }
+	    }, {
+	        key: 'addStars',
+	        value: function addStars() {
+	            var totalStars = 80;
+	            this.stars = [];
+	            for (var i = 0; i < totalStars; i++) {
+	                var dist = Math.random() * 2 + 1;
+	                var tempStar = new _StarParticle2.default(dist);
+	                tempStar.alpha = dist / 3 * 0.6 + 0.2;
+	                var toClose = true;
+	                var acc = 5;
+	                while (toClose || acc > 0) {
+	                    acc--;
+	                    var angle = Math.random() * Math.PI * 2;
+	                    var radius = Math.random() * _config2.default.height * 0.5 + 20;
+	                    tempStar.x = Math.cos(angle) * radius + _config2.default.width / 2;
+	                    tempStar.y = Math.sin(angle) * radius + _config2.default.height / 2;
+	                    toClose = false;
+	                    for (var j = 0; j < this.stars.length; j++) {
+	                        var distance = _utils2.default.distance(this.stars[j].x, this.stars[j].y, tempStar.x, tempStar.y);
+	                        if (distance > 15) {} else {
+	                            toClose = true;
+	                            break;
+	                        }
+	                    }
+	                }
+	                this.starsContainer.addChild(tempStar);
+	                this.stars.push(tempStar);
+	            }
+	        }
+	    }, {
+	        key: 'moveStars',
+	        value: function moveStars() {
+	            var side = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+	            // console.log('move', side);
+	            for (var i = 0; i < this.stars.length; i++) {
+	
+	                this.stars[i].velocity.x = side * this.stars[i].alpha;
+	            }
+	            this.starsMoveTimer = 1;
+	        }
+	    }, {
+	        key: 'moveStarsVertical',
+	        value: function moveStarsVertical() {
+	            var speed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+	            this.currentSpeed.y = speed;
+	            for (var i = 0; i < this.stars.length; i++) {
+	
+	                this.stars[i].velocity.y = this.currentSpeed.y * this.stars[i].alpha;
+	            }
+	            this.starsMoveTimer = 1;
+	        }
+	    }, {
+	        key: 'changeColors',
+	        value: function changeColors() {
+	            var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'morning';
+	
+	
+	            CURRENT_SKYCOLOR = SKYCOLOR[type];
+	            _utils2.default.addColorTween(this.topGradient, this.topGradient.tint, SKYCOLOR[type].top);
+	            _utils2.default.addColorTween(this.bottomGradient, this.bottomGradient.tint, SKYCOLOR[type].bottom);
+	            _utils2.default.addColorTween(this.bigblur, this.bigblur.tint, SKYCOLOR[type].blur);
+	            _utils2.default.addColorTween(this.additiveSky, this.additiveSky.tint, SKYCOLOR[type].additiveSky);
+	            // utils.addColorTween(this.front1, this.front1.tint, SKYCOLOR[type].front1);
+	            // utils.addColorTween(this.front2, this.front2.tint, SKYCOLOR[type].front2);
+	            // utils.addColorTween(this.front3, this.front3.tint, SKYCOLOR[type].front3);
+	            _utils2.default.addColorTween(this.fogGradient, this.fogGradient.tint, SKYCOLOR[type].fogGradient);
+	            // utils.addColorTween(this.man, this.man.tint, SKYCOLOR[type].man);
+	        }
+	    }]);
+	
+	    return BackgroundEffects;
 	}(PIXI.Container);
 	
 	exports.default = BackgroundEffects;
 
 /***/ }),
 /* 622 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pixi = __webpack_require__(1);
+	
+	var PIXI = _interopRequireWildcard(_pixi);
+	
+	var _config = __webpack_require__(225);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var StarParticle = function (_PIXI$Container) {
+	    _inherits(StarParticle, _PIXI$Container);
+	
+	    function StarParticle(size) {
+	        _classCallCheck(this, StarParticle);
+	
+	        var _this = _possibleConstructorReturn(this, (StarParticle.__proto__ || Object.getPrototypeOf(StarParticle)).call(this));
+	
+	        var listParticles = ['./assets/images/p1.png', './assets/images/p2.png', './assets/images/p1.png', './assets/images/p2.png'];
+	        var p = listParticles[Math.floor(Math.random() * listParticles.length)];
+	        // console.log(p);
+	        _this.graphics = new PIXI.Sprite(PIXI.Texture.from(p)); // new PIXI.Graphics().beginFill(0xFFFFFF).drawRect(0,0,size,size);
+	        _this.graphics.anchor.set(0.5);
+	
+	        if (p == listParticles[listParticles.length - 1]) {
+	            _this.graphics.scale.set(size / _this.graphics.width * 4.5 * 0.05);
+	        } else {
+	            _this.graphics.scale.set(size / _this.graphics.width * 1.5 * 0.05);
+	        }
+	        // this.graphics.rotation = Math.PI / 4;
+	        _this.addChild(_this.graphics);
+	        _this.velocity = {
+	            x: 0,
+	            y: 0
+	        };
+	        return _this;
+	    }
+	
+	    _createClass(StarParticle, [{
+	        key: 'update',
+	        value: function update(delta) {
+	            this.x += this.velocity.x * delta;
+	            this.y += this.velocity.y * delta;
+	
+	            if (this.x > _config2.default.width * 1.2) {
+	                this.x = -Math.random() * _config2.default.width * 0.15;
+	            } else if (this.x < -_config2.default.width * 0.2) {
+	                this.x = _config2.default.width + Math.random() * _config2.default.width * 0.15;
+	            }
+	
+	            if (this.y > _config2.default.height * 1.2) {
+	                this.y = -Math.random() * _config2.default.height * 0.05;
+	            } else if (this.y < -_config2.default.height * 0.2) {
+	                this.y = _config2.default.height + Math.random() * _config2.default.height * 0.05;
+	            }
+	        }
+	    }]);
+	
+	    return StarParticle;
+	}(PIXI.Container);
+	
+	exports.default = StarParticle;
+
+/***/ }),
+/* 623 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -103304,7 +103617,7 @@
 	exports.default = EndGameContainer;
 
 /***/ }),
-/* 623 */
+/* 624 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -103355,7 +103668,7 @@
 			_this.blackShape.beginFill(0);
 			_this.blackShape.drawRect(0, 0, _config2.default.width, _config2.default.height);
 			_this.blackShape.alpha = 0;
-			_this.addChild(_this.blackShape);
+			//this.addChild(this.blackShape);
 	
 			_this.grey = new PIXI.Graphics();
 			_this.grey.beginFill(0X555555);
@@ -103364,7 +103677,7 @@
 			_this.addChild(_this.grey);
 	
 			_this.tvLines = new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/tvlines.png', _config2.default.width, _config2.default.height));
-			_this.addChild(_this.tvLines);
+			//this.addChild(this.tvLines)
 			_this.tvLines.width = _config2.default.width;
 			_this.tvLines.height = _config2.default.height;
 			_this.tvLines.blendMode = PIXI.BLEND_MODES.ADD;
@@ -103817,7 +104130,7 @@
 	exports.default = EffectLayer;
 
 /***/ }),
-/* 624 */
+/* 625 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -104043,7 +104356,7 @@
 	exports.default = ChooseMatchScreen;
 
 /***/ }),
-/* 625 */
+/* 626 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -104066,7 +104379,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _Ball = __webpack_require__(626);
+	var _Ball = __webpack_require__(627);
 	
 	var _Ball2 = _interopRequireDefault(_Ball);
 	
@@ -104133,7 +104446,7 @@
 	exports.default = Pool;
 
 /***/ }),
-/* 626 */
+/* 627 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';

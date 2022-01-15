@@ -13,7 +13,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.blackShape.beginFill(0);
 	    this.blackShape.drawRect( 0, 0, config.width, config.height);
 	    this.blackShape.alpha = 0;
-		this.addChild(this.blackShape);
+		//this.addChild(this.blackShape);
 
 		this.grey = new PIXI.Graphics();
 		this.grey.beginFill(0X555555);
@@ -22,7 +22,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.addChild(this.grey);
 
 		this.tvLines = new PIXI.extras.TilingSprite(PIXI.Texture.fromImage('./assets/images/tvlines.png', config.width, config.height))
-		this.addChild(this.tvLines)
+		//this.addChild(this.tvLines)
 		this.tvLines.width = config.width;
 		this.tvLines.height = config.height;
 		this.tvLines.blendMode = PIXI.BLEND_MODES.ADD;

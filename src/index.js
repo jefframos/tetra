@@ -13,6 +13,7 @@ import ChooseFieldScreen from './game/screen/ChooseFieldScreen';
 import GameOverScreen from './game/screen/GameOverScreen';
 import TetraScreen from './game/screen/TetraScreen';
 import EffectLayer from './game/effects/EffectLayer';
+import BackgroundEffects from './game/effects/BackgroundEffects';
 import ChooseMatchScreen from './game/screen/ChooseMatchScreen';
 import Pool from './game/core/Pool';
 
@@ -142,6 +143,9 @@ function configGame() {
 	});
 	console.log(window.levelTiersData)
 	//create screen manager
+
+
+	//window.BACKGROUND_EFFECTS = new BackgroundEffects()
 	let screenManager = new ScreenManager();
 	//add screens
 	let gameScreen = new TetraScreen('GameScreen');
