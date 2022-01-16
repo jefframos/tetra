@@ -144,13 +144,14 @@ function configGame() {
 	console.log(window.levelTiersData)
 	//create screen manager
 
+	game.onCompleteLoad();
 
 	//window.BACKGROUND_EFFECTS = new BackgroundEffects()
-	let screenManager = new ScreenManager();
 	//add screens
+	let screenManager = game.screenManager;
 	let gameScreen = new TetraScreen('GameScreen');
 
-	game.stage.addChild(screenManager);
+	//game.stage.addChild(screenManager);
 
 	screenManager.addScreen(gameScreen);
 	//change to init screen
@@ -162,7 +163,6 @@ function configGame() {
 
 	// screenManager.filters = [this.pixelate]
 
-	game.start();
 
 
 

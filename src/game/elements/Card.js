@@ -23,7 +23,7 @@ export default class Card extends PIXI.Container {
 		this.cardBackground3 = new PIXI.Graphics().beginFill(0x000000).drawRect(CARD.width / 2 - 10, CARD.height / 2, 19, 10);
 		this.enemySprite = PIXI.Sprite.fromImage('./assets/images/enemy.png');
 
-		this.enemySprite.scale.set(CARD.width / this.enemySprite.width * 0.6)
+		this.enemySprite.scale.set(CARD.width / this.enemySprite.width * 0.55)
 		this.enemySprite.anchor.set(0.5);
 
 		this.cardBackground.alpha = 0;
@@ -162,9 +162,9 @@ export default class Card extends PIXI.Container {
 
 		if (isCurrent) {
 			this.backshape = new PIXI.Graphics();
-			this.backshape.lineStyle(3, this.enemySprite.tint, 1);
-			//this.backshape.beginFill(0xFFFF0B, 0.5);
-			this.backshape.drawCircle(0, 0, CARD.width * 0.7);
+			//this.backshape.lineStyle(3, this.enemySprite.tint, 1);
+			this.backshape.beginFill(this.enemySprite.tint);
+			this.backshape.drawCircle(0, 0, CARD.width * 0.5);
 			this.backshape.endFill();
 			this.addChildAt(this.backshape, 0);
 			this.backshape.x = this.enemySprite.x

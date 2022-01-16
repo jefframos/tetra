@@ -18,84 +18,98 @@ export default {
         }
         return value
     },
-    centerObject(target, parent){
+    scaleSize(element, innerResolution, ratio, offset = { x: 1, y: 1 }) {
+        if (innerResolution.width / innerResolution.height >= ratio) {
+            //var w = window.innerHeight * this.ratio;
+            var w = innerResolution.height * ratio //* offset.x;
+            var h = innerResolution.height //* offset.x;
+        } else {
+            var w = innerResolution.width //* offset.y;
+            var h = innerResolution.width / ratio //* offset.y;
+
+        }
+
+        element.width = w;
+        element.height = h;
+    },
+    centerObject(target, parent) {
         target.x = parent.width / 2 - target.width * 0.5;
         target.y = parent.height / 2 - target.height * 0.5;
     },
 
-    centerObject2(target, parent){
+    centerObject2(target, parent) {
         target.x = parent.width / 2;
         target.y = parent.height / 2;
     },
 
-    alphabetCompare(a,b) {
+    alphabetCompare(a, b) {
         var yA = a.type;
         var yB = b.type;
-        if (yA < yB){
+        if (yA < yB) {
             return -1;
         }
-        if (yA > yB){
+        if (yA > yB) {
             return 1;
         }
         return 0;
     },
-    xCompare(a,b) {
+    xCompare(a, b) {
         var yA = a.x;
-        var yB = b.x;        
-        if (yA > yB){
+        var yB = b.x;
+        if (yA > yB) {
             return -1;
         }
-        if (yA < yB){
+        if (yA < yB) {
             return 1;
         }
         return 0;
     },
-    distCompare(a,b) {
+    distCompare(a, b) {
         var yA = a.dist;
         var yB = b.dist;
-        if(yA === yB){
+        if (yA === yB) {
             return 0;
         }
-        if(a.noDepth || b.noDepth){
+        if (a.noDepth || b.noDepth) {
             return 0;
         }
-        if (yA < yB){
+        if (yA < yB) {
             return -1;
         }
-        if (yA > yB){
+        if (yA > yB) {
             return 1;
         }
         return 0;
     },
-    depthCompare(a,b) {
+    depthCompare(a, b) {
         var yA = a.y;
         var yB = b.y;
-        if(yA === yB){
+        if (yA === yB) {
             return 0;
         }
-        if(a.noDepth || b.noDepth){
+        if (a.noDepth || b.noDepth) {
             return 0;
         }
-        if (yA < yB){
+        if (yA < yB) {
             return -1;
         }
-        if (yA > yB){
+        if (yA > yB) {
             return 1;
         }
         return 0;
     },
     createNoiseTexture(config) {
 
-    	var params = config?config:{};
+        var params = config ? config : {};
 
         var canvas = document.createElement('canvas');
-        canvas.width = params.width?params.width:32
-        canvas.height = params.height?params.height:32
+        canvas.width = params.width ? params.width : 32
+        canvas.height = params.height ? params.height : 32
 
         var ctx = canvas.getContext('2d'),
             x, y,
             number,
-            opacity = params.opacity?params.opacity:0.2
+            opacity = params.opacity ? params.opacity : 0.2
 
         for (x = 0; x < canvas.width; x++) {
             for (y = 0; y < canvas.height; y++) {
@@ -112,30 +126,30 @@ export default {
 
     createDotTexture(config) {
 
-    	var params = config?config:{};
+        var params = config ? config : {};
 
         var canvas = document.createElement('canvas');
-        canvas.width = params.width?params.width:32
-        canvas.height = params.height?params.height:32
+        canvas.width = params.width ? params.width : 32
+        canvas.height = params.height ? params.height : 32
 
         var ctx = canvas.getContext('2d');
 
 
-       
+
         var x = canvas.width / 2,
             y = canvas.height / 2,
             // Radii of the white glow.
-            innerRadius = config.innerRadius?config.innerRadius:0,
-            outerRadius = config.outerRadius?config.outerRadius:canvas.width*0.3,
+            innerRadius = config.innerRadius ? config.innerRadius : 0,
+            outerRadius = config.outerRadius ? config.outerRadius : canvas.width * 0.3,
             // Radius of the entire circle.
             radius = canvas.width;
 
         var gradient = ctx.createRadialGradient(x, y, innerRadius, x, y, outerRadius);
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(0.5, '#333');
-         // gradient.addColorStop(0.75, '#030303');
-         gradient.addColorStop(0.75, '#020202');
-         gradient.addColorStop(0.95, '#010101');
+        // gradient.addColorStop(0.75, '#030303');
+        gradient.addColorStop(0.75, '#020202');
+        gradient.addColorStop(0.95, '#010101');
         gradient.addColorStop(0.7, 'black');
 
         ctx.arc(x, y, radius, 0, 2 * Math.PI);
@@ -149,50 +163,50 @@ export default {
     },
 
     perlinNoise(config) {
-        var params = config?config:{};
-    	
+        var params = config ? config : {};
+
         var canvas = document.createElement('canvas');
-        canvas.width = params.width?params.width:32
-        canvas.height = params.height?params.height:32
+        canvas.width = params.width ? params.width : 32
+        canvas.height = params.height ? params.height : 32
 
-    	var noise = this.randomNoise(canvas);
+        var noise = this.randomNoise(canvas);
         var ctx = canvas.getContext('2d');
-	    ctx.save();
-	    
-	    /* Scale random iterations onto the canvas to generate Perlin noise. */
-	    for (var size = 4; size <= noise.width; size *= 2) {
-	        var x = (Math.random() * (noise.width - size)) | 0,
-	            y = (Math.random() * (noise.height - size)) | 0;
-	        ctx.globalAlpha = 4 / size;
-	        ctx.drawImage(noise, x, y, size, size, 0, 0, canvas.width, canvas.height);
-	    }
+        ctx.save();
 
-	    ctx.restore();
-	    var sprite = new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
+        /* Scale random iterations onto the canvas to generate Perlin noise. */
+        for (var size = 4; size <= noise.width; size *= 2) {
+            var x = (Math.random() * (noise.width - size)) | 0,
+                y = (Math.random() * (noise.height - size)) | 0;
+            ctx.globalAlpha = 4 / size;
+            ctx.drawImage(noise, x, y, size, size, 0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.restore();
+        var sprite = new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
         sprite.anchor.set(0.5);
         return sprite;
-	},
+    },
 
-	randomNoise(canvas, x, y, width, height, alpha) {
-		var canvas = document.createElement('canvas');
-	    x = x || 0;
-	    y = y || 0;
-	    width = width || canvas.width;
-	    height = height || canvas.height;
-	    alpha = alpha || 255;
-	    var g = canvas.getContext("2d"),
-	        imageData = g.getImageData(x, y, width, height),
-	        random = Math.random,
-	        pixels = imageData.data,
-	        n = pixels.length,
-	        i = 0;
-	    while (i < n) {
-	        pixels[i++] = pixels[i++] = pixels[i++] = (random() * 256) | 0;
-	        pixels[i++] = alpha;
-	    }
-	    g.putImageData(imageData, x, y);
-	    return canvas;
-	},
+    randomNoise(canvas, x, y, width, height, alpha) {
+        var canvas = document.createElement('canvas');
+        x = x || 0;
+        y = y || 0;
+        width = width || canvas.width;
+        height = height || canvas.height;
+        alpha = alpha || 255;
+        var g = canvas.getContext("2d"),
+            imageData = g.getImageData(x, y, width, height),
+            random = Math.random,
+            pixels = imageData.data,
+            n = pixels.length,
+            i = 0;
+        while (i < n) {
+            pixels[i++] = pixels[i++] = pixels[i++] = (random() * 256) | 0;
+            pixels[i++] = alpha;
+        }
+        g.putImageData(imageData, x, y);
+        return canvas;
+    },
 
     getSprite(frame) {
         let texture = PIXI.Texture.fromFrame(frame);
@@ -212,28 +226,28 @@ export default {
 
     linear(t) { return t },
     // accelerating from zero velocity
-    easeInQuad(t) { return t*t },
+    easeInQuad(t) { return t * t },
     // decelerating to zero velocity
-    easeOutQuad(t) { return t*(2-t) },
+    easeOutQuad(t) { return t * (2 - t) },
     // acceleration until halfway, then deceleration
-    easeInOutQuad(t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },
+    easeInOutQuad(t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
     // accelerating from zero velocity 
-    easeInCubic(t) { return t*t*t },
+    easeInCubic(t) { return t * t * t },
     // decelerating to zero velocity 
-    easeOutCubic(t) { return (--t)*t*t+1 },
+    easeOutCubic(t) { return (--t) * t * t + 1 },
     // acceleration until halfway, then deceleration 
-    easeInOutCubic(t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 },
+    easeInOutCubic(t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
     // accelerating from zero velocity 
-    easeInQuart(t) { return t*t*t*t },
+    easeInQuart(t) { return t * t * t * t },
     // decelerating to zero velocity 
-    easeOutQuart(t) { return 1-(--t)*t*t*t },
+    easeOutQuart(t) { return 1 - (--t) * t * t * t },
     // acceleration until halfway, then deceleration
-    easeInOutQuart(t) { return t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t },
+    easeInOutQuart(t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
     // accelerating from zero velocity
-    easeInQuint(t) { return t*t*t*t*t },
+    easeInQuint(t) { return t * t * t * t * t },
     // decelerating to zero velocity
-    easeOutQuint(t) { return 1+(--t)*t*t*t*t },
+    easeOutQuint(t) { return 1 + (--t) * t * t * t * t },
     // acceleration until halfway, then deceleration 
-    easeInOutQuint(t) { return t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t }
+    easeInOutQuint(t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
 
 }

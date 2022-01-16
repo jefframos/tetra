@@ -112,7 +112,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.displacementFilterscreenDisplacement,
 		this.blur];
 
-		this.filtersActives = [false, false,false,false, false, false, false, false, false, true, false];
+		this.filtersActives = [false, false,false,false, false, false, false, false, false, false, false];
 
 		this.updateFilters();
 		
@@ -146,6 +146,12 @@ export default class EffectLayer extends PIXI.Container{
 		this.rgpSplit.blue = new PIXI.Point(value,-value);
 	}
 	updateFilters(){
+		
+		this.screenManager.filters = [];
+
+		//return;
+
+
 		var filtersToApply = [];
 		for (var i = 0; i < this.filtersList.length; i++) {
 			
@@ -219,7 +225,6 @@ export default class EffectLayer extends PIXI.Container{
 	}
 
 	removePixelate(){
-		console.log(removePixelate);
 		this.filtersActives[this.ID_PIXELATE] = false;
 		this.updateFilters();
 	}
@@ -232,6 +237,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.updateFilters();
 	}
 	addRGBSplitter(){
+		//return
 		this.filtersActives[this.ID_RGBSPLIT] = true;		
 		this.updateFilters();		
 	}
@@ -244,6 +250,7 @@ export default class EffectLayer extends PIXI.Container{
 		this.updateFilters();	
 	}
 	addShockwave(x,y,time = 1, delay = 0){
+		return
 		this.filtersActives[this.ID_SHOCKWAVE] = true;
 		this.updateFilters();
 		// this.shockwave.wavelength = 0.5;
@@ -280,6 +287,7 @@ export default class EffectLayer extends PIXI.Container{
 		TweenLite.to(this.rgpSplit.blue, time, {delay:delay, x:endValue, y:-endValue});
 	}
 	shakeSplitter(force = 1, steps = 4, time = 1, removeAfter = true){
+		return;
 		this.filtersActives[this.ID_RGBSPLIT] = true;		
 		this.updateFilters();		
 		if(config.isJuicy == 0){
