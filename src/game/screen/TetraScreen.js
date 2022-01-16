@@ -239,7 +239,7 @@ export default class TetraScreen extends Screen {
 		this.UIInGame.addChild(this.pointsLabel)
 		this.UIInGame.addChild(this.roundsLabel)
 		this.UIInGame.addChild(this.entitiesLabel)
-		this.UIInGame.y = -200;
+		this.UIInGame.y = -400;
 
 		this.cardQueueContainer = new PIXI.Container();
 		this.startScreenContainer.x = this.width / 2
@@ -367,7 +367,7 @@ export default class TetraScreen extends Screen {
 		TweenLite.to(this.gridContainer, 0.5, { alpha: 0 })
 
 		TweenLite.killTweensOf(this.UIInGame);
-		TweenLite.to(this.UIInGame, 0.5, { y: -200 })
+		TweenLite.to(this.UIInGame, 0.5, { y: -400 })
 
 
 		if (this.currentCard) {
