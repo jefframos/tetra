@@ -58676,7 +58676,7 @@
 				this.UIInGame.addChild(this.entitiesLabel);
 				//this.UIInGame.y = -400;
 	
-				this.cardQueueContainer = new PIXI.Container();
+				this.containerQueue = new PIXI.Container();
 				this.startScreenContainer.x = this.width / 2;
 				this.startScreenContainer.y = this.height / 2;
 	
@@ -58687,7 +58687,7 @@
 	
 				this.endGameScreenContainer.addEvents();
 	
-				this.bottomUIContainer.addChild(this.cardQueueContainer);
+				this.bottomUIContainer.addChild(this.containerQueue);
 	
 				this.UIContainer.addChild(this.mainMenuContainer);
 	
@@ -58822,8 +58822,7 @@
 			value: function hideInGameElements() {
 				_gsap2.default.killTweensOf(this.cardsContainer);
 				_gsap2.default.killTweensOf(this.gridContainer);
-				// TweenLite.killTweensOf(this.cardQueueContainer);
-				// TweenLite.to(this.cardQueueContainer, 0.25, { alpha: 0 })
+	
 				_gsap2.default.to(this.cardsContainer, 0.5, { alpha: 0 });
 				_gsap2.default.to(this.gridContainer, 0.5, { alpha: 0 });
 	
@@ -58838,8 +58837,7 @@
 			value: function showInGameElements() {
 				_gsap2.default.killTweensOf(this.cardsContainer);
 				_gsap2.default.killTweensOf(this.gridContainer);
-				// TweenLite.killTweensOf(this.cardQueueContainer);
-				// TweenLite.to(this.cardQueueContainer, 0.1, { alpha: 1 })
+	
 				_gsap2.default.to(this.cardsContainer, 0.1, { alpha: 1 });
 				_gsap2.default.to(this.gridContainer, 0.1, { alpha: 0.5 });
 				if (this.currentCard) {
@@ -58918,7 +58916,8 @@
 	
 				this.bottomUICanvas = new PIXI.Graphics().beginFill(0x0000FF).drawRect(0, 0, 1, 1);
 				this.bottomUIContainer.addChild(this.bottomUICanvas);
-				this.bottomUICanvas.alpha = 0.1;
+				//this.bottomUICanvas.alpha = 0.1
+	
 	
 				this.addChild(this.gameContainer);
 	
@@ -59096,7 +59095,7 @@
 					card.updateSprite(card.life);
 					card.type = 0;
 					card.x = 0;
-					this.cardQueueContainer.addChild(card);
+					this.containerQueue.addChild(card);
 					this.cardQueue.push(card);
 					card.setOnQueue();
 				}
@@ -59124,7 +59123,7 @@
 				this.currentCard.updateCard(true);
 				this.cardsContainer.addChild(this.currentCard);
 	
-				var globalQueue = this.toGlobal(this.cardQueueContainer);
+				var globalQueue = this.toGlobal(this.containerQueue);
 				var localQueue = this.cardsContainer.toLocal(globalQueue);
 				this.currentCard.x = CARD.width * GRID.i; //- this.cardsContainer.x//CARD.width/2 - this.currentCard.width / 2;
 			}
@@ -59212,6 +59211,13 @@
 	
 				this.bottomUIContainer.x = this.gameCanvas.x;
 				this.bottomUIContainer.y = _utils2.default.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height, 0.2);
+				// console.log(this.containerQueue.parent, this.containerQueue.visible)
+	
+				// this.containerQueue.x = 0
+				// this.containerQueue.y = 0
+				// if(this.containerQueue.parent != this.topUIContainer){
+				// 	this.topUIContainer.addChild(this.containerQueue)
+				// }
 	
 				this.updateLabelsPosition();
 				this.updateUI();
@@ -59372,14 +59378,15 @@
 	
 				_utils2.default.scaleSize(this.gameCanvas, innerResolution, this.ratio);
 	
-				this.resizeToFitAR({ width: this.bottomUICanvas.width * 0.8, height: this.bottomUICanvas.height * 0.4 }, this.cardQueueContainer);
+				//this.resizeToFitAR({width:this.bottomUICanvas.width * 0.8, height:this.bottomUICanvas.height * 0.4},this.containerQueue)
 				this.resizeToFitAR({ width: this.gameCanvas.width * 0.8, height: this.gameCanvas.height * 0.75 }, this.gridContainer);
 				this.resizeToFit({ width: this.gameCanvas.width, height: this.gameCanvas.height * 0.1 }, this.topCanvas);
 				this.resizeToFit({ width: this.gameCanvas.width, height: this.gameCanvas.height * 0.125 }, this.bottomUICanvas);
 	
-				this.cardQueueContainer.x = 20;
-				this.cardQueueContainer.y = this.bottomUICanvas.height * 0.5;
+				this.containerQueue.x = 20;
+				this.containerQueue.y = this.bottomUICanvas.height * 0.5;
 	
+				this.containerQueue.scale.set(this.bottomUICanvas.height / CARD.height * 0.4);
 				//console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height)
 	
 				this.cardsContainer.scale.x = this.gridContainer.scale.x;
@@ -59403,6 +59410,8 @@
 					this.currentCard.y = this.gridContainer.height / this.gridContainer.scale.y + 10;
 				}
 	
+				_utils2.default.centerObject(this.startScreenContainer, this);
+				this.startScreenContainer.scale.set(this.ratio);
 				this.updateLabelsPosition();
 				//this.gameContainer.scale.set(window.ratio)
 			}
@@ -103242,14 +103251,14 @@
 	
 					_this.resetLabel.rotation = -Math.PI * 0.25;
 	
-					_this.resetLabel.x = -80;
-					_this.resetLabel.y = -240;
+					_this.resetLabel.x = 0;
+					_this.resetLabel.y = -290;
 	
 					_this.playLabel = new PIXI.Text("PLAY", { font: '60px', fill: 0x000000, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
 					_this.screenContainer.addChild(_this.playLabel);
 					_this.playLabel.rotation = Math.PI * -0.25;
-					_this.playLabel.x = -_config2.default.width / 2 + 80;
-					_this.playLabel.y = _config2.default.height / 2 - 170;
+					_this.playLabel.x = -_config2.default.width / 2 + 80 + Math.cos(_this.playLabel.rotation) * 200;
+					_this.playLabel.y = _config2.default.height / 2 - 170 + Math.sin(_this.playLabel.rotation) * 200;
 	
 					_this.playLine.on('mousedown', _this.resetGame.bind(_this)).on('touchstart', _this.resetGame.bind(_this));
 	
@@ -103276,6 +103285,7 @@
 	
 					_this.levelSelectionContainer.x = _config2.default.width;
 					_this.levelSelectionContainer.y = -_this.y;
+					_this.levelSelectionContainer.visible = false;
 					return _this;
 			}
 	
@@ -103331,11 +103341,14 @@
 							this.backButton.interactive = true;
 	
 							this.chooseLevelPanel.visible = true;
+							this.levelSelectionContainer.visible = true;
 							this.levelSelectionContainer.y = -this.y;
 					}
 			}, {
 					key: 'startState',
 					value: function startState() {
+							var _this2 = this;
+	
 							var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 							var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	
@@ -103345,7 +103358,9 @@
 							this.backButton.interactive = false;
 	
 							_gsap2.default.to(this.screenContainer, force ? 0 : 0.75, { delay: delay, alpha: 1, y: 0, x: 0, rotation: 0, ease: Cubic.easeOut });
-							_gsap2.default.to(this.levelSelectionContainer, force ? 0 : 0.5, { delay: delay, alpha: 1, x: _config2.default.width, rotation: 0, ease: Cubic.easeOut });
+							_gsap2.default.to(this.levelSelectionContainer, force ? 0 : 0.5, { delay: delay, alpha: 1, x: _config2.default.width, rotation: 0, ease: Cubic.easeOut, onComplete: function onComplete() {
+											_this2.levelSelectionContainer.visible = false;
+									} });
 	
 							this.levelSelectionContainer.y = -this.y;
 					}

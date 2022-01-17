@@ -241,7 +241,7 @@ export default class TetraScreen extends Screen {
 		this.UIInGame.addChild(this.entitiesLabel)
 		//this.UIInGame.y = -400;
 
-		this.cardQueueContainer = new PIXI.Container();
+		this.containerQueue = new PIXI.Container();
 		this.startScreenContainer.x = this.width / 2
 		this.startScreenContainer.y = this.height / 2
 
@@ -253,7 +253,7 @@ export default class TetraScreen extends Screen {
 
 		this.endGameScreenContainer.addEvents();
 
-		this.bottomUIContainer.addChild(this.cardQueueContainer)
+		this.bottomUIContainer.addChild(this.containerQueue)
 
 
 		this.UIContainer.addChild(this.mainMenuContainer)
@@ -396,8 +396,7 @@ export default class TetraScreen extends Screen {
 	hideInGameElements() {
 		TweenLite.killTweensOf(this.cardsContainer);
 		TweenLite.killTweensOf(this.gridContainer);
-		// TweenLite.killTweensOf(this.cardQueueContainer);
-		// TweenLite.to(this.cardQueueContainer, 0.25, { alpha: 0 })
+		
 		TweenLite.to(this.cardsContainer, 0.5, { alpha: 0 })
 		TweenLite.to(this.gridContainer, 0.5, { alpha: 0 })
 
@@ -414,8 +413,7 @@ export default class TetraScreen extends Screen {
 	showInGameElements() {
 		TweenLite.killTweensOf(this.cardsContainer);
 		TweenLite.killTweensOf(this.gridContainer);
-		// TweenLite.killTweensOf(this.cardQueueContainer);
-		// TweenLite.to(this.cardQueueContainer, 0.1, { alpha: 1 })
+		
 		TweenLite.to(this.cardsContainer, 0.1, { alpha: 1 })
 		TweenLite.to(this.gridContainer, 0.1, { alpha: 0.5 })
 		if (this.currentCard) {
@@ -485,7 +483,7 @@ export default class TetraScreen extends Screen {
 
 		this.bottomUICanvas = new PIXI.Graphics().beginFill(0x0000FF).drawRect(0, 0, 1, 1);
 		this.bottomUIContainer.addChild(this.bottomUICanvas);
-		this.bottomUICanvas.alpha = 0.1
+		//this.bottomUICanvas.alpha = 0.1
 
 
 		this.addChild(this.gameContainer);
@@ -662,7 +660,7 @@ export default class TetraScreen extends Screen {
 			card.updateSprite(card.life);
 			card.type = 0;
 			card.x = 0;
-			this.cardQueueContainer.addChild(card);
+			this.containerQueue.addChild(card);
 			this.cardQueue.push(card);
 			card.setOnQueue();
 		}
@@ -689,7 +687,7 @@ export default class TetraScreen extends Screen {
 		this.currentCard.updateCard(true);
 		this.cardsContainer.addChild(this.currentCard);
 
-		let globalQueue = this.toGlobal(this.cardQueueContainer)
+		let globalQueue = this.toGlobal(this.containerQueue)
 		let localQueue = this.cardsContainer.toLocal(globalQueue)
 		this.currentCard.x = CARD.width * GRID.i//- this.cardsContainer.x//CARD.width/2 - this.currentCard.width / 2;
 	}
@@ -774,6 +772,13 @@ export default class TetraScreen extends Screen {
 
 		this.bottomUIContainer.x = this.gameCanvas.x
 		this.bottomUIContainer.y  = utils.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height,  0.2)
+// console.log(this.containerQueue.parent, this.containerQueue.visible)
+
+// this.containerQueue.x = 0
+// this.containerQueue.y = 0
+// if(this.containerQueue.parent != this.topUIContainer){
+// 	this.topUIContainer.addChild(this.containerQueue)
+// }
 
 		this.updateLabelsPosition()
 		this.updateUI();
@@ -930,14 +935,15 @@ export default class TetraScreen extends Screen {
 
 		utils.scaleSize(this.gameCanvas, innerResolution, this.ratio)
 
-		this.resizeToFitAR({width:this.bottomUICanvas.width * 0.8, height:this.bottomUICanvas.height * 0.4},this.cardQueueContainer)
+		//this.resizeToFitAR({width:this.bottomUICanvas.width * 0.8, height:this.bottomUICanvas.height * 0.4},this.containerQueue)
 		this.resizeToFitAR({width:this.gameCanvas.width * 0.8, height:this.gameCanvas.height * 0.75},this.gridContainer)
 		this.resizeToFit({width:this.gameCanvas.width, height:this.gameCanvas.height * 0.1},this.topCanvas)
 		this.resizeToFit({width:this.gameCanvas.width, height:this.gameCanvas.height * 0.125},this.bottomUICanvas)
 		
-		this.cardQueueContainer.x = 20;
-		this.cardQueueContainer.y = this.bottomUICanvas.height * 0.5
+		this.containerQueue.x = 20;
+		this.containerQueue.y = this.bottomUICanvas.height * 0.5
 
+		this.containerQueue.scale.set(this.bottomUICanvas.height / CARD.height * 0.4)
 		//console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height)
 		
 		this.cardsContainer.scale.x = (this.gridContainer.scale.x)
@@ -962,6 +968,8 @@ export default class TetraScreen extends Screen {
 			this.currentCard.y = (this.gridContainer.height / this.gridContainer.scale.y) + 10;
 		}
 
+		utils.centerObject(this.startScreenContainer, this)
+		this.startScreenContainer.scale.set(this.ratio)
 		this.updateLabelsPosition();
 		//this.gameContainer.scale.set(window.ratio)
 

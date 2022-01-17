@@ -74,14 +74,14 @@ export default class StartScreenContainer extends PIXI.Container{
 
 		this.resetLabel.rotation = -Math.PI * 0.25
 
-		this.resetLabel.x = - 80
-		this.resetLabel.y = - 240
+		this.resetLabel.x = 0
+		this.resetLabel.y = - 290
 
 		this.playLabel = new PIXI.Text("PLAY", { font: '60px', fill: 0x000000, align: 'center', fontWeight: '800', fontFamily:'round_popregular'  });
 		this.screenContainer.addChild(this.playLabel);
 		this.playLabel.rotation = Math.PI * -0.25;
-		this.playLabel.x = -config.width / 2 + 80
-		this.playLabel.y = config.height / 2 - 170
+		this.playLabel.x = -config.width / 2 + 80 + Math.cos(this.playLabel.rotation) * 200
+		this.playLabel.y = config.height / 2 - 170 + Math.sin(this.playLabel.rotation) * 200
 
 
 		this.playLine.on('mousedown', this.resetGame.bind(this)).on('touchstart', this.resetGame.bind(this));
@@ -113,6 +113,7 @@ export default class StartScreenContainer extends PIXI.Container{
 
 		this.levelSelectionContainer.x = config.width;
 		this.levelSelectionContainer.y = -this.y;
+		this.levelSelectionContainer.visible = false;
 	}
 	getRect(size = 4, color = 0xFFFFFF){
 		return new PIXI.Graphics().beginFill(color).drawRect(0,0,size,size);
@@ -158,6 +159,7 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.backButton.interactive = true;
 
 		this.chooseLevelPanel.visible = true;
+		this.levelSelectionContainer.visible = true;
 		this.levelSelectionContainer.y = -this.y;
 	}
 	startState(delay = 1, force = false){
@@ -167,7 +169,10 @@ export default class StartScreenContainer extends PIXI.Container{
 		this.backButton.interactive = false;
 		
 		TweenLite.to(this.screenContainer,force?0: 0.75, {delay:delay, alpha: 1,y: 0, x:0,rotation:0, ease: Cubic.easeOut })
-		TweenLite.to(this.levelSelectionContainer, force?0:0.5, {delay:delay, alpha: 1, x:config.width,rotation:0, ease: Cubic.easeOut })
+		TweenLite.to(this.levelSelectionContainer, force?0:0.5, {delay:delay, alpha: 1, x:config.width,rotation:0, ease: Cubic.easeOut, onComplete:()=>{
+			this.levelSelectionContainer.visible = false;
+
+		} })
 
 		this.levelSelectionContainer.y = -this.y;
 	}
