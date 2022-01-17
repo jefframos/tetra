@@ -485,7 +485,7 @@ export default class TetraScreen extends Screen {
 
 		this.bottomUICanvas = new PIXI.Graphics().beginFill(0x0000FF).drawRect(0, 0, 1, 1);
 		this.bottomUIContainer.addChild(this.bottomUICanvas);
-		this.bottomUICanvas.alpha = 0
+		this.bottomUICanvas.alpha = 0.1
 
 
 		this.addChild(this.gameContainer);
