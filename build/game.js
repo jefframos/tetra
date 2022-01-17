@@ -58816,8 +58816,6 @@
 				this.levelNameLabel.x = this.pointsLabel.x + nameLevelSize.width / 2 - this.levelNameLabel.width / 2; // this.levelNameLabel.scale.x
 				this.levelNameLabel.y = this.pointsLabel.y + 20;
 				this.resizeToFitAR(nameLevelSize, this.levelNameLabel);
-	
-				this.cardQueueContainer;
 			}
 		}, {
 			key: 'hideInGameElements',
@@ -59286,12 +59284,12 @@
 				} else {
 					this.mousePosition = renderer.plugins.interaction.mouse.global;
 				}
-				if (this.mousePosition.y < _config2.default.height * 0.1) {
+				console.log(this.topUIContainer.position.y, this.topUIContainer.position + _config2.default.height * 0.1);
+				if (this.mousePosition.y < this.topUIContainer.position.y + _config2.default.height * 0.1) {
 					return;
 				}
 	
 				this.updateMousePosition();
-				//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 				if (!this.board.isPossibleShot(this.mousePosID)) {
 					return;
 				}
@@ -59380,7 +59378,9 @@
 				this.resizeToFit({ width: this.gameCanvas.width, height: this.gameCanvas.height * 0.125 }, this.bottomUICanvas);
 	
 				this.cardQueueContainer.x = 20;
-				this.cardQueueContainer.y = this.bottomUICanvas.height - CARD.height;
+				this.cardQueueContainer.y = this.bottomUICanvas.height * 0.5;
+	
+				console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height);
 	
 				this.cardsContainer.scale.x = this.gridContainer.scale.x;
 				this.cardsContainer.scale.y = this.gridContainer.scale.y;

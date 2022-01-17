@@ -390,7 +390,6 @@ export default class TetraScreen extends Screen {
 		this.levelNameLabel.y = this.pointsLabel.y + 20
 		this.resizeToFitAR(nameLevelSize,this.levelNameLabel)
 
-		this.cardQueueContainer
 		
 
 	}
@@ -774,9 +773,7 @@ export default class TetraScreen extends Screen {
 		this.topUIContainer.y = utils.lerp(this.topUIContainer.y, this.gameCanvas.y,  0.2)
 
 		this.bottomUIContainer.x = this.gameCanvas.x
-		this.bottomUIContainer.y = utils.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height,  0.2)
-		
-
+		this.bottomUIContainer.y  = utils.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height,  0.2)
 
 		this.updateLabelsPosition()
 		this.updateUI();
@@ -849,12 +846,12 @@ export default class TetraScreen extends Screen {
 			this.mousePosition = renderer.plugins.interaction.mouse.global
 
 		}
-		if (this.mousePosition.y < config.height * 0.1) {
+		console.log(this.topUIContainer.position.y, this.topUIContainer.position + config.height * 0.1)
+		if (this.mousePosition.y < this.topUIContainer.position.y + config.height * 0.1) {
 			return;
 		}
 
 		this.updateMousePosition();
-		//console.log(renderer.plugins.interaction.activeInteractionData[0].global);
 		if (!this.board.isPossibleShot(this.mousePosID)) {
 			return;
 		}
@@ -939,7 +936,9 @@ export default class TetraScreen extends Screen {
 		this.resizeToFit({width:this.gameCanvas.width, height:this.gameCanvas.height * 0.125},this.bottomUICanvas)
 		
 		this.cardQueueContainer.x = 20;
-		this.cardQueueContainer.y = this.bottomUICanvas.height - CARD.height
+		this.cardQueueContainer.y = this.bottomUICanvas.height * 0.5
+
+		console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height)
 		
 		this.cardsContainer.scale.x = (this.gridContainer.scale.x)
 		this.cardsContainer.scale.y = (this.gridContainer.scale.y)
