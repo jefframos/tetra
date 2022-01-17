@@ -59380,7 +59380,7 @@
 				this.cardQueueContainer.x = 20;
 				this.cardQueueContainer.y = this.bottomUICanvas.height * 0.5;
 	
-				console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height);
+				//console.log(this.bottomUICanvas.scale.y, this.bottomUICanvas.height)
 	
 				this.cardsContainer.scale.x = this.gridContainer.scale.x;
 				this.cardsContainer.scale.y = this.gridContainer.scale.y;
