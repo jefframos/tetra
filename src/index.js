@@ -70,9 +70,27 @@ window.shuffleText = function shuffleText(label, keepfirstandlast = false) {
 	return returnLabel
 }
 
+window.IMAGE_DATA = {}
+
+window.IMAGE_DATA.enemyBlockImages = ['./assets/images/newEnemies/block.png']
+
+window.IMAGE_DATA.enemyImages = []
+
+for (let index = 0; index < 9; index++) {
+	window.IMAGE_DATA.enemyImages.push('./assets/images/newEnemies/pixil-layer-'+index+'.png');
+	
+}
+window.IMAGE_DATA.enemyBlockImages.forEach(element => {
+	PIXI.loader.add(element)
+});
+window.IMAGE_DATA.enemyImages.forEach(element => {
+	PIXI.loader.add(element)
+});
+
 PIXI.loader
 	.add('./assets/fonts/stylesheet.css')
 	.add('./assets/images/tvlines.png')
+	.add('./assets/images/backLabel.png')
 	.add('./assets/levels.json')
 	.add('./assets/levelsRaw.json')
 	.add('./assets/images/cancel.png')

@@ -1,9 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="12" tilewidth="64" tileheight="64" infinite="0" nextlayerid="9" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="12" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="1">
  <editorsettings>
   <export target="../assets/levelsRaw.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="spadersTileset.tsx"/>
+ <layer id="9" name="Tetris" width="9" height="12">
+  <properties>
+   <property name="i" type="int" value="7"/>
+   <property name="j" type="int" value="5"/>
+   <property name="tier" type="int" value="0"/>
+  </properties>
+  <data encoding="csv">
+0,0,1,1,1,0,0,0,0,
+0,0,0,1,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="10" name="ET" width="9" height="12">
+  <properties>
+   <property name="i" type="int" value="7"/>
+   <property name="j" type="int" value="12"/>
+   <property name="tier" type="int" value="0"/>
+  </properties>
+  <data encoding="csv">
+4,4,4,4,4,4,0,0,0,
+4,10,4,4,4,4,4,0,0,
+4,4,4,4,4,4,4,0,0,
+4,4,0,0,4,4,4,0,0,
+0,0,0,0,4,4,4,0,0,
+0,0,0,4,4,4,4,0,0,
+4,4,4,4,4,4,4,0,0,
+4,0,4,4,4,4,4,0,0,
+0,0,4,4,4,4,4,0,0,
+0,4,4,0,4,0,4,0,0,
+4,4,4,0,0,4,4,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
  <layer id="6" name="Rainbow" width="9" height="12">
   <properties>
    <property name="i" type="int" value="7"/>
@@ -25,7 +67,7 @@
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="3" name="Tutorial" width="9" height="12">
+ <layer id="3" name="Invader" width="9" height="12">
   <properties>
    <property name="i" type="int" value="6"/>
    <property name="j" type="int" value="10"/>
@@ -40,27 +82,6 @@
 4,0,3,3,0,4,0,0,0,
 4,0,2,2,0,4,0,0,0,
 0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0
-</data>
- </layer>
- <layer id="1" name="Test 1" width="9" height="12">
-  <properties>
-   <property name="i" type="int" value="8"/>
-   <property name="j" type="int" value="12"/>
-   <property name="tier" type="int" value="1"/>
-  </properties>
-  <data encoding="csv">
-9,0,0,0,0,8,8,0,0,
-0,0,0,0,0,8,8,0,0,
-1,1,9,1,0,0,0,0,0,
-1,1,1,1,10,0,0,0,0,
-1,1,1,1,9,0,0,0,0,
-0,2,2,2,2,0,0,0,0,
-0,2,2,2,2,1,9,0,0,
-0,1,1,1,1,1,0,0,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,

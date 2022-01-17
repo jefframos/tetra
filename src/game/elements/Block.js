@@ -18,7 +18,7 @@ export default class Card extends PIXI.Container{
 		// this.sprite.width = CARD.width;
 		// this.sprite.height = CARD.height;
 
-		this.sprite = PIXI.Sprite.fromImage('./assets/images/enemy.png');
+		this.sprite = PIXI.Sprite.fromImage(window.IMAGE_DATA.enemyBlockImages[0]);
 
 		this.sprite.scale.set(CARD.width / this.sprite.width * 0.6)
 		this.sprite.tint = 0x333333;

@@ -99,11 +99,13 @@ export default class Game {
 
 		//document.head.appendChild(newFont);
 		this.updateRes();
+
+		let targetRes = !window.isMobile ? 3 : Math.min(window.devicePixelRatio, 2)
 		this.app = new PIXI.Application(
 			{
 				width: this.desktopResolution.width,
 				height: this.desktopResolution.height,
-				resolution: Math.min(window.devicePixelRatio, 2),
+				resolution: targetRes,
 				autoResize: false,
 				backgroundColor: 0xFFFFFF,
 			}

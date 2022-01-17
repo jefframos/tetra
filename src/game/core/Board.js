@@ -161,7 +161,7 @@ export default class Board {
 					cardGlobal.x += CARD.width / 2;
 					cardGlobal.y += CARD.height / 2;
 					this.game.addPoints(30);
-					this.popLabel(cardGlobal, "+" + 10 * 3, 0, 0.1, 1.25);
+					this.popLabel(this.game.toLocal(cardGlobal), "+" + 10 * 3, 0, 0.1, 1.25);
 					//cardsToDestroy.push({cardFound:cardFound, currentCard: card, attackZone:zones[i]});
 					this.attackCard(cardFound, 1);
 					cardFound = null;
@@ -234,7 +234,7 @@ export default class Board {
 					}
 					window.EFFECTS.addShockwave(screenPos.x, screenPos.y, 2);
 					this.game.addPoints(10 * id);
-					this.popLabel(arrowGlobal, "+" + 10 * id, 0, 1, 1 + id * 0.15);
+					this.popLabel(this.game.toLocal(arrowGlobal), "+" + 10 * id, 0, 1, 1 + id * 0.15);
 					window.EFFECTS.shakeSplitter(0.2, 3, 0.5);
 				}.bind(this),
 				onCompleteParams: [card, list[i].cardFound],
@@ -245,7 +245,7 @@ export default class Board {
 						arrowGlobal2.y += 30;
 						if (cardFound.crazyMood) {
 							this.game.addPoints(100);
-							this.popLabel(arrowGlobal2, "+" + 100, 0.45, 0, 2, 0xE2C756, Elastic.easeOut);
+							this.popLabel(this.game.toLocal(arrowGlobal2), "+" + 100, 0.45, 0, 2, 0xE2C756, Elastic.easeOut);
 							this.areaAttack(cardFound, card);
 						}
 						
@@ -276,7 +276,7 @@ export default class Board {
 				let counterHits = (list.length + 1);
 				this.game.addPoints(10 * counterHits);
 
-				this.popLabel(arrowGlobal, "+" + 10 * counterHits + "\nCOUNTER", 0.2, 0, 1 + counterHits * 0.1, 0xD81639);
+				this.popLabel(this.game.toLocal(arrowGlobal), "+" + 10 * counterHits + "\nCOUNTER", 0.2, 0, 1 + counterHits * 0.1, 0xD81639);
 				// this.popLabel(arrowGlobal,10 * counterHits , 0.1, -0.5, 1 + counterHits * 0.15);
 				
 
@@ -290,7 +290,7 @@ export default class Board {
 	}
 	popLabel(pos, label, delay = 0, dir = 1, scale = 1, color = 0xFFFFFF, ease = Back.easeOut) {
 		//console.log(pos.x, pos.y);
-		let tempLabel = new PIXI.Text(label, { font: '20px', fill: color, align: 'center', fontWeight: '800' });
+		let tempLabel = new PIXI.Text(label, { font: '20px', fill: color, align: 'center', fontFamily:'round_popregular' });
 		this.game.addChild(tempLabel);
 		tempLabel.x = pos.x;
 		tempLabel.y = pos.y;

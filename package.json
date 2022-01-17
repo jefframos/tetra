@@ -26,6 +26,7 @@
     "webpack": "^1.12.9"
   },
   "dependencies": {
-    "pixi-filters": "^2.5.1"
+    "pixi-filters": "^2.5.1",
+    "signals": "^1.0.0"
   }
 }

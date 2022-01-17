@@ -10,3 +10,12 @@
     font-style: normal;
 
 }
+
+@font-face {
+    font-family: 'press_start';
+    src: url('newFonts/pressstart2p-webfont.woff2') format('woff2'),
+         url('newFonts/pressstart2p-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}

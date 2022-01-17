@@ -18,17 +18,17 @@ export default class Grid extends PIXI.Container{
 		gridContainer.addChild(gridBackground)
 
 		for (var i = GRID.i; i >= 0; i--) {
-			let line = new PIXI.Graphics().beginFill(0x999999).drawRect(0,0,1, GRID.height);
+			let line = new PIXI.Graphics().beginFill(0x999999).drawRect(-1,0,2, GRID.height);
 			line.x = i * CARD.width;
 			gridContainer.addChild(line)
 		}
 
 		for (var j = GRID.j; j >= 0; j--) {
-			let line = new PIXI.Graphics().beginFill(0x999999).drawRect(0,0,GRID.width, 1);
+			let line = new PIXI.Graphics().beginFill(0x999999).drawRect(0,-1,GRID.width, 2);
 			line.y = j * CARD.height;
 			gridContainer.addChild(line)
 		}
-		gridContainer.alpha = 0.7;
+		gridContainer.alpha = 1
 
 		this.addChild(gridContainer);
 	}

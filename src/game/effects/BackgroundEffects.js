@@ -51,7 +51,7 @@ export default class BackgroundEffects extends PIXI.Container {
 
 		window.CURRENT_SKYCOLOR = null;
 
-		this.background = new PIXI.Graphics().beginFill(0x121212).drawRect(0, 0, config.width, config.height);
+		this.background = new PIXI.Graphics().beginFill(0x151515).drawRect(0, 0, config.width, config.height);
 		this.addChild(this.background);
 
 		// this.debugs = new PIXI.Graphics().beginFill(0xFF00FF).drawCircle(0, 0, 20);

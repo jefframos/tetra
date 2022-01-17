@@ -182,15 +182,15 @@ export default class TetraScreen extends Screen {
 		return container;
 	}
 	buildUI() {
-		this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
-		this.roundsLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
-		this.entitiesLabel = new PIXI.Text(0, { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.pointsLabel = new PIXI.Text(this.currentPoints, { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.roundsLabel = new PIXI.Text(0, { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.entitiesLabel = new PIXI.Text(0, { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
 
-		this.pointsLabelStatic = new PIXI.Text("POINTS", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
-		this.roundsLabelStatic = new PIXI.Text("MOVES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
-		this.entitiesLabelStatic = new PIXI.Text("ENTITIES", { font: '20px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.pointsLabelStatic = new PIXI.Text("POINTS", { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.roundsLabelStatic = new PIXI.Text("MOVES", { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
+		this.entitiesLabelStatic = new PIXI.Text("ENTITIES", { font: '24px', fill: 0xFFFFFF, align: 'right', fontWeight: '500', fontFamily: 'round_popregular' });
 
-		this.levelNameLabel = new PIXI.Text("name", { font: '30px', fill: 0xFFFFFF, align: 'right', fontWeight: '800', fontFamily: 'round_popregular' });
+		this.levelNameLabel = new PIXI.Text("name", { font: '30px', fill: 0xFFFFFF, align: 'center', fontWeight: '800', fontFamily: 'round_popregular' });
 
 
 
@@ -207,29 +207,29 @@ export default class TetraScreen extends Screen {
 		this.endGameScreenContainer = new EndGameContainer(this);
 		this.mainMenuContainer.addChild(this.endGameScreenContainer)
 
-		this.backButton = new PIXI.Graphics().beginFill(config.colors.pink).drawCircle(0, 0, 20);
+		this.backButton = new PIXI.Graphics().beginFill(config.colors.pink).drawCircle(20, 20, 20);
 		let backIcon = PIXI.Sprite.fromImage('./assets/images/cancel.png');
 		backIcon.tint = 0x000000;
 		let sclb = this.backButton.height / backIcon.height;
 		sclb *= 0.9;
-		backIcon.anchor = { x: 0.5, y: 0.5 }
+		//backIcon.anchor = { x: 0.5, y: 0.5 }
 		backIcon.scale = { x: sclb, y: sclb }
-		//utils.centerObject(backIcon, this.backButton);
+		utils.centerObject(backIcon, this.backButton);
 		this.backButton.addChild(backIcon);
 
 
-		this.restartButton = new PIXI.Graphics().beginFill(config.colors.yellow).drawCircle(0, 0, 20);
+		this.restartButton = new PIXI.Graphics().beginFill(config.colors.yellow).drawCircle(20, 20, 20);
 
 		let restartIcon = PIXI.Sprite.fromImage('./assets/images/cycle.png');
 		restartIcon.tint = 0x000000;
 		let scl = this.restartButton.height / restartIcon.height;
 		scl *= 0.9;
-		restartIcon.anchor = { x: 0.5, y: 0.5 }
+		//restartIcon.anchor = { x: 0.5, y: 0.5 }
 		restartIcon.scale = { x: scl, y: scl }
-		//utils.centerObject(restartIcon, this.restartButton);
+		utils.centerObject(restartIcon, this.restartButton);
 		this.restartButton.addChild(restartIcon);
 
-		this.UIContainer.addChild(this.UIInGame)
+		this.topUIContainer.addChild(this.UIInGame)
 		this.UIInGame.addChild(this.backButton)
 		this.UIInGame.addChild(this.restartButton)
 		this.UIInGame.addChild(this.pointsLabelStatic)
@@ -239,7 +239,7 @@ export default class TetraScreen extends Screen {
 		this.UIInGame.addChild(this.pointsLabel)
 		this.UIInGame.addChild(this.roundsLabel)
 		this.UIInGame.addChild(this.entitiesLabel)
-		this.UIInGame.y = -400;
+		//this.UIInGame.y = -400;
 
 		this.cardQueueContainer = new PIXI.Container();
 		this.startScreenContainer.x = this.width / 2
@@ -253,7 +253,7 @@ export default class TetraScreen extends Screen {
 
 		this.endGameScreenContainer.addEvents();
 
-		this.UIContainer.addChild(this.cardQueueContainer)
+		this.bottomUIContainer.addChild(this.cardQueueContainer)
 
 
 		this.UIContainer.addChild(this.mainMenuContainer)
@@ -262,26 +262,14 @@ export default class TetraScreen extends Screen {
 		//this.UIContainer.addChild();
 
 
-		this.backButton.y = 50;
-		this.backButton.x = config.width - this.backButton.width;
 
 		this.backButton.on('mousedown', this.mainmenuState.bind(this)).on('touchstart', this.mainmenuState.bind(this));
-		//this.addChild(this.generateImage(this.levels[2]))
-
 		this.backButton.interactive = true;
 		this.backButton.buttonMode = true;
 
-		this.restartButton.y = 100;
-		this.restartButton.x = config.width - this.restartButton.width;
-
-		this.updateLabelsPosition()
 		
-		//this.gridContainer.y + GRID.j * CARD.height - CARD.height * (this.cardQueueSize);
-
 
 		this.restartButton.on('mousedown', this.resetGame.bind(this)).on('touchstart', this.resetGame.bind(this));
-		//this.addChild(this.generateImage(this.levels[2]))
-
 		this.restartButton.interactive = true;
 		this.restartButton.buttonMode = true;
 
@@ -315,59 +303,106 @@ export default class TetraScreen extends Screen {
 	}
 	updateLabelsPosition() {
 
-		this.backButton.x = this.backgroundGameShape.x + this.backgroundGameShape.width - this.backButton.width;
-		this.backButton.y = this.backgroundGameShape.y + this.backButton.height;
 
-		this.restartButton.y = this.backButton.y + 70;
-		this.restartButton.x = this.backButton.x;
+		let tempList = [this.backButton,this.restartButton,this.levelNameLabel,this.pointsLabelStatic,this.roundsLabelStatic,this.entitiesLabelStatic];
 
-		this.entitiesLabelStatic.x = this.backButton.x - this.backButton.width - this.entitiesLabelStatic.width - 30
-		this.entitiesLabelStatic.y = this.backButton.y - this.backButton.height / 2;;
+		this.backButton.margin = 5
+		this.backButton.customLength = 0.15
+		this.restartButton.margin = 5
+		this.restartButton.customLength = 0.15
+		//this.levelNameLabel.margin = 10
+		this.levelNameLabel.customLength = 0.3
+		//this.levelNameLabel.debug = false
+		this.levelNameLabel.text = ""//this.currentLevelData.levelName
 
+		let scales = []
+		tempList.forEach(element => {
+			if(element.customLength){
+				scales.push(element.customLength);
+			}else{
+				scales.push(1 / tempList.length)
+			}
+		});
+		let margin = 10;
+		let length = config.width * scales[0] - margin * 2;
+		let nextPosition = 0;
+		let doDebug = false;
+		
+		let lastScale = config.width * scales[5] - margin * 2;
+		let labelsScale = lastScale / this.entitiesLabelStatic.width* this.entitiesLabelStatic.scale.x
+		this.entitiesLabelStatic.scale.set(labelsScale)
+		this.pointsLabelStatic.scale.set(labelsScale)
+		this.roundsLabelStatic.scale.set(labelsScale)
+
+
+		for (let index = 0; index < tempList.length; index++) {
+			length = config.width * scales[index] - margin * 2;
+			//console.log(length)
+			
+			const element = tempList[index];
+			element.x = nextPosition; //+ length*0.5
+			if(doDebug && !element.debugShape){
+				//element.debugShape = new PIXI.Graphics().beginFill(0x005566).drawRect(-length/2, -this.topCanvas.height / 2, length, this.topCanvas.height);
+				element.debugShape = new PIXI.Graphics().beginFill(0xFFFFFF*Math.random()).drawRect(0,0, length, element.height);
+				if(element.parent){
+					element.parent.addChild(element.debugShape);
+				}
+				element.debugShape.alpha = 0.8
+				element.debugShape.x = element.x
+			}
+			if(element.margin){
+				let scl = (length - element.margin * 2) / (element.width / element.scale.x)
+				element.scale.set(scl)
+				element.x += element.margin
+				if(element.debug){
+					console.log(element.width, length)
+				}
+			}
+			nextPosition += length
+		}
+
+
+		this.entitiesLabel.scale = this.entitiesLabelStatic.scale;
 		this.entitiesLabel.x = this.entitiesLabelStatic.x;
 		this.entitiesLabel.y = this.entitiesLabelStatic.y + 20;
-
-
-		this.roundsLabelStatic.x = this.entitiesLabelStatic.x - 120;
-		this.roundsLabelStatic.y = this.entitiesLabelStatic.y;
-
+		
+		this.roundsLabel.scale = this.roundsLabelStatic.scale;
 		this.roundsLabel.x = this.roundsLabelStatic.x;
 		this.roundsLabel.y = this.roundsLabelStatic.y + 20;
-
-		this.pointsLabelStatic.x = this.roundsLabelStatic.x - 120;;
-		this.pointsLabelStatic.y = this.entitiesLabelStatic.y;
-
+		
+		
+		this.pointsLabel.scale = this.pointsLabelStatic.scale;
 		this.pointsLabel.x = this.pointsLabelStatic.x;
 		this.pointsLabel.y = this.pointsLabelStatic.y + 20;
 
-
-		let tempid = this.currentLevelID >= 0 ? this.currentLevelID : 0
-
+		this.resizeToFitAR({width:this.topCanvas.width * 0.8, height: this.topCanvas.height},this.UIInGame)
+		
+		this.levelNameLabel.y = this.pointsLabel.y
+		this.UIInGame.y = this.topCanvas.height / 2 - this.UIInGame.height / 2
+		utils.centerObject(this.UIInGame, this.topCanvas)
+		
 		this.levelNameLabel.text = this.currentLevelData.levelName
-		utils.centerObject(this.levelNameLabel, config)
-		this.levelNameLabel.y = this.roundsLabel.y - 300005
 
-		this.cardQueueContainer.x = this.restartButton.x - CARD.width / 2//this.gridContainer.x + this.gridContainer.width + 5;
-		this.cardQueueContainer.y = this.restartButton.y
+		let nameLevelSize = {width:this.entitiesLabelStatic.x - this.pointsLabel.x, height: 40}
+		nameLevelSize.width += this.entitiesLabelStatic.width
 
-		this.UIContainer.pivot.x = this.backButton.x
-		this.UIContainer.pivot.y = this.backButton.y
+		this.levelNameLabel.x = this.pointsLabel.x + nameLevelSize.width / 2 - this.levelNameLabel.width / 2 // this.levelNameLabel.scale.x
+		this.levelNameLabel.y = this.pointsLabel.y + 20
+		this.resizeToFitAR(nameLevelSize,this.levelNameLabel)
 
-		this.UIContainer.x = this.backButton.x
-		this.UIContainer.y = this.backButton.y
+		this.cardQueueContainer
+		
 
-		this.UIContainer.scale.set(this.gridContainer.scale.x)
 	}
 	hideInGameElements() {
 		TweenLite.killTweensOf(this.cardsContainer);
 		TweenLite.killTweensOf(this.gridContainer);
-		TweenLite.killTweensOf(this.cardQueueContainer);
-		TweenLite.to(this.cardQueueContainer, 0.25, { alpha: 0 })
+		// TweenLite.killTweensOf(this.cardQueueContainer);
+		// TweenLite.to(this.cardQueueContainer, 0.25, { alpha: 0 })
 		TweenLite.to(this.cardsContainer, 0.5, { alpha: 0 })
 		TweenLite.to(this.gridContainer, 0.5, { alpha: 0 })
 
-		TweenLite.killTweensOf(this.UIInGame);
-		TweenLite.to(this.UIInGame, 0.5, { y: -400 })
+	
 
 
 		if (this.currentCard) {
@@ -380,16 +415,14 @@ export default class TetraScreen extends Screen {
 	showInGameElements() {
 		TweenLite.killTweensOf(this.cardsContainer);
 		TweenLite.killTweensOf(this.gridContainer);
-		TweenLite.killTweensOf(this.cardQueueContainer);
-		TweenLite.to(this.cardQueueContainer, 0.1, { alpha: 1 })
+		// TweenLite.killTweensOf(this.cardQueueContainer);
+		// TweenLite.to(this.cardQueueContainer, 0.1, { alpha: 1 })
 		TweenLite.to(this.cardsContainer, 0.1, { alpha: 1 })
 		TweenLite.to(this.gridContainer, 0.1, { alpha: 0.5 })
 		if (this.currentCard) {
 			TweenLite.killTweensOf(this.currentCard);
 			TweenLite.to(this.currentCard, 0.1, { alpha: 1 })
 		}
-		TweenLite.killTweensOf(this.UIInGame);
-		TweenLite.to(this.UIInGame, 0.5, { y: 0, ease: Back.easeOut })
 
 	}
 	mainmenuState(force = false) {
@@ -444,6 +477,17 @@ export default class TetraScreen extends Screen {
 		this.gridContainer = new PIXI.Container();
 		this.cardsContainer = new PIXI.Container();
 		this.UIContainer = new PIXI.Container();
+		this.topUIContainer = new PIXI.Container();
+		this.bottomUIContainer = new PIXI.Container();
+
+		this.topCanvas = new PIXI.Graphics().beginFill(0xFF00FF).drawRect(0, 0, 1, 1);
+		this.topUIContainer.addChild(this.topCanvas);
+		this.topCanvas.alpha = 0
+
+		this.bottomUICanvas = new PIXI.Graphics().beginFill(0x0000FF).drawRect(0, 0, 1, 1);
+		this.bottomUIContainer.addChild(this.bottomUICanvas);
+		this.bottomUICanvas.alpha = 0
+
 
 		this.addChild(this.gameContainer);
 
@@ -451,10 +495,15 @@ export default class TetraScreen extends Screen {
 		this.gameContainer.addChild(this.gridContainer);
 		this.gameContainer.addChild(this.cardsContainer);
 		this.gameContainer.addChild(this.UIContainer);
+		this.gameContainer.addChild(this.topUIContainer);
+		this.gameContainer.addChild(this.bottomUIContainer);
 
-		this.backgroundGameShape = new PIXI.Graphics().beginFill(0xFF0000).drawRect(0, 0, 1, 1);
-		this.addChild(this.backgroundGameShape);
-		this.backgroundGameShape.alpha = 0
+		this.bottomUIContainer.y  = config.height
+
+
+		this.gameCanvas = new PIXI.Graphics().beginFill(0xFF0000).drawRect(0, 0, 1, 1);
+		this.addChild(this.gameCanvas);
+		this.gameCanvas.alpha = 0
 
 
 		this.mousePosID = GRID.i / 2;
@@ -551,8 +600,8 @@ export default class TetraScreen extends Screen {
 		this.newRound();
 
 		TweenLite.to(this.cardsContainer, 0.1, { alpha: 1 })
-		TweenLite.to(this.gridContainer, 0.1, { alpha: 0.3 })
-		TweenLite.to(this.UIInGame, 0.75, { y: 0, ease: Cubic.easeOut, onComplete: () => { this.gameState() } })
+		TweenLite.to(this.gridContainer, 0.1, { alpha: 0.3, onComplete: () => { this.gameState() } })
+		//TweenLite.to(this.UIInGame, 0.75, { y: 0, ease: Cubic.easeOut, onComplete: () => { this.gameState() } })
 
 		this.startScreenContainer.hide();
 
@@ -611,18 +660,17 @@ export default class TetraScreen extends Screen {
 			// //console.log(1 - (this.currentRound % 3)*0.12);
 			card.life = Math.random() < 1 - (this.currentRound % 3) * 0.17 ? 0 : Math.random() < 0.5 ? 2 : 1;
 			card.createCard();
+			card.updateSprite(card.life);
 			card.type = 0;
 			card.x = 0;
 			this.cardQueueContainer.addChild(card);
 			this.cardQueue.push(card);
+			card.setOnQueue();
 		}
 		// for (var i = this.cardQueue.length - 1; i >= 0; i--) {
 		for (var i = 0; i < this.cardQueue.length; i++) {
-			let scl = (1 - ((i) / (this.cardQueue.length - 1))) * 0.2 + 0.7;
-			console.log(scl)
-			TweenLite.to(this.cardQueue[i], 0.3, { y: CARD.width * (this.cardQueue.length - i), ease: Back.easeOut })
-			this.cardQueue[i].scale.set(scl)
-			this.cardQueue[i].x = CARD.width / 2 - this.cardQueue[i].width / 2
+			TweenLite.to(this.cardQueue[i], 0.3, { x: CARD.width * (this.cardQueue.length - i - 1), ease: Back.easeOut })
+			this.cardQueue[i].y = 0
 			// this.cardQueue[i].y = ;
 		}
 
@@ -658,11 +706,15 @@ export default class TetraScreen extends Screen {
 		}
 		card.life = level;
 		card.createCard();
+		card.updateSprite(level);
 		card.x = i * CARD.width;
 		card.y = j * CARD.height - CARD.height;
 		// card.cardContainer.scale.set(1.2 - j * 0.05)
 		card.alpha = 0;
 		TweenLite.to(card, 0.5, { alpha: 1, delay: i * 0.05, y: j * CARD.height, ease: Back.easeOut })
+
+		card.show(0.5, i * 0.05 + 0.75)
+
 		card.pos.i = i;
 		card.pos.j = j;
 		card.updateCard();
@@ -673,28 +725,16 @@ export default class TetraScreen extends Screen {
 
 	placeBlock(i, j) {
 		let block;
-		// if(CARD_POOL.length){
-		// 	// //console.log(CARD_POOL);
-		// 	block = CARD_POOL[0];
-		// 	CARD_POOL.shift();
-		// }else{
-		// }
 		block = new Block(this);
-		// block.createCard();
 		block.x = i * CARD.width;
 		block.y = j * CARD.height - CARD.height;
-		// card.cardContainer.scale.set(1.2 - j * 0.05)
 		block.alpha = 0;
 		TweenLite.to(block, 0.5, { alpha: 1, delay: i * 0.05, y: j * CARD.height, ease: Back.easeOut })
 		block.pos.i = i;
 		block.pos.j = j;
-		// block.updateCard();
 		this.board.addCard(block);
-		// this.CARD_POOL.push(card);
 		return block;
 	}
-
-
 
 	update(delta) {
 
@@ -703,37 +743,44 @@ export default class TetraScreen extends Screen {
 		this.endGameScreenContainer.update(delta)
 
 		if (!this.gameRunning) {
+			this.topUIContainer.x = this.gameCanvas.x
+			this.topUIContainer.y = utils.lerp(this.topUIContainer.y, this.gameCanvas.y - 500,  0.2)
+			this.bottomUIContainer.x = this.gameCanvas.x			
+			this.bottomUIContainer.y  = utils.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height + 500,  0.2)
 			return;
 		}
 
 		////console.log(this.mousePosition)
-
-		this.updateUI();
-
+		
 		if (!this.board.newGameFinished && this.board.totalCards <= 0) {
 			this.endGameState();
 			this.gameRunning = false;
 			return;
 		}
-
+		
 		if (renderer.plugins.interaction.mouse.global) {
 			this.mousePosition = renderer.plugins.interaction.mouse.global;
-			//this.scaleMousePosition();
 		}
-		this.updateMousePosition();
 
-		//this.gridContainer.y = this.initGridY + Math.sin(this.initGridAcc) * 5;
-
-		// if (this.currentCard) {
-
-		// 	this.currentCard.y = this.gridContainer.height + Math.sin(this.initGridAcc) * 5 + 30;//+  this.gridContainer.height + 10;
-		// }
-
+		
 		this.initGridAcc += 0.05;
-
+		
 		if (this.board) {
 			this.board.update(delta);
+		
 		}
+
+		this.topUIContainer.x = this.gameCanvas.x
+		this.topUIContainer.y = utils.lerp(this.topUIContainer.y, this.gameCanvas.y,  0.2)
+
+		this.bottomUIContainer.x = this.gameCanvas.x
+		this.bottomUIContainer.y = utils.lerp(this.bottomUIContainer.y, this.gameCanvas.y + this.gameCanvas.height - this.bottomUICanvas.height,  0.2)
+		
+
+
+		this.updateLabelsPosition()
+		this.updateUI();
+		this.updateMousePosition();
 
 	}
 
@@ -742,29 +789,14 @@ export default class TetraScreen extends Screen {
 			return;
 		}
 
-		//this.debugs.x = this.gridContainer.x
-		//this.debugs2.y = this.debugs.y;
-		//this.debugs2.x = this.gridContainer.x + GRID.i * CARD.width
-		//console.log(this.toLocal(this.mousePosition))
-
-
 		let toLocalMouse = this.toLocal(this.mousePosition)
 		let toGrid = this.gridContainer.toLocal(this.mousePosition)
-		// this.debugs3.x = toGrid.x //* window.appScale.x
-		// this.debugs3.y = toGrid.y //* window.appScale.y
 		this.mousePosID = Math.floor((toGrid.x) / CARD.width );
-
-		
-		// let toLocalMouse = this.toLocal(this.mousePosition)
-		// let toGrid = this.gridContainer.toLocal(toLocalMouse)
-		// this.debugs3.x = toLocalMouse.x //* window.appScale.x
-		// this.debugs3.y = toLocalMouse.y //* window.appScale.y
-		// this.mousePosID = Math.floor((toLocalMouse.x) / CARD.width );
-
 
 		// this.trailMarker.alpha = 0;
 		if (this.mousePosID >= 0 && this.mousePosID < GRID.i) {
 			TweenLite.to(this.trailMarker, 0.1, { x: this.mousePosID * CARD.width });
+			this.trailMarker.tint = this.currentCard.enemySprite.tint
 			this.trailMarker.alpha = 0.15;
 			if (this.currentCard) {
 				if (this.mousePosID * CARD.width >= 0) {
@@ -817,7 +849,7 @@ export default class TetraScreen extends Screen {
 			this.mousePosition = renderer.plugins.interaction.mouse.global
 
 		}
-		if (this.mousePosition.y < this.gridContainer.y) {
+		if (this.mousePosition.y < config.height * 0.1) {
 			return;
 		}
 
@@ -878,53 +910,51 @@ export default class TetraScreen extends Screen {
 		this.endGameScreenContainer.addEvents();
 
 	}
+	resizeToFitAR(size, element){
+		let sclX = (size.width)  / (element.width / element.scale.x);
+		let sclY = (size.height)  / (element.height / element.scale.y);
+		let min = Math.min(sclX, sclY);
+		element.scale.set(min)
+	}
+	resizeToFit(size, element){
+		let sclX = (size.width)  / (element.width / element.scale.x);
+		let sclY = (size.height)  / (element.height / element.scale.y);
+		let min = Math.min(sclX, sclY);
+		element.scale.set(sclX, sclY)
+	}
 	resize(scaledResolution, innerResolution) {
 		//console.log(resolution, innerResolution)
 		let offset = this.toLocal(new PIXI.Point())
 		this.innerResolution = innerResolution;
 
-		
-
-
 		this.background.resize(scaledResolution, innerResolution)
 		this.ratio = config.width / config.height;
 
-		// if (innerResolution.width / innerResolution.width >= this.ratio) {
-		// 	//var w = window.innerHeight * this.ratio;
-		// 	var w = innerResolution.height * this.ratio;
-		// 	var h = innerResolution.height;
-		// } else {
-		// 	var w = innerResolution.width;
-		// 	var h = innerResolution.width / this.ratio;
-		// }
 
-		// this.backgroundGameShape.width = w;
-		// this.backgroundGameShape.height = h;
+		utils.scaleSize(this.gameCanvas, innerResolution, this.ratio)
 
-		utils.scaleSize(this.backgroundGameShape, innerResolution, this.ratio);
-
-		let sclX = (this.backgroundGameShape.width * 0.8)  / (this.gridContainer.width / this.gridContainer.scale.x);
-		let sclY = (this.backgroundGameShape.height * 0.75)  / (this.gridContainer.height / this.gridContainer.scale.y);
-		//utils.scaleSize(this.gridContainer, innerResolution, gridRatio);
-		let min = Math.min(sclX, sclY);
-		console.log(min, sclX, sclY)
-		this.gridContainer.scale.set(min)
-		//console.log(this.gridContainer.scale)
-
-
+		this.resizeToFitAR({width:this.bottomUICanvas.width * 0.8, height:this.bottomUICanvas.height * 0.4},this.cardQueueContainer)
+		this.resizeToFitAR({width:this.gameCanvas.width * 0.8, height:this.gameCanvas.height * 0.75},this.gridContainer)
+		this.resizeToFit({width:this.gameCanvas.width, height:this.gameCanvas.height * 0.1},this.topCanvas)
+		this.resizeToFit({width:this.gameCanvas.width, height:this.gameCanvas.height * 0.125},this.bottomUICanvas)
+		
+		this.cardQueueContainer.x = 20;
+		this.cardQueueContainer.y = this.bottomUICanvas.height - CARD.height
+		
 		this.cardsContainer.scale.x = (this.gridContainer.scale.x)
 		this.cardsContainer.scale.y = (this.gridContainer.scale.y)
-
-
-		this.backgroundGameShape.x = offset.x + innerResolution.width / 2 - this.backgroundGameShape.width/2//* window.appScale.x// (innerResolution.width / 2 * window.appScale.x)
-		this.backgroundGameShape.y = offset.y + innerResolution.height / 2 - this.backgroundGameShape.height/2
+		
+		
+		this.gameCanvas.x = offset.x + innerResolution.width / 2 - this.gameCanvas.width/2//* window.appScale.x// (innerResolution.width / 2 * window.appScale.x)
+		this.gameCanvas.y = offset.y + innerResolution.height / 2 - this.gameCanvas.height/2
 
 		this.background.x = innerResolution.width / 2 + offset.x//* window.appScale.x// (innerResolution.width / 2 * window.appScale.x)
 		this.background.y = innerResolution.height / 2 + offset.y// * window.appScale.y
-
-
-		this.gridContainer.x = this.backgroundGameShape.x +this.backgroundGameShape.width / 2 - (this.gridContainer.width ) / 2
-		this.gridContainer.y = this.backgroundGameShape.y + innerResolution.height * 0.1
+		
+		
+		this.gridContainer.x = this.gameCanvas.x +this.gameCanvas.width / 2 - (this.gridContainer.width ) / 2
+		this.gridContainer.y = this.gameCanvas.y + this.gameCanvas.height / 2 - this.gridContainer.height / 2 - 10//* 0.1125
+		//utils.centerObject(this.gridContainer, this.gameCanvas)
 
 		this.cardsContainer.x = this.gridContainer.x;
 		this.cardsContainer.y = this.gridContainer.y;
